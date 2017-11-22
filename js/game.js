@@ -1,6 +1,7 @@
 const StartMenu = require('./start_menu.js');
 const HumanPlayer = require('./player.js');
 const Path = require('./path.js');
+const EndMenu = require('./end_menu.js');
 
 class Game {
 
@@ -12,11 +13,13 @@ class Game {
     this.running = false;
 
     this.startMenu = new StartMenu(this.ctx);
+    this.endMenu = new EndMenu(this.ctx);
     this.players = [];
     this.paths = [];
 
-    this.draw = this.draw.bind(this);
+    this.drawGame = this.drawGame.bind(this);
     this.handleKeyPress = this.handleKeyPress.bind(this);
+    this.endGame = this.endGame.bind(this);
 
     this.addListeners();
   }
@@ -29,46 +32,68 @@ class Game {
     return this.players[1];
   }
 
-  start() {
+  startGame() {
     for (let i = 1; i > this.humanPlayerCount + 1; i++) {
-      this.players.push(new HumanPlayer(i));
+      this.players.push(new HumanPlayer(i, this.ctx));
       this.paths.push(new Path(i));
     }
-    window.setInterval(this.draw, 200);
+    this.startMenu.clearStartMenu();
+    this.running = true;
+    this.interval = window.setInterval(this.drawGame, 200);
   }
 
-  draw() {
+  drawGame() {
     // clear canvas
-    this.clear();
+    if (this.running === false) {
+      window.clearInterval(this.interval);
+    }
+    this.clearGame();
     this.players.forEach((player) => player.draw());
     // iterate over paths and draw paths
     // iterate over players and draw players
   }
 
-  clear() {
+  clearGame() {
     this.ctx.clearRect(0, 0, 900, 600);
   }
 
+  endGame() {
+    this.endMenu.start();
+  }
+
   addListeners() {
-    this.canvas.addEventListener("keypress", this.handleKeyPress);
+    document.addEventListener("keypress", this.handleKeyPress);
   }
 
   handleKeyPress(e) {
-
-    if (e.target === "") {
-      // if space && running === false, start game
-    } else if (e.target === "") {
-      // if P && running === true, pause game
-    } else if (e.target === "") {
-      // if 1 or 2 && running === false, update num players
-      // update start_menu;
-    } else if (e.target === "") {
-      // if a/s && player1 exists, player1.jump(a/s)
-    } else if (e.target === "") {
-      // if k/l, && player2 exists, player2.jump(k/l)
+    if (this.running === false) {
+      if (e.keyCode === 49 || e.keyCode === 50) {
+        this.startMenu.updateHumanPlayerCount(e.key);
+      }
+      else if (e.keyCode === 32) {
+        this.startGame();
+      }
+    }
+    else if (this.running === true) {
+      if (e.keyCode === 81) {
+        this.running = false;
+        this.endGame();
+      }
     }
   }
 
+  // if (e.target === "") {
+  //   // if space && running === false, start game
+  // } else if (e.target === "") {
+  //   // if P && running === true, pause game
+  // } else if (e.target === "") {
+  //   // if 1 or 2 && running === false, update num players
+  //   // update start_menu;
+  // } else if (e.target === "") {
+  //   // if a/s && player1 exists, player1.jump(a/s)
+  // } else if (e.target === "") {
+  //   // if k/l, && player2 exists, player2.jump(k/l)
+  // }
 }
 
 module.exports = Game;

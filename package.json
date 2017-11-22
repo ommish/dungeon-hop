@@ -11,6 +11,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "easytimer.js": "^2.0.0",
     "watchify": "^3.9.0"
   }
 }

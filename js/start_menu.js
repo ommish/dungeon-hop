@@ -12,7 +12,7 @@ class StartMenu {
   }
 
   start() {
-    this.interval = window.setInterval(this.draw, 200);
+    this.interval = window.setInterval(this.draw, 50);
   }
 
   clearStartMenu() {
@@ -42,7 +42,7 @@ class StartMenu {
   }
 
   playerOneRules() {
-    
+
   }
 
   clear() {

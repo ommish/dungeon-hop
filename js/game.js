@@ -11,6 +11,7 @@ class Game {
     this.difficulty = 1;
     this.humanPlayerCount = 1;
     this.running = false;
+    this.paused = false;
 
     this.startMenu = new StartMenu(this.ctx);
     this.endMenu = new EndMenu(this.ctx);
@@ -33,24 +34,36 @@ class Game {
   }
 
   startGame() {
-    for (let i = 1; i > this.humanPlayerCount + 1; i++) {
+    for (let i = 1; i <= this.humanPlayerCount; i++) {
       this.players.push(new HumanPlayer(i, this.ctx));
       this.paths.push(new Path(i));
     }
     this.startMenu.clearStartMenu();
     this.running = true;
-    this.interval = window.setInterval(this.drawGame, 200);
+    this.interval = window.setInterval(this.drawGame, 50);
   }
 
   drawGame() {
     // clear canvas
     if (this.running === false) {
       window.clearInterval(this.interval);
+      this.clearGame();
+    } else {
+      this.clearGame();
+      this.players.forEach((player) => {
+        player.drawPlayer();
+        player.drawTime();
+      }
+    );}
+  }
+
+  togglePause() {
+    if (this.paused === false) {
+      window.clearInterval(this.interval);
+    } else {
+      window.setInterval(this.drawGame, 50);
     }
-    this.clearGame();
-    this.players.forEach((player) => player.draw());
-    // iterate over paths and draw paths
-    // iterate over players and draw players
+    this.paused = !this.paused;
   }
 
   clearGame() {
@@ -67,28 +80,49 @@ class Game {
 
   handleKeyPress(e) {
     if (this.running === false) {
-      if (e.keyCode === 49 || e.keyCode === 50) {
-        this.startMenu.updateHumanPlayerCount(e.key);
-      }
-      else if (e.keyCode === 32) {
+      switch (e.keyCode) {
+        case 49:
+        this.humanPlayerCount = parseInt(e.key);
+        this.startMenu.updateHumanPlayerCount(this.humanPlayerCount);
+        return;
+        case 50:
+        this.humanPlayerCount = parseInt(e.key);
+        this.startMenu.updateHumanPlayerCount(this.humanPlayerCount);
+        return;
+        case 32:
         this.startGame();
+        return;
+        default:
+        return;
       }
-    }
-    else if (this.running === true) {
-      if (e.keyCode === 81) {
+    } else if (this.running === true && this.paused === false) {
+      switch (e.keyCode) {
+        case 81: // q
         this.running = false;
         this.endGame();
+        return;
+        case 32: // spacebar
+        this.togglePause();
+        return;
+        case 97:
+        this.playerOne().jump(1);
+        return;
+        case 115:
+        this.playerOne().jump(2);
+        return;
+        default:
+        return;
+      }
+    } else {
+      switch (e.keyCode) {
+        case 32: // spacebar
+        this.togglePause();
+        return;
       }
     }
   }
 
-  // if (e.target === "") {
-  //   // if space && running === false, start game
-  // } else if (e.target === "") {
-  //   // if P && running === true, pause game
-  // } else if (e.target === "") {
-  //   // if 1 or 2 && running === false, update num players
-  //   // update start_menu;
+
   // } else if (e.target === "") {
   //   // if a/s && player1 exists, player1.jump(a/s)
   // } else if (e.target === "") {

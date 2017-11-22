@@ -4,12 +4,21 @@ class HumanPlayer {
     this.ctx = ctx;
   }
 
-  draw() {
+  drawPlayer() {
     this.ctx.beginPath();
     this.ctx.lineWidth="6";
     this.ctx.strokeStyle="red";
     this.ctx.rect(100,100,300,300);
     this.ctx.stroke();
+  }
+
+  drawTime() {
+  }
+
+
+
+  jump(spaces) {
+    console.log(`I'm jumping ${spaces} spaces!`);
   }
 }
 

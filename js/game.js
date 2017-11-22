@@ -60,8 +60,14 @@ class Game {
   togglePause() {
     if (this.paused === false) {
       window.clearInterval(this.interval);
+      this.players.forEach((player) => {
+        player.timer.pause();
+      });
     } else {
       window.setInterval(this.drawGame, 50);
+      this.players.forEach((player) => {
+        player.timer.start();
+      });
     }
     this.paused = !this.paused;
   }
@@ -121,7 +127,6 @@ class Game {
       }
     }
   }
-
 
   // } else if (e.target === "") {
   //   // if a/s && player1 exists, player1.jump(a/s)

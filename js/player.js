@@ -1,7 +1,11 @@
+const Timer = require('../node_modules/easytimer.js/dist/easytimer.min.js');
+
 class HumanPlayer {
   constructor(i, ctx) {
     this.playerNumber = i;
     this.ctx = ctx;
+    this.timer = new Timer();
+    this.timer.start({precision: 'secondTenths'});
   }
 
   drawPlayer() {
@@ -13,6 +17,12 @@ class HumanPlayer {
   }
 
   drawTime() {
+
+    this.ctx.font = "30px Arial";
+    this.ctx.fillStyle = "red";
+    this.ctx.textAlign = "center";
+    this.ctx.fillText(this.timer.getTimeValues().toString(['minutes', 'seconds', 'secondTenths']), 500, 500);
+
   }
 
 

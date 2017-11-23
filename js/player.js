@@ -8,29 +8,51 @@ class HumanPlayer {
     this.ctx = ctx;
     this.timer = new Timer();
     this.timer.start({precision: 'secondTenths'});
-    this.x = 0;
-    this.y = 0;
-    this.radius = 30;
+    this.x = 100;
+    this.y = 100;
     this.color = _colors[i - 1];
     this.character = this.setImage(this.ctx);
+    this.jumping = false;
+    this.falling = false;
+    this.jumpHeight = 0;
   }
 
   setImage(ctx) {
     const image = new Image();
-    image.src = "../assets/toad_sprite.png";
-    return {
-      ctx,
-      width: 50,
-      height: 50,
-      image,
-    };
+    image.src = "./assets/toad_sprite.png";
+    return image;
   }
 
-
   drawPlayer() {
-    this.xtc.drawImage();
-    
+    // context.drawImage(img, sx, sy, sw, sh, dx, dy, dw, dh)
+    this.ctx.drawImage(this.character, 50, 50, 50, 50, this.x, this.y, 50, 50);
+    if (this.jumping === true) {
+      if (this.falling === false) {
+        if (this.y >= this.jumpHeight) {
+          this.y -= 8;
+        } else {
+          this.falling = true;
+        }
+      } else {
+        if (this.y < 100) {
+          this.y += 8;
+        } else {
+          this.falling = false;
+          this.jumping = false;
+        }
+      }
+    }
 
+    //
+    // img	Source image object	Sprite sheet
+    // sx	Source x	Frame index times frame width
+    // sy	Source y	0
+    // sw	Source width	Frame width
+    // sh	Source height	Frame height
+    // dx	Destination x	0
+    // dy	Destination y	0
+    // dw	Destination width	Frame width
+    // dh	Destination height	Frame height
 
     // this.ctx.beginPath();
     // this.ctx.arc(this.x, this.y, this.radius, 0, 2 * Math.PI, false);
@@ -48,20 +70,16 @@ class HumanPlayer {
     this.ctx.fillText(this.timer.getTimeValues().toString(['minutes', 'seconds', 'secondTenths']), 500, 500);
   }
 
-
-
   jump(spaces) {
     console.log(`I'm jumping ${spaces} spaces!`);
-    let max_height;
-    if (spaces === 1) {
-      max_height = 50;
-    } else {
-      max_height = 100;
+    if (this.jumping === false) {
+      this.jumping = true;
+      if (spaces === 1) {
+        this.jumpHeight = 50;
+      } else {
+        this.jumpHeight = 20;
+      }
     }
-    if (this.y < max_height) {
-
-    }
-
   }
 }
 

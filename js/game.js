@@ -44,7 +44,6 @@ class Game {
   }
 
   drawGame() {
-    // clear canvas
     if (this.running === false) {
       window.clearInterval(this.interval);
       this.clearGame();
@@ -64,7 +63,7 @@ class Game {
         player.timer.pause();
       });
     } else {
-      window.setInterval(this.drawGame, 50);
+      this.interval = window.setInterval(this.drawGame, 50);
       this.players.forEach((player) => {
         player.timer.start();
       });

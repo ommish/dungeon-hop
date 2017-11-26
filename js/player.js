@@ -1,26 +1,14 @@
 const Timer = require('../node_modules/easytimer.js/dist/easytimer.min.js');
 
-const _colors = ["red", "blue"];
-
-const _easyMode = {
-  x: 100,
-  y: 96,
-  oneForwardSlide: 4.17,
-  twoForwardSlides: 6.25,
-  yIncrement: 8,
-  oneJumpHeight: 64,
-  twoJumpHeight: 48,
-};
-
-class HumanPlayer {
-  constructor(i, ctx, ground) {
+class Player {
+  constructor(i, ctx, ground, mode, human = true) {
     this.playerNumber = i;
     this.ctx = ctx;
     this.timer = new Timer();
     this.timer.start({precision: 'secondTenths'});
-    this.x = 100;
-    this.y = 96;
-    this.color = _colors[i - 1];
+    this.x = 112.5;
+    this.baseY = this.playerNumber === 1 ? 118 : 318;
+    this.y = this.baseY;
     this.character = this.setImage();
     this.jumping = false;
     this.falling = false;
@@ -28,6 +16,13 @@ class HumanPlayer {
     this.jumpHeight = 0;
     this.characterFrame = 75;
     this.ground = ground;
+    this.finished = false;
+    this.mode = mode;
+    this.human = human;
+
+    this.calculateAndJump = this.calculateAndJump.bind(this);
+
+    if (!this.human) {this.startAI();}
   }
 
   setImage() {
@@ -37,82 +32,94 @@ class HumanPlayer {
   }
 
   drawPlayer() {
-    // context.drawImage(img, sx, sy, sw, sh, dx, dy, dw, dh)
-    this.ctx.drawImage(this.character, this.characterFrame, 0, 25, 33, this.x, this.y, 37.5, 49.5);
+    this.ctx.drawImage(this.character, this.characterFrame, 0, 25, 33, this.x, this.y, 25, 33);
+
     if (this.jumping === true) {
+
       let forwardSlide;
-      if (this.jumpHeight === 64) {
-        forwardSlide = 4.17;
+      if (this.jumpHeight === this.baseY - 32) {
+        forwardSlide = this.mode.oneForwardSlide;
       } else {
-        forwardSlide = 6.25;
+        forwardSlide = this.mode.twoForwardSlides;
       }
       this.ground.slideForward(forwardSlide);
-      if (this.y === 96) {
+
+      if (this.y === this.baseY) {
         this.characterFrame = 75;
-      } else if (this.y >= 64) {
+      } else if (this.y >= this.baseY - 20) {
         this.characterFrame = 100;
-      } else if (this.y >= 32) {
+      } else if (this.y >= this.baseY - 30) {
         this.characterFrame = 125;
       }
 
       if (this.falling === false) {
-        if (this.y >= this.jumpHeight) {
-          this.y -= 8;
+        if (this.y > this.jumpHeight) {
+          this.y -= this.mode.yIncrement;
         } else {
           this.falling = true;
         }
       } else {
-        if (this.y < 96) {
-          this.y += 8;
+        if (this.y < this.baseY) {
+          this.y += this.mode.yIncrement;
         } else {
           this.falling = false;
           this.jumping = false;
-          if (this.ground.current.x > 80 && this.ground.current.x < 120 && this.ground.current.type !== "blank") {
+
+          if (this.ground.current.dx === 100 && this.ground.current.type !== "blank") {
             this.crashing = true;
             this.characterFrame = 350;
             let backwardSlide;
-            if (this.jumpHeight === 64) {
-              backwardSlide = 4.17;
+            if (this.jumpHeight === this.baseY - 32) {
+              backwardSlide = 50;
             } else {
-              backwardSlide = 6.25;
+              backwardSlide = 100;
             }
             this.ground.slideBackward(backwardSlide);
+          }
+
+          if (this.ground.current.sx > 80 && this.ground.current.sx < 120 && this.ground.current.spaceNum >= 103) {
+            this.timer.pause();
+            this.finished = true;
           }
         }
       }
     }
-
-    //
-    // img	Source image object	Sprite sheet
-    // sx	Source x	Frame index times frame width
-    // sy	Source y	0
-    // sw	Source width	Frame width
-    // sh	Source height	Frame height
-    // dx	Destination x	0
-    // dy	Destination y	0
-    // dw	Destination width	Frame width
-    // dh	Destination height	Frame height
-
   }
 
   drawTime() {
     this.ctx.font = "20px Arial";
-    this.ctx.fillStyle = "red";
+    this.ctx.fillStyle = "white";
     this.ctx.textAlign = "center";
-    this.ctx.fillText(this.timer.getTimeValues().toString(['minutes', 'seconds', 'secondTenths']), 50, this.playerNumber * 20);
+    this.ctx.fillText(this.timer.getTimeValues().toString(['minutes', 'seconds', 'secondTenths']), 50, this.playerNumber * 200 - 5);
   }
 
   jump(spaces) {
     if (this.jumping === false) {
-      console.log(`I'm jumping ${spaces} spaces!`);
       this.jumping = true;
       if (spaces === 1) {
-        this.jumpHeight = 64;
+        this.jumpHeight = this.baseY - 32;
       } else {
-        this.jumpHeight = 48;
+        this.jumpHeight = this.baseY - 48;
       }
     }
   }
+
+  startAI() {
+    this.interval = window.setInterval(this.calculateAndJump, 500);
+  }
+
+  calculateAndJump(){
+    if (!this.jumping && !this.finished) {
+      if (this.ground.current.typeIndex > 0) {
+        this.jump(2);
+      } else {
+        this.jump(1);
+      }
+    } else if (this.finished) {
+      window.clearInterval(this.interval);
+    }
+  }
+
 }
 
-module.exports = HumanPlayer;
+module.exports = Player;

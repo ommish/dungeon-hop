@@ -1,8 +1,24 @@
 const StartMenu = require('./start_menu.js');
-const HumanPlayer = require('./player.js');
+const Player = require('./player.js');
 const Path = require('./path.js');
 const EndMenu = require('./end_menu.js');
 const Ground = require('./ground.js');
+const lodash = require('lodash');
+
+const _easyMode = {
+  oneForwardSlide: 5,
+  twoForwardSlides: 7.143,
+  yIncrement: 8,
+};
+
+const _hardMode = {
+  oneForwardSlide: 8.333,
+  twoForwardSlides: 12.5,
+  yIncrement: 16,
+};
+
+const modes = [_easyMode, _hardMode];
+
 
 class Game {
 
@@ -15,12 +31,12 @@ class Game {
     this.paused = false;
 
     this.startMenu = new StartMenu(this.ctx);
-    this.endMenu = new EndMenu(this.ctx);
     this.players = [];
 
     this.drawGame = this.drawGame.bind(this);
     this.handleKeyPress = this.handleKeyPress.bind(this);
-    this.endGame = this.endGame.bind(this);
+    this.handleKeyDown = this.handleKeyDown.bind(this);
+    this.clearGame = this.clearGame.bind(this);
 
     this.addListeners();
   }
@@ -34,10 +50,14 @@ class Game {
   }
 
   startGame() {
-    this.path = new Path(30);
+    this.pathPattern = Path.generateRandomPath(30);
 
     for (let i = 1; i <= this.humanPlayerCount; i++) {
-      this.players.push(new HumanPlayer(i, this.ctx, new Ground(i, this.ctx, this.path)));
+      this.players.push(new Player(i, this.ctx, new Ground(i, this.ctx, new Path(this.pathPattern)), modes[this.startMenu.level]));
+    }
+
+    if (this.players.length < 2) {
+      this.players.push(new Player(2, this.ctx, new Ground(2, this.ctx, new Path(this.pathPattern)), modes[this.startMenu.level], false));
     }
 
     this.startMenu.clearStartMenu();
@@ -49,6 +69,16 @@ class Game {
     if (this.running === false) {
       window.clearInterval(this.interval);
       this.clearGame();
+    } else if (this.playerOne().finished || this.playerTwo().finished) {
+      window.setTimeout(this.clearGame, 2000);
+      let winner;
+      if (this.playerOne().finished && this.playerTwo().finished) {
+        winner = this.playerOne().timer.getTimeValues() < this.playerTwo().getTimeValues() ? this.PlayerOne() : this.playerTwo();
+      } else {
+        winner = this.playerOne().finished ? this.playerOne() : this.playerTwo();
+      }
+      window.clearInterval(this.interval);
+      const endMenu = new EndMenu(this.ctx, winner).drawEndMenu();
     } else {
       this.clearGame();
       this.players.forEach((player) => {
@@ -75,15 +105,23 @@ class Game {
   }
 
   clearGame() {
-    this.ctx.clearRect(0, 0, 350, 600);
-  }
-
-  endGame() {
-    this.endMenu.start();
+    this.ctx.clearRect(0, 0, 350, 400);
   }
 
   addListeners() {
     document.addEventListener("keypress", this.handleKeyPress);
+    document.addEventListener("keydown", this.handleKeyDown);
+  }
+
+  handleKeyDown(e) {
+    switch (e.keyCode) {
+      case 37:
+      this.startMenu.level = 0;
+      return;
+      case 39:
+      this.startMenu.level = 1;
+      return;
+    }
   }
 
   handleKeyPress(e) {
@@ -91,11 +129,11 @@ class Game {
       switch (e.keyCode) {
         case 49:
         this.humanPlayerCount = parseInt(e.key);
-        this.startMenu.updateHumanPlayerCount(this.humanPlayerCount);
+        this.startMenu.humanPlayerCount = this.humanPlayerCount;
         return;
         case 50:
         this.humanPlayerCount = parseInt(e.key);
-        this.startMenu.updateHumanPlayerCount(this.humanPlayerCount);
+        this.startMenu.humanPlayerCount = this.humanPlayerCount;
         return;
         case 32:
         this.startGame();
@@ -113,10 +151,24 @@ class Game {
         this.togglePause();
         return;
         case 97:
-        this.playerOne().jump(1);
+        if (!this.playerOne().finished) {
+          this.playerOne().jump(1);
+        }
         return;
         case 115:
-        this.playerOne().jump(2);
+        if (!this.playerOne().finished) {
+          this.playerOne().jump(2);
+        }
+        return;
+        case 107:
+        if (this.playerTwo().human && !this.playerTwo().finished) {
+          this.playerTwo().jump(1);
+        }
+        return;
+        case 108:
+        if (this.playerTwo().human && !this.playerTwo().finished) {
+          this.playerTwo().jump(2);
+        }
         return;
         default:
         return;

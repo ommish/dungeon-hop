@@ -1,13 +1,16 @@
-const _types = ["blank", "shyguy", "flyguy"];
+const _types = ["blank", "shyguy", "flyguy", "finish"];
 
 class Space {
-  constructor(typeIndex, spaceNum, current = false) {
+  constructor(typeIndex, spaceNum, current = false, last = false) {
+    this.spaceNum = spaceNum;
     this.typeIndex = typeIndex;
     this.type = _types[typeIndex];
     this.image = this.setImage();
     this.obstacle = this.setObstacle();
-    this.x = spaceNum * 50;
-    this.setY();
+    this.dx = spaceNum * 50;
+    this.sy = this.setSY();
+    this.sh = this.setSH();
+    this.characterFrame = 0;
   }
 
   setImage() {
@@ -22,17 +25,25 @@ class Space {
     return image;
   }
 
-  setY() {
+  setSH() {
     switch (this.typeIndex) {
       case 1:
-        this.y = 0;
-        return;
-        case 2:
-        this.y = 36;
-        return;
+      return 30;
+      case 2:
+      return 35;
       default:
-        this.y = null;
-        return;
+      return null;
+    }
+  }
+
+  setSY() {
+    switch (this.typeIndex) {
+      case 1:
+        return 0;
+      case 2:
+        return 32;
+      default:
+        return null;
     }
   }
 }

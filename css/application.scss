@@ -1,6 +1,13 @@
+body {
+  display: flex;
+  flex-direction: row;
+  padding: 50px;
+}
+
+header {
+  margin-right: 50px;
+}
+
 h1 {
   font-size: 50px;
-}
-canvas {
-  margin: 0 auto;
 }

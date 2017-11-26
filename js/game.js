@@ -22,7 +22,6 @@ class Game {
     this.handleKeyPress = this.handleKeyPress.bind(this);
     this.endGame = this.endGame.bind(this);
 
-
     this.addListeners();
   }
 
@@ -53,8 +52,7 @@ class Game {
     } else {
       this.clearGame();
       this.players.forEach((player) => {
-        this.ctx.fillStyle = "blue";
-        this.ctx.fillRect(0, 0, 900, 600);
+        player.ground.drawGround();
         player.drawPlayer();
         player.drawTime();
       }
@@ -77,7 +75,7 @@ class Game {
   }
 
   clearGame() {
-    this.ctx.clearRect(0, 0, 900, 600);
+    this.ctx.clearRect(0, 0, 350, 600);
   }
 
   endGame() {

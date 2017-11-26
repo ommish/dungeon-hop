@@ -2,6 +2,7 @@ const StartMenu = require('./start_menu.js');
 const HumanPlayer = require('./player.js');
 const Path = require('./path.js');
 const EndMenu = require('./end_menu.js');
+const Ground = require('./ground.js');
 
 class Game {
 
@@ -16,11 +17,11 @@ class Game {
     this.startMenu = new StartMenu(this.ctx);
     this.endMenu = new EndMenu(this.ctx);
     this.players = [];
-    this.paths = [];
 
     this.drawGame = this.drawGame.bind(this);
     this.handleKeyPress = this.handleKeyPress.bind(this);
     this.endGame = this.endGame.bind(this);
+
 
     this.addListeners();
   }
@@ -34,10 +35,12 @@ class Game {
   }
 
   startGame() {
+    this.path = new Path(30);
+
     for (let i = 1; i <= this.humanPlayerCount; i++) {
-      this.players.push(new HumanPlayer(i, this.ctx));
-      this.paths.push(new Path(i));
+      this.players.push(new HumanPlayer(i, this.ctx, new Ground(i, this.ctx, this.path)));
     }
+
     this.startMenu.clearStartMenu();
     this.running = true;
     this.interval = window.setInterval(this.drawGame, 50);
@@ -50,6 +53,8 @@ class Game {
     } else {
       this.clearGame();
       this.players.forEach((player) => {
+        this.ctx.fillStyle = "blue";
+        this.ctx.fillRect(0, 0, 900, 600);
         player.drawPlayer();
         player.drawTime();
       }

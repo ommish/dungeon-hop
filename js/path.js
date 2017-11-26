@@ -1,31 +1,38 @@
+const Space = require('./space.js');
+
 class Path {
-  constructor(i) {
-    this.pathNumber = i;
-    this.character = this.setImage(this.ctx);
+  constructor(numObstacles) {
+    this.spaces = [];
+    this.numObstacles = numObstacles;
   }
 
-  setImage(ctx) {
-    const image = new Image();
-    image.src = "./assets/toad_sprite.png";
-    return image;
-  }
+  createPath() {
+    let numObstacles = 0;
+    let typeIndex;
+    let prevSpace = new Space();
+    let firstPass = true;
 
-  drawPlayer() {
-    // context.drawImage(img, sx, sy, sw, sh, dx, dy, dw, dh)
-    this.ctx.drawImage(this.character, 50, 50, 50, 50, this.x, this.y, 50, 50);
-    if (this.jumping === true) {
-      if (this.falling === false) {
-        if (this.y >= this.jumpHeight) {
-          this.y -= 8;
+    while (numObstacles < this.numObstacles) {
+      for (let spaceNum = 0; spaceNum < 100; spaceNum++) {
+        if (firstPass) {
+          if (spaceNum === 99) {firstPass = false;}
+          if (this.spaces[spaceNum - 1].type === "blank") {
+            typeIndex = Math.floor(Math.random() * 10) % 3;
+            if (typeIndex > 0) {numObstacles++;}
+            this.spaces.push(new Space(typeIndex));
+          } else {
+            this.spaces.push(new Space(0));
+          }
         } else {
-          this.falling = true;
-        }
-      } else {
-        if (this.y < 100) {
-          this.y += 8;
-        } else {
-          this.falling = false;
-          this.jumping = false;
+          if (numObstacles < this.numObstacles) {
+            spaceNum += 5;
+            if (this.spaces[spaceNum - 1] === "blank") {
+              numObstacles++;
+              this.spaces[spaceNum] = new Space(1);
+            }
+          } else {
+            break;
+          }
         }
       }
     }

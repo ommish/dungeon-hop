@@ -3,6 +3,8 @@ const Player = require('./player.js');
 const Path = require('./path.js');
 const EndMenu = require('./end_menu.js');
 const Ground = require('./ground.js');
+const Timer = require('../node_modules/easytimer.js/dist/easytimer.min.js');
+
 
 const _easyMode = {
   oneForwardSlide: 5,
@@ -42,7 +44,17 @@ class Game {
     this.handleKeyDown = this.handleKeyDown.bind(this);
     this.clearGame = this.clearGame.bind(this);
 
+    this.timer = new Timer();
+
     this.addListeners();
+  }
+
+
+  drawTime() {
+    this.ctx.font = "20px Arial";
+    this.ctx.fillStyle = "white";
+    this.ctx.textAlign = "center";
+    this.ctx.fillText(this.timer.getTimeValues().toString(['minutes', 'seconds', 'secondTenths']), 50, 200);
   }
 
   playerOne() {
@@ -67,6 +79,7 @@ class Game {
     this.startMenu.clearStartMenu();
     this.running = true;
     this.interval = window.setInterval(this.drawGame, 50);
+    this.timer.start({precision: 'secondTenths'});
   }
 
   drawGame() {
@@ -76,6 +89,7 @@ class Game {
     }
 
     else if (this.playerOne().finished || this.playerTwo().finished) {
+      this.timer.pause();
       let winner;
       if (this.playerOne().finished && this.playerTwo().finished) {
         winner = this.playerOne().timer.getTimeValues() < this.playerTwo().getTimeValues() ? this.PlayerOne() : this.playerTwo();
@@ -84,16 +98,16 @@ class Game {
         winner = this.playerOne().finished ? this.playerOne() : this.playerTwo();
       }
       window.clearInterval(this.interval);
-      const endMenu = new EndMenu(this.ctx, winner);
+      const endMenu = new EndMenu(this.ctx, winner, this.timer.getValue);
       window.setTimeout(endMenu.drawEndMenu, 3000);
     } else {
       this.clearGame();
       this.players.forEach((player) => {
         player.ground.drawGround();
         player.drawPlayer();
-        player.drawTime();
-      }
-    );}
+      });
+      this.drawTime();
+    }
   }
 
   togglePause() {

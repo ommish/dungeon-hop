@@ -1,11 +1,8 @@
-const Timer = require('../node_modules/easytimer.js/dist/easytimer.min.js');
 
 class Player {
   constructor(i, ctx, ground, mode, human = true) {
     this.playerNumber = i;
     this.ctx = ctx;
-    this.timer = new Timer();
-    this.timer.start({precision: 'secondTenths'});
     this.x = 112.5;
     this.baseY = this.playerNumber === 1 ? 118 : 318;
     this.y = this.baseY;
@@ -80,7 +77,6 @@ class Player {
           }
 
           if (Math.round(this.ground.current.dx) === 100 && this.ground.current.spaceNum >= 103) {
-            this.timer.pause();
             this.finished = true;
           }
         }
@@ -88,13 +84,6 @@ class Player {
       }
     }
 
-  }
-
-  drawTime() {
-    this.ctx.font = "20px Arial";
-    this.ctx.fillStyle = "white";
-    this.ctx.textAlign = "center";
-    this.ctx.fillText(this.timer.getTimeValues().toString(['minutes', 'seconds', 'secondTenths']), 50, this.playerNumber * 200 - 5);
   }
 
   jump(spaces) {

@@ -1,10 +1,11 @@
 class EndMenu {
-  constructor(ctx, winner) {
+  constructor(ctx, winner, finishTime) {
     this.ctx = ctx;
     this.winner = winner;
     this.width = 350;
     this.height = 400;
     this.level = 0;
+    this.finishTIme  = finishTime;
 
     this.drawEndMenu = this.drawEndMenu.bind(this);
     this.clearEndMenu = this.clearEndMenu.bind(this);
@@ -31,7 +32,7 @@ class EndMenu {
     this.ctx.textAlign = "center";
     this.ctx.rect(0, 0, this.width, this.height);
     this.ctx.fillText(`WINNER: Player ${this.winner.playerNumber}`, this.width / 2, 50);
-    this.ctx.fillText(`TIME: ${this.winner.timer.getTimeValues().toString(['minutes', 'seconds', 'secondTenths'])}`, this.width / 2, 70);
+    this.ctx.fillText(`TIME: ${this.finishTime}`, this.width / 2, 70);
 
   }
 

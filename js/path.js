@@ -63,11 +63,6 @@ class Path {
     for(let i = 103; i < 110; i++) {
       spaces.push(0);
     }
-    let count = 0;
-    spaces.forEach((space) => {
-      if (space === 3) {count++;}
-    });
-    console.log(count);
 
     return spaces;
   }

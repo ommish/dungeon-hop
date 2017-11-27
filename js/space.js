@@ -3,7 +3,7 @@ const _imageSrcs = [
   "./assets/ground.png",
   "./assets/enemies.png",
   "./assets/enemies.png",
-  "./assets/ice.png",
+  "./assets/enemies.png",
   "./assets/sign.png"
 ];
 
@@ -48,7 +48,7 @@ class Space {
       case 2:
       return 35;
       case 3:
-      return 75;
+      return 35;
       default:
       return null;
     }
@@ -61,7 +61,7 @@ class Space {
       case 2:
       return 20;
       case 3:
-      return 75;
+      return 20;
       default:
       return null;
     }
@@ -74,7 +74,7 @@ class Space {
       case 2:
         return 32;
       case 3:
-        return 0;
+        return 32;
       default:
         return null;
     }

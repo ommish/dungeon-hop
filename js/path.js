@@ -13,15 +13,15 @@ class Path {
     });
   }
 
-  static generateRandomPath(numObstacles) {
-    let ObstacleNum = 0;
+  static generateRandomPath(obstacleCount, obstacleTypes) {
+    let obstacleNum = 0;
     let type;
     let firstTime = true;
     let spaceNumber;
 
     const spaces = [];
 
-    while (ObstacleNum < numObstacles) {
+    while (obstacleNum < obstacleCount) {
 
       for (spaceNumber = 0; spaceNumber < 103; spaceNumber++) {
 
@@ -33,20 +33,25 @@ class Path {
         if (spaceNumber === 102) {firstTime = false;}
 
           if (spaces[spaceNumber - 1] === 0) {
-            type = Math.floor(Math.random() * 10) % 3;
+            if (obstacleTypes === 2) {
+              type = Math.floor(Math.random() * 10) % 3;
+            } else {
+              type = Math.floor(Math.random() * 10) % 4;
+              debugger
+            }
             spaces.push(type);
           } else {
             spaces.push(0);
           }
-          if (type > 0) {ObstacleNum++;}
+          if (type > 0) {obstacleNum++;}
 
         } else {
 
-          if (ObstacleNum < numObstacles) {
+          if (obstacleNum < obstacleCount) {
             spaceNumber += 5;
             if (spaces[spaceNumber - 1] === 0) {
               spaces[spaceNumber] = 1;
-              ObstacleNum++;
+              obstacleNum++;
             }
           } else {
             break;
@@ -58,6 +63,11 @@ class Path {
     for(let i = 103; i < 110; i++) {
       spaces.push(0);
     }
+    let count = 0;
+    spaces.forEach((space) => {
+      if (space === 3) {count++;}
+    });
+    console.log(count);
 
     return spaces;
   }

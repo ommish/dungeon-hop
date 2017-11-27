@@ -26,16 +26,18 @@ class EndMenu {
     this.clear();
 
     this.ctx.stroke();
+    this.ctx.font = '20px Julius Sans One';
+    this.ctx.fillStyle = "black";
+    this.ctx.textAlign = "center";
     this.ctx.rect(0, 0, this.width, this.height);
-
     this.ctx.fillText(`WINNER: Player ${this.winner.playerNumber}`, this.width / 2, 50);
     this.ctx.fillText(`TIME: ${this.winner.timer.getTimeValues().toString(['minutes', 'seconds', 'secondTenths'])}`, this.width / 2, 70);
 
   }
 
-    clear() {
-      this.ctx.clearRect(0, 0, 350, 400);
-    }
+  clear() {
+    this.ctx.clearRect(0, 0, 350, 400);
+  }
 }
 
 module.exports = EndMenu;

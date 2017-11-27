@@ -9,6 +9,7 @@ const _easyMode = {
   twoForwardSlides: 7.143,
   yIncrement: 8,
   computerLevel: 1,
+  obstacleTypes: 2,
 };
 
 const _hardMode = {
@@ -16,6 +17,7 @@ const _hardMode = {
   twoForwardSlides: 12.5,
   yIncrement: 16,
   computerLevel: 2,
+  obstacleTypes: 3,
 };
 
 const modes = [_easyMode, _hardMode];
@@ -26,10 +28,6 @@ class Game {
   constructor(canvasEl) {
     this.canvas = canvasEl;
     this.ctx = canvasEl.getContext("2d");
-
-    this.ctx.font = '20px Julius Sans One';
-    this.ctx.fillStyle = "black";
-    this.ctx.textAlign = "center";
 
     this.difficulty = 1;
     this.humanPlayerCount = 1;
@@ -56,7 +54,7 @@ class Game {
   }
 
   startGame() {
-    this.pathPattern = Path.generateRandomPath(30);
+    this.pathPattern = Path.generateRandomPath(30, modes[this.startMenu.level].obstacleTypes);
 
     for (let i = 1; i <= this.humanPlayerCount; i++) {
       this.players.push(new Player(i, this.ctx, new Ground(i, this.ctx, new Path(this.pathPattern)), modes[this.startMenu.level]));

@@ -10,13 +10,13 @@ class Ground {
 
   setBackground() {
     const image = new Image();
-    image.src = "./assets/toad_sprite.png";
+    image.src = "./assets/backdrop.png";
     return image;
   }
 
   drawBackground() {
-    // context.drawImage(img,           sx,  sy,  sw, sh, dx,                            dy,     dw, dh)
-    this.ctx.drawImage(this.background, 120, 100, 350, 80, 0, this.playerNumber === 1 ? 0 : 200, 350, 150);
+    // context.drawImage(img,          sx,sy, sw, sh, dx,                             dy,     dw, dh)
+    this.ctx.drawImage(this.background, 5, 10, 250, 100, 0, this.playerNumber === 1 ? 0 : 200, 350, 150);
   }
 
   drawGround() {
@@ -24,13 +24,13 @@ class Ground {
 
     this.path.spaces.forEach((space) => {
       // context.drawImage(img,      sx, sy, sw, sh, dx,                                dy,        dw, dh)
-      this.ctx.drawImage(space.image, 0, 0, 50, 50, space.dx, this.playerNumber === 1 ? 150 : 350, 50, 50);
+      this.ctx.drawImage(space.image, 0, 0, 100, 100, space.dx, this.playerNumber === 1 ? 150 : 350, 50, 50);
       if (space.dx >= 87.5 && space.dx < 137.5) {
         this.current = space;
       }
       if (space.type !== "blank") {
         // context.drawImage(img,          sx,                   sy,       sw, sh,       dx,                                         dy,    dw, dh)
-        this.ctx.drawImage(space.obstacle, space.characterFrame, space.sy, 20, space.sh, space.dx + 10, this.playerNumber === 1 ? 126 : 326, 20, 30);
+        this.ctx.drawImage(space.obstacle, space.characterFrame, space.sy, space.sw, space.sh, space.dx + 10, this.playerNumber === 1 ? 126 : 326, 20, 30);
         if (space.characterFrame < 75) {
           space.characterFrame += 25;
         } else {

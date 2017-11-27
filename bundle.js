@@ -27,19 +27,18 @@ class EndMenu {
     this.clear();
 
     this.ctx.stroke();
-    this.ctx.rect(0, 0, this.width, this.height);
-
-    this.ctx.font = "20px Arial";
-    this.ctx.fillStyle = "red";
+    this.ctx.font = '20px Julius Sans One';
+    this.ctx.fillStyle = "black";
     this.ctx.textAlign = "center";
+    this.ctx.rect(0, 0, this.width, this.height);
     this.ctx.fillText(`WINNER: Player ${this.winner.playerNumber}`, this.width / 2, 50);
     this.ctx.fillText(`TIME: ${this.winner.timer.getTimeValues().toString(['minutes', 'seconds', 'secondTenths'])}`, this.width / 2, 70);
 
   }
 
-    clear() {
-      this.ctx.clearRect(0, 0, 350, 400);
-    }
+  clear() {
+    this.ctx.clearRect(0, 0, 350, 400);
+  }
 }
 
 module.exports = EndMenu;
@@ -56,6 +55,7 @@ const _easyMode = {
   twoForwardSlides: 7.143,
   yIncrement: 8,
   computerLevel: 1,
+  obstacleTypes: 2,
 };
 
 const _hardMode = {
@@ -63,6 +63,7 @@ const _hardMode = {
   twoForwardSlides: 12.5,
   yIncrement: 16,
   computerLevel: 2,
+  obstacleTypes: 3,
 };
 
 const modes = [_easyMode, _hardMode];
@@ -73,6 +74,7 @@ class Game {
   constructor(canvasEl) {
     this.canvas = canvasEl;
     this.ctx = canvasEl.getContext("2d");
+
     this.difficulty = 1;
     this.humanPlayerCount = 1;
     this.running = false;
@@ -98,7 +100,7 @@ class Game {
   }
 
   startGame() {
-    this.pathPattern = Path.generateRandomPath(30);
+    this.pathPattern = Path.generateRandomPath(30, modes[this.startMenu.level].obstacleTypes);
 
     for (let i = 1; i <= this.humanPlayerCount; i++) {
       this.players.push(new Player(i, this.ctx, new Ground(i, this.ctx, new Path(this.pathPattern)), modes[this.startMenu.level]));
@@ -255,13 +257,13 @@ class Ground {
 
   setBackground() {
     const image = new Image();
-    image.src = "./assets/toad_sprite.png";
+    image.src = "./assets/backdrop.png";
     return image;
   }
 
   drawBackground() {
-    // context.drawImage(img,           sx,  sy,  sw, sh, dx,                            dy,     dw, dh)
-    this.ctx.drawImage(this.background, 120, 100, 350, 80, 0, this.playerNumber === 1 ? 0 : 200, 350, 150);
+    // context.drawImage(img,          sx,sy, sw, sh, dx,                             dy,     dw, dh)
+    this.ctx.drawImage(this.background, 5, 10, 250, 100, 0, this.playerNumber === 1 ? 0 : 200, 350, 150);
   }
 
   drawGround() {
@@ -269,13 +271,13 @@ class Ground {
 
     this.path.spaces.forEach((space) => {
       // context.drawImage(img,      sx, sy, sw, sh, dx,                                dy,        dw, dh)
-      this.ctx.drawImage(space.image, 0, 0, 50, 50, space.dx, this.playerNumber === 1 ? 150 : 350, 50, 50);
+      this.ctx.drawImage(space.image, 0, 0, 100, 100, space.dx, this.playerNumber === 1 ? 150 : 350, 50, 50);
       if (space.dx >= 87.5 && space.dx < 137.5) {
         this.current = space;
       }
       if (space.type !== "blank") {
         // context.drawImage(img,          sx,                   sy,       sw, sh,       dx,                                         dy,    dw, dh)
-        this.ctx.drawImage(space.obstacle, space.characterFrame, space.sy, 20, space.sh, space.dx + 10, this.playerNumber === 1 ? 126 : 326, 20, 30);
+        this.ctx.drawImage(space.obstacle, space.characterFrame, space.sy, space.sw, space.sh, space.dx + 10, this.playerNumber === 1 ? 126 : 326, 20, 30);
         if (space.characterFrame < 75) {
           space.characterFrame += 25;
         } else {
@@ -309,7 +311,7 @@ const Game = require('./game.js');
 
 document.addEventListener("DOMContentLoaded", () => {
   const canvasEl = document.getElementsByTagName('canvas')[0];
-  const game = new Game(canvasEl);
+  new Game(canvasEl);
 });
 
 },{"./game.js":2}],5:[function(require,module,exports){
@@ -328,15 +330,15 @@ class Path {
     });
   }
 
-  static generateRandomPath(numObstacles) {
-    let ObstacleNum = 0;
+  static generateRandomPath(obstacleCount, obstacleTypes) {
+    let obstacleNum = 0;
     let type;
     let firstTime = true;
     let spaceNumber;
 
     const spaces = [];
 
-    while (ObstacleNum < numObstacles) {
+    while (obstacleNum < obstacleCount) {
 
       for (spaceNumber = 0; spaceNumber < 103; spaceNumber++) {
 
@@ -348,20 +350,25 @@ class Path {
         if (spaceNumber === 102) {firstTime = false;}
 
           if (spaces[spaceNumber - 1] === 0) {
-            type = Math.floor(Math.random() * 10) % 3;
+            if (obstacleTypes === 2) {
+              type = Math.floor(Math.random() * 10) % 3;
+            } else {
+              type = Math.floor(Math.random() * 10) % 4;
+              debugger
+            }
             spaces.push(type);
           } else {
             spaces.push(0);
           }
-          if (type > 0) {ObstacleNum++;}
+          if (type > 0) {obstacleNum++;}
 
         } else {
 
-          if (ObstacleNum < numObstacles) {
+          if (obstacleNum < obstacleCount) {
             spaceNumber += 5;
             if (spaces[spaceNumber - 1] === 0) {
               spaces[spaceNumber] = 1;
-              ObstacleNum++;
+              obstacleNum++;
             }
           } else {
             break;
@@ -373,6 +380,11 @@ class Path {
     for(let i = 103; i < 110; i++) {
       spaces.push(0);
     }
+    let count = 0;
+    spaces.forEach((space) => {
+      if (space === 3) {count++;}
+    });
+    console.log(count);
 
     return spaces;
   }
@@ -404,7 +416,7 @@ class Player {
     this.finished = false;
     this.mode = mode;
     this.human = human;
-    this.jumpInterval = this.mode.computerLevel === 1 ? 800 : 300;
+    this.jumpInterval = this.mode.computerLevel === 1 ? 500 : 250;
 
     this.calculateAndJump = this.calculateAndJump.bind(this);
 
@@ -516,8 +528,14 @@ class Player {
 module.exports = Player;
 
 },{"../node_modules/easytimer.js/dist/easytimer.min.js":9}],7:[function(require,module,exports){
-const _types = ["blank", "shyguy", "flyguy"];
-const _imageSrcs = ["./assets/space.png", "./assets/enemies.png", "./assets/sign.png"];
+const _types = ["blank", "shyguy", "flyguy", "ice"];
+const _imageSrcs = [
+  "./assets/ground.png",
+  "./assets/enemies.png",
+  "./assets/enemies.png",
+  "./assets/ice.png",
+  "./assets/sign.png"
+];
 
 class Space {
   constructor(typeIndex, spaceNum, current = false, last = false) {
@@ -529,6 +547,7 @@ class Space {
     this.dx = spaceNum * 50;
     this.sy = this.setSY();
     this.sh = this.setSH();
+    this.sw = this.setSW();
     this.characterFrame = 0;
     this.last = last;
     this.sign = this.setSign();
@@ -542,13 +561,13 @@ class Space {
 
   setObstacle() {
     const image = new Image();
-    image.src =  _imageSrcs[1];
+    image.src =  _imageSrcs[this.typeIndex];
     return image;
   }
 
   setSign() {
     const image = new Image();
-    image.src = _imageSrcs[2];
+    image.src = _imageSrcs[4];
     return image;
   }
 
@@ -558,6 +577,21 @@ class Space {
       return 30;
       case 2:
       return 35;
+      case 3:
+      return 75;
+      default:
+      return null;
+    }
+  }
+
+  setSW() {
+    switch (this.typeIndex) {
+      case 1:
+      return 20;
+      case 2:
+      return 20;
+      case 3:
+      return 75;
       default:
       return null;
     }
@@ -569,6 +603,8 @@ class Space {
         return 0;
       case 2:
         return 32;
+      case 3:
+        return 0;
       default:
         return null;
     }
@@ -608,22 +644,23 @@ class StartMenu {
     this.ctx.stroke();
     this.ctx.rect(0, 0, this.width, this.height);
 
-    this.ctx.font = "20px Arial";
-    this.ctx.fillStyle = "red";
+    this.ctx.font = '20px Julius Sans One';
+    this.ctx.fillStyle = "black";
     this.ctx.textAlign = "center";
+
     this.ctx.fillText(`Num. Players (1/2):  ${this.humanPlayerCount}`, this.width / 2, 50);
-    this.ctx.fillText(`Difficulty (← / →): ${["easy", "hard"][this.level]}`, this.width / 2, 70);
+    this.ctx.fillText(`Speed (← / →): ${["slow", "fast"][this.level]}`, this.width / 2, 70);
 
-    this.ctx.fillText('Hit Space to Start', this.width / 2, 100);
+    this.ctx.fillText('Hit Space to Start', this.width / 2, 120);
 
-    this.ctx.fillText('Player One:', this.width / 2, 130);
+    this.ctx.fillText('Player One:', this.width / 2, 170);
 
-    this.ctx.fillText('a to jump one space', this.width / 2, 150);
-    this.ctx.fillText('s to jump two spaces', this.width / 2, 170);
+    this.ctx.fillText('a to jump one space', this.width / 2, 190);
+    this.ctx.fillText('s to jump two spaces', this.width / 2, 210);
 
-    this.ctx.fillText('Player Two:', this.width / 2, 200);
-    this.ctx.fillText('k to jump one space', this.width / 2, 220);
-    this.ctx.fillText('l to jump two spaces', this.width / 2, 240);
+    this.ctx.fillText('Player Two:', this.width / 2, 260);
+    this.ctx.fillText('k to jump one space', this.width / 2, 280);
+    this.ctx.fillText('l to jump two spaces', this.width / 2, 300);
 
   }
 

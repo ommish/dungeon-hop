@@ -348,7 +348,6 @@ class Path {
               type = Math.floor(Math.random() * 10) % 3;
             } else {
               type = Math.floor(Math.random() * 10) % 4;
-              debugger
             }
             spaces.push(type);
           } else {

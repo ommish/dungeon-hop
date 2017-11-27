@@ -26,6 +26,11 @@ class Game {
   constructor(canvasEl) {
     this.canvas = canvasEl;
     this.ctx = canvasEl.getContext("2d");
+
+    this.ctx.font = '20px Julius Sans One';
+    this.ctx.fillStyle = "black";
+    this.ctx.textAlign = "center";
+
     this.difficulty = 1;
     this.humanPlayerCount = 1;
     this.running = false;

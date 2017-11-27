@@ -28,9 +28,6 @@ class EndMenu {
     this.ctx.stroke();
     this.ctx.rect(0, 0, this.width, this.height);
 
-    this.ctx.font = "20px Arial";
-    this.ctx.fillStyle = "red";
-    this.ctx.textAlign = "center";
     this.ctx.fillText(`WINNER: Player ${this.winner.playerNumber}`, this.width / 2, 50);
     this.ctx.fillText(`TIME: ${this.winner.timer.getTimeValues().toString(['minutes', 'seconds', 'secondTenths'])}`, this.width / 2, 70);
 

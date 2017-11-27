@@ -62,7 +62,6 @@ class Path {
     for(let i = 103; i < 110; i++) {
       spaces.push(0);
     }
-
     return spaces;
   }
 

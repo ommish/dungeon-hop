@@ -6,7 +6,7 @@ class EndMenu {
     this.width = 350;
     this.height = 400;
     this.level = 0;
-    this.finishTIme  = finishTime;
+    this.finishTime = finishTime;
 
     this.drawEndMenu = this.drawEndMenu.bind(this);
     this.clearEndMenu = this.clearEndMenu.bind(this);
@@ -101,7 +101,7 @@ class Game {
     this.ctx.font = "20px Arial";
     this.ctx.fillStyle = "white";
     this.ctx.textAlign = "center";
-    this.ctx.fillText(this.timer.getTimeValues().toString(['minutes', 'seconds', 'secondTenths']), 50, 200);
+    this.ctx.fillText(this.timer.getTimeValues().toString(['minutes', 'seconds', 'secondTenths']), 175, 210);
   }
 
   playerOne() {
@@ -145,7 +145,7 @@ class Game {
         winner = this.playerOne().finished ? this.playerOne() : this.playerTwo();
       }
       window.clearInterval(this.interval);
-      const endMenu = new EndMenu(this.ctx, winner, String(this.timer.getTimeValues().toString(['minutes', 'seconds', 'secondTenths'])));
+      const endMenu = new EndMenu(this.ctx, winner, this.timer.getTimeValues().toString(['minutes', 'seconds', 'secondTenths']));
       this.timer.stop();
       window.setTimeout(endMenu.drawEndMenu, 3000);
     } else {
@@ -161,14 +161,10 @@ class Game {
   togglePause() {
     if (this.paused === false) {
       window.clearInterval(this.interval);
-      this.players.forEach((player) => {
-        player.timer.pause();
-      });
+        this.timer.pause();
     } else {
       this.interval = window.setInterval(this.drawGame, 50);
-      this.players.forEach((player) => {
-        player.timer.start();
-      });
+        this.timer.start();
     }
     this.paused = !this.paused;
   }
@@ -383,7 +379,6 @@ class Path {
     for(let i = 103; i < 110; i++) {
       spaces.push(0);
     }
-
     return spaces;
   }
 
@@ -407,7 +402,7 @@ class Player {
     this.baseY = this.playerNumber === 1 ? 118 : 318;
     this.y = this.baseY;
     this.jumpHeight = 0;
-    this.jumpInterval = this.mode.computerLevel === 1 ? 450 : 350;
+    this.jumpInterval = this.mode.computerLevel === 1 ? 450 : 100;
 
     this.character = this.setImage();
 

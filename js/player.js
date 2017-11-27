@@ -12,7 +12,7 @@ class Player {
     this.baseY = this.playerNumber === 1 ? 118 : 318;
     this.y = this.baseY;
     this.jumpHeight = 0;
-    this.jumpInterval = this.mode.computerLevel === 1 ? 450 : 350;
+    this.jumpInterval = this.mode.computerLevel === 1 ? 450 : 100;
 
     this.character = this.setImage();
 

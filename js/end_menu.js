@@ -5,7 +5,7 @@ class EndMenu {
     this.width = 350;
     this.height = 400;
     this.level = 0;
-    this.finishTIme  = finishTime;
+    this.finishTime = finishTime;
 
     this.drawEndMenu = this.drawEndMenu.bind(this);
     this.clearEndMenu = this.clearEndMenu.bind(this);

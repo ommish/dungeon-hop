@@ -54,7 +54,7 @@ class Game {
     this.ctx.font = "20px Arial";
     this.ctx.fillStyle = "white";
     this.ctx.textAlign = "center";
-    this.ctx.fillText(this.timer.getTimeValues().toString(['minutes', 'seconds', 'secondTenths']), 50, 200);
+    this.ctx.fillText(this.timer.getTimeValues().toString(['minutes', 'seconds', 'secondTenths']), 175, 210);
   }
 
   playerOne() {
@@ -98,7 +98,7 @@ class Game {
         winner = this.playerOne().finished ? this.playerOne() : this.playerTwo();
       }
       window.clearInterval(this.interval);
-      const endMenu = new EndMenu(this.ctx, winner, String(this.timer.getTimeValues().toString(['minutes', 'seconds', 'secondTenths'])));
+      const endMenu = new EndMenu(this.ctx, winner, this.timer.getTimeValues().toString(['minutes', 'seconds', 'secondTenths']));
       this.timer.stop();
       window.setTimeout(endMenu.drawEndMenu, 3000);
     } else {
@@ -114,14 +114,10 @@ class Game {
   togglePause() {
     if (this.paused === false) {
       window.clearInterval(this.interval);
-      this.players.forEach((player) => {
-        player.timer.pause();
-      });
+        this.timer.pause();
     } else {
       this.interval = window.setInterval(this.drawGame, 50);
-      this.players.forEach((player) => {
-        player.timer.start();
-      });
+        this.timer.start();
     }
     this.paused = !this.paused;
   }

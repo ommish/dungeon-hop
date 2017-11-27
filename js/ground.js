@@ -42,16 +42,10 @@ class Ground {
       }
     });
   }
-
-  slideForward(forwardSlide) {
+  
+  slide(delta) {
     this.path.spaces.forEach((space) => {
-      space.dx -= forwardSlide;
-    });
-  }
-
-  slideBackward(backwardSlide) {
-    this.path.spaces.forEach((space) => {
-      space.dx += backwardSlide;
+      space.dx += delta;
     });
   }
 

@@ -29,26 +29,50 @@ class Player {
     return image;
   }
 
+  slideGround(direction) {
+    let delta;
+    if (direction === -1) {
+      if (this.jumpHeight === this.baseY - 32) {
+        delta = this.mode.oneForwardSlide;
+      } else {
+        delta = this.mode.twoForwardSlides;
+      }
+    } else {
+      if (this.jumpHeight === this.baseY - 32) {
+        delta = 50;
+      } else {
+        delta = 100;
+      }
+    }
+    this.ground.slide(delta * direction);
+  }
+
+  setCharacterFrame() {
+    if (this.y === this.baseY) {
+      this.characterFrame = 75;
+    } else if (this.y >= this.baseY - 20) {
+      this.characterFrame = 100;
+    } else if (this.y >= this.baseY - 30) {
+      this.characterFrame = 125;
+    }
+  }
+
+  incrementY() {
+
+  }
+
+  land() {
+    this.falling = false;
+    this.jumping = false;
+  }
+
   drawPlayer() {
     this.ctx.drawImage(this.character, this.characterFrame, 0, 25, 33, this.x, this.y, 25, 33);
 
     if (this.jumping === true) {
 
-      let forwardSlide;
-      if (this.jumpHeight === this.baseY - 32) {
-        forwardSlide = this.mode.oneForwardSlide;
-      } else {
-        forwardSlide = this.mode.twoForwardSlides;
-      }
-      this.ground.slideForward(forwardSlide);
-
-      if (this.y === this.baseY) {
-        this.characterFrame = 75;
-      } else if (this.y >= this.baseY - 20) {
-        this.characterFrame = 100;
-      } else if (this.y >= this.baseY - 30) {
-        this.characterFrame = 125;
-      }
+      this.slideGround();
+      this.setCharacterFrame();
 
       if (this.falling === false) {
         if (this.y > this.jumpHeight) {
@@ -59,20 +83,15 @@ class Player {
       } else {
         if (this.y < this.baseY) {
           this.y += this.mode.yIncrement;
+
         } else {
 
-          this.falling = false;
-          this.jumping = false;
+          this.land();
+
           if (Math.round(this.ground.current.dx) === 100 && this.ground.current.typeIndex > 0) {
             this.crashing = true;
             this.characterFrame = 350;
-            let backwardSlide;
-            if (this.jumpHeight === this.baseY - 32) {
-              backwardSlide = 50;
-            } else {
-              backwardSlide = 100;
-            }
-            this.ground.slideBackward(backwardSlide);
+            this.slideGround(1);
             this.crashing = false;
           }
 

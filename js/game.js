@@ -98,7 +98,7 @@ class Game {
         winner = this.playerOne().finished ? this.playerOne() : this.playerTwo();
       }
       window.clearInterval(this.interval);
-      const endMenu = new EndMenu(this.ctx, winner, this.timer.getTimeValues().toString(['minutes', 'seconds', 'secondTenths']));
+      const endMenu = new EndMenu(this.ctx, winner, String(this.timer.getTimeValues().toString(['minutes', 'seconds', 'secondTenths'])));
       this.timer.stop();
       window.setTimeout(endMenu.drawEndMenu, 3000);
     } else {

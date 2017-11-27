@@ -57,13 +57,28 @@ class Player {
     }
   }
 
-  incrementY() {
-
-  }
-
   land() {
     this.falling = false;
     this.jumping = false;
+  }
+
+  handleCollision() {
+    if (Math.round(this.ground.current.dx) === 100 && this.ground.current.typeIndex > 0) {
+      this.crashing = true;
+      this.characterFrame = 350;
+      this.slideGround(1);
+      this.crashing = false;
+    }
+  }
+
+  handleFinish() {
+    if (Math.round(this.ground.current.dx) === 100 && this.ground.current.spaceNum >= 103) {
+      this.finished = true;
+    }
+  }
+
+  incrementY(direction) {
+    this.y += this.mode.yIncrement * direction;
   }
 
   drawPlayer() {
@@ -71,33 +86,22 @@ class Player {
 
     if (this.jumping === true) {
 
-      this.slideGround();
+      this.slideGround(-1);
       this.setCharacterFrame();
 
       if (this.falling === false) {
         if (this.y > this.jumpHeight) {
-          this.y -= this.mode.yIncrement;
+          this.incrementY(-1);
         } else {
           this.falling = true;
         }
       } else {
         if (this.y < this.baseY) {
-          this.y += this.mode.yIncrement;
-
+          this.incrementY(1);
         } else {
-
           this.land();
-
-          if (Math.round(this.ground.current.dx) === 100 && this.ground.current.typeIndex > 0) {
-            this.crashing = true;
-            this.characterFrame = 350;
-            this.slideGround(1);
-            this.crashing = false;
-          }
-
-          if (Math.round(this.ground.current.dx) === 100 && this.ground.current.spaceNum >= 103) {
-            this.finished = true;
-          }
+          this.handleCollision();
+          this.handleFinish();
         }
 
       }
@@ -125,10 +129,10 @@ class Player {
       if (this.ground.path.spaces[this.ground.current.spaceNum + 1].typeIndex > 0) {
         this.jump(2);
       } else if (this.ground.path.spaces[this.ground.current.spaceNum + 2].typeIndex > 0) {
+        this.jump(1);
+      } else {
         let spaces = Math.floor(Math.random() * 10) % 2 + 1;
         this.jump(spaces);
-      } else {
-        this.jump(2);
       }
     } else if (this.finished) {
       window.clearInterval(this.interval);

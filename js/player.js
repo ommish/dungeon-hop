@@ -19,7 +19,7 @@ class Player {
     this.finished = false;
     this.mode = mode;
     this.human = human;
-    this.jumpInterval = this.mode.computerLevel === 1 ? 500 : 300;
+    this.jumpInterval = this.mode.computerLevel === 1 ? 450 : 350;
 
     this.calculateAndJump = this.calculateAndJump.bind(this);
 

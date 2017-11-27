@@ -4,8 +4,6 @@ third obstacle not appearing, or timing might be off?
 
 change obstacle sprites
 
-slow down fast AI
-
 change player sprites: different sprites for players 1 and 2
 
 stop timer after finish (currently just paused)

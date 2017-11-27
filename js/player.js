@@ -3,20 +3,23 @@ class Player {
   constructor(i, ctx, ground, mode, human = true) {
     this.playerNumber = i;
     this.ctx = ctx;
+    this.ground = ground;
+    this.mode = mode;
+    this.human = human;
+
+    this.characterFrame = 75;
     this.x = 112.5;
     this.baseY = this.playerNumber === 1 ? 118 : 318;
     this.y = this.baseY;
+    this.jumpHeight = 0;
+    this.jumpInterval = this.mode.computerLevel === 1 ? 450 : 350;
+
     this.character = this.setImage();
+
     this.jumping = false;
     this.falling = false;
     this.crashing = false;
-    this.jumpHeight = 0;
-    this.characterFrame = 75;
-    this.ground = ground;
     this.finished = false;
-    this.mode = mode;
-    this.human = human;
-    this.jumpInterval = this.mode.computerLevel === 1 ? 450 : 350;
 
     this.calculateAndJump = this.calculateAndJump.bind(this);
 

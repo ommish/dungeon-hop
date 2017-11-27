@@ -126,7 +126,6 @@ class Player {
       window.clearInterval(this.interval);
     }
   }
-
 }
 
 module.exports = Player;

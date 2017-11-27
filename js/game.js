@@ -188,12 +188,6 @@ class Game {
       }
     }
   }
-
-  // } else if (e.target === "") {
-  //   // if a/s && player1 exists, player1.jump(a/s)
-  // } else if (e.target === "") {
-  //   // if k/l, && player2 exists, player2.jump(k/l)
-  // }
 }
 
 module.exports = Game;

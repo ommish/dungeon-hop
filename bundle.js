@@ -1,11 +1,12 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 class EndMenu {
-  constructor(ctx, winner) {
+  constructor(ctx, winner, finishTime) {
     this.ctx = ctx;
     this.winner = winner;
     this.width = 350;
     this.height = 400;
     this.level = 0;
+    this.finishTIme  = finishTime;
 
     this.drawEndMenu = this.drawEndMenu.bind(this);
     this.clearEndMenu = this.clearEndMenu.bind(this);
@@ -32,7 +33,7 @@ class EndMenu {
     this.ctx.textAlign = "center";
     this.ctx.rect(0, 0, this.width, this.height);
     this.ctx.fillText(`WINNER: Player ${this.winner.playerNumber}`, this.width / 2, 50);
-    this.ctx.fillText(`TIME: ${this.winner.timer.getTimeValues().toString(['minutes', 'seconds', 'secondTenths'])}`, this.width / 2, 70);
+    this.ctx.fillText(`TIME: ${this.finishTime}`, this.width / 2, 70);
 
   }
 
@@ -49,6 +50,8 @@ const Player = require('./player.js');
 const Path = require('./path.js');
 const EndMenu = require('./end_menu.js');
 const Ground = require('./ground.js');
+const Timer = require('../node_modules/easytimer.js/dist/easytimer.min.js');
+
 
 const _easyMode = {
   oneForwardSlide: 5,
@@ -88,7 +91,17 @@ class Game {
     this.handleKeyDown = this.handleKeyDown.bind(this);
     this.clearGame = this.clearGame.bind(this);
 
+    this.timer = new Timer();
+
     this.addListeners();
+  }
+
+
+  drawTime() {
+    this.ctx.font = "20px Arial";
+    this.ctx.fillStyle = "white";
+    this.ctx.textAlign = "center";
+    this.ctx.fillText(this.timer.getTimeValues().toString(['minutes', 'seconds', 'secondTenths']), 50, 200);
   }
 
   playerOne() {
@@ -113,6 +126,7 @@ class Game {
     this.startMenu.clearStartMenu();
     this.running = true;
     this.interval = window.setInterval(this.drawGame, 50);
+    this.timer.start({precision: 'secondTenths'});
   }
 
   drawGame() {
@@ -122,6 +136,7 @@ class Game {
     }
 
     else if (this.playerOne().finished || this.playerTwo().finished) {
+      this.timer.pause();
       let winner;
       if (this.playerOne().finished && this.playerTwo().finished) {
         winner = this.playerOne().timer.getTimeValues() < this.playerTwo().getTimeValues() ? this.PlayerOne() : this.playerTwo();
@@ -130,16 +145,17 @@ class Game {
         winner = this.playerOne().finished ? this.playerOne() : this.playerTwo();
       }
       window.clearInterval(this.interval);
-      const endMenu = new EndMenu(this.ctx, winner);
+      const endMenu = new EndMenu(this.ctx, winner, String(this.timer.getTimeValues().toString(['minutes', 'seconds', 'secondTenths'])));
+      this.timer.stop();
       window.setTimeout(endMenu.drawEndMenu, 3000);
     } else {
       this.clearGame();
       this.players.forEach((player) => {
         player.ground.drawGround();
         player.drawPlayer();
-        player.drawTime();
-      }
-    );}
+      });
+      this.drawTime();
+    }
   }
 
   togglePause() {
@@ -238,7 +254,7 @@ class Game {
 
 module.exports = Game;
 
-},{"./end_menu.js":1,"./ground.js":3,"./path.js":5,"./player.js":6,"./start_menu.js":8}],3:[function(require,module,exports){
+},{"../node_modules/easytimer.js/dist/easytimer.min.js":9,"./end_menu.js":1,"./ground.js":3,"./path.js":5,"./player.js":6,"./start_menu.js":8}],3:[function(require,module,exports){
 const Space = require('./space.js');
 
 class Ground {
@@ -283,16 +299,10 @@ class Ground {
       }
     });
   }
-
-  slideForward(forwardSlide) {
+  
+  slide(delta) {
     this.path.spaces.forEach((space) => {
-      space.dx -= forwardSlide;
-    });
-  }
-
-  slideBackward(backwardSlide) {
-    this.path.spaces.forEach((space) => {
-      space.dx += backwardSlide;
+      space.dx += delta;
     });
   }
 
@@ -383,28 +393,28 @@ class Path {
 module.exports = Path;
 
 },{"./space.js":7}],6:[function(require,module,exports){
-const Timer = require('../node_modules/easytimer.js/dist/easytimer.min.js');
 
 class Player {
   constructor(i, ctx, ground, mode, human = true) {
     this.playerNumber = i;
     this.ctx = ctx;
-    this.timer = new Timer();
-    this.timer.start({precision: 'secondTenths'});
+    this.ground = ground;
+    this.mode = mode;
+    this.human = human;
+
+    this.characterFrame = 75;
     this.x = 112.5;
     this.baseY = this.playerNumber === 1 ? 118 : 318;
     this.y = this.baseY;
+    this.jumpHeight = 0;
+    this.jumpInterval = this.mode.computerLevel === 1 ? 450 : 350;
+
     this.character = this.setImage();
+
     this.jumping = false;
     this.falling = false;
     this.crashing = false;
-    this.jumpHeight = 0;
-    this.characterFrame = 75;
-    this.ground = ground;
     this.finished = false;
-    this.mode = mode;
-    this.human = human;
-    this.jumpInterval = this.mode.computerLevel === 1 ? 500 : 300;
 
     this.calculateAndJump = this.calculateAndJump.bind(this);
 
@@ -417,69 +427,84 @@ class Player {
     return image;
   }
 
+  slideGround(direction) {
+    let delta;
+    if (direction === -1) {
+      if (this.jumpHeight === this.baseY - 32) {
+        delta = this.mode.oneForwardSlide;
+      } else {
+        delta = this.mode.twoForwardSlides;
+      }
+    } else {
+      if (this.jumpHeight === this.baseY - 32) {
+        delta = 50;
+      } else {
+        delta = 100;
+      }
+    }
+    this.ground.slide(delta * direction);
+  }
+
+  setCharacterFrame() {
+    if (this.y === this.baseY) {
+      this.characterFrame = 75;
+    } else if (this.y >= this.baseY - 20) {
+      this.characterFrame = 100;
+    } else if (this.y >= this.baseY - 30) {
+      this.characterFrame = 125;
+    }
+  }
+
+  land() {
+    this.falling = false;
+    this.jumping = false;
+  }
+
+  handleCollision() {
+    if (Math.round(this.ground.current.dx) === 100 && this.ground.current.typeIndex > 0) {
+      this.crashing = true;
+      this.characterFrame = 350;
+      this.slideGround(1);
+      this.crashing = false;
+    }
+  }
+
+  handleFinish() {
+    if (Math.round(this.ground.current.dx) === 100 && this.ground.current.spaceNum >= 103) {
+      this.finished = true;
+    }
+  }
+
+  incrementY(direction) {
+    this.y += this.mode.yIncrement * direction;
+  }
+
   drawPlayer() {
     this.ctx.drawImage(this.character, this.characterFrame, 0, 25, 33, this.x, this.y, 25, 33);
 
     if (this.jumping === true) {
 
-      let forwardSlide;
-      if (this.jumpHeight === this.baseY - 32) {
-        forwardSlide = this.mode.oneForwardSlide;
-      } else {
-        forwardSlide = this.mode.twoForwardSlides;
-      }
-      this.ground.slideForward(forwardSlide);
-
-      if (this.y === this.baseY) {
-        this.characterFrame = 75;
-      } else if (this.y >= this.baseY - 20) {
-        this.characterFrame = 100;
-      } else if (this.y >= this.baseY - 30) {
-        this.characterFrame = 125;
-      }
+      this.slideGround(-1);
+      this.setCharacterFrame();
 
       if (this.falling === false) {
         if (this.y > this.jumpHeight) {
-          this.y -= this.mode.yIncrement;
+          this.incrementY(-1);
         } else {
           this.falling = true;
         }
       } else {
         if (this.y < this.baseY) {
-          this.y += this.mode.yIncrement;
+          this.incrementY(1);
         } else {
-
-          this.falling = false;
-          this.jumping = false;
-          if (Math.round(this.ground.current.dx) === 100 && this.ground.current.typeIndex > 0) {
-            this.crashing = true;
-            this.characterFrame = 350;
-            let backwardSlide;
-            if (this.jumpHeight === this.baseY - 32) {
-              backwardSlide = 50;
-            } else {
-              backwardSlide = 100;
-            }
-            this.ground.slideBackward(backwardSlide);
-            this.crashing = false;
-          }
-
-          if (Math.round(this.ground.current.dx) === 100 && this.ground.current.spaceNum >= 103) {
-            this.timer.pause();
-            this.finished = true;
-          }
+          this.land();
+          this.handleCollision();
+          this.handleFinish();
         }
 
       }
     }
 
-  }
-
-  drawTime() {
-    this.ctx.font = "20px Arial";
-    this.ctx.fillStyle = "white";
-    this.ctx.textAlign = "center";
-    this.ctx.fillText(this.timer.getTimeValues().toString(['minutes', 'seconds', 'secondTenths']), 50, this.playerNumber * 200 - 5);
   }
 
   jump(spaces) {
@@ -502,10 +527,10 @@ class Player {
       if (this.ground.path.spaces[this.ground.current.spaceNum + 1].typeIndex > 0) {
         this.jump(2);
       } else if (this.ground.path.spaces[this.ground.current.spaceNum + 2].typeIndex > 0) {
+        this.jump(1);
+      } else {
         let spaces = Math.floor(Math.random() * 10) % 2 + 1;
         this.jump(spaces);
-      } else {
-        this.jump(2);
       }
     } else if (this.finished) {
       window.clearInterval(this.interval);
@@ -515,7 +540,7 @@ class Player {
 
 module.exports = Player;
 
-},{"../node_modules/easytimer.js/dist/easytimer.min.js":9}],7:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 const _types = ["blank", "shyguy", "flyguy", "ice"];
 const _imageSrcs = [
   "./assets/ground.png",

@@ -19,7 +19,7 @@ class Player {
     this.finished = false;
     this.mode = mode;
     this.human = human;
-    this.jumpInterval = this.mode.computerLevel === 1 ? 500 : 250;
+    this.jumpInterval = this.mode.computerLevel === 1 ? 500 : 300;
 
     this.calculateAndJump = this.calculateAndJump.bind(this);
 
@@ -117,7 +117,8 @@ class Player {
       if (this.ground.path.spaces[this.ground.current.spaceNum + 1].typeIndex > 0) {
         this.jump(2);
       } else if (this.ground.path.spaces[this.ground.current.spaceNum + 2].typeIndex > 0) {
-        this.jump(1);
+        let spaces = Math.floor(Math.random() * 10) % 2 + 1;
+        this.jump(spaces);
       } else {
         this.jump(2);
       }

@@ -234,12 +234,6 @@ class Game {
       }
     }
   }
-
-  // } else if (e.target === "") {
-  //   // if a/s && player1 exists, player1.jump(a/s)
-  // } else if (e.target === "") {
-  //   // if k/l, && player2 exists, player2.jump(k/l)
-  // }
 }
 
 module.exports = Game;
@@ -380,11 +374,6 @@ class Path {
     for(let i = 103; i < 110; i++) {
       spaces.push(0);
     }
-    let count = 0;
-    spaces.forEach((space) => {
-      if (space === 3) {count++;}
-    });
-    console.log(count);
 
     return spaces;
   }
@@ -416,7 +405,7 @@ class Player {
     this.finished = false;
     this.mode = mode;
     this.human = human;
-    this.jumpInterval = this.mode.computerLevel === 1 ? 500 : 250;
+    this.jumpInterval = this.mode.computerLevel === 1 ? 500 : 300;
 
     this.calculateAndJump = this.calculateAndJump.bind(this);
 
@@ -514,7 +503,8 @@ class Player {
       if (this.ground.path.spaces[this.ground.current.spaceNum + 1].typeIndex > 0) {
         this.jump(2);
       } else if (this.ground.path.spaces[this.ground.current.spaceNum + 2].typeIndex > 0) {
-        this.jump(1);
+        let spaces = Math.floor(Math.random() * 10) % 2 + 1;
+        this.jump(spaces);
       } else {
         this.jump(2);
       }
@@ -522,7 +512,6 @@ class Player {
       window.clearInterval(this.interval);
     }
   }
-
 }
 
 module.exports = Player;
@@ -533,7 +522,7 @@ const _imageSrcs = [
   "./assets/ground.png",
   "./assets/enemies.png",
   "./assets/enemies.png",
-  "./assets/ice.png",
+  "./assets/enemies.png",
   "./assets/sign.png"
 ];
 
@@ -578,7 +567,7 @@ class Space {
       case 2:
       return 35;
       case 3:
-      return 75;
+      return 35;
       default:
       return null;
     }
@@ -591,7 +580,7 @@ class Space {
       case 2:
       return 20;
       case 3:
-      return 75;
+      return 20;
       default:
       return null;
     }
@@ -604,7 +593,7 @@ class Space {
       case 2:
         return 32;
       case 3:
-        return 0;
+        return 32;
       default:
         return null;
     }

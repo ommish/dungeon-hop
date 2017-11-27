@@ -3,18 +3,19 @@ const Player = require('./player.js');
 const Path = require('./path.js');
 const EndMenu = require('./end_menu.js');
 const Ground = require('./ground.js');
-const lodash = require('lodash');
 
 const _easyMode = {
   oneForwardSlide: 5,
   twoForwardSlides: 7.143,
   yIncrement: 8,
+  computerLevel: 1,
 };
 
 const _hardMode = {
   oneForwardSlide: 8.333,
   twoForwardSlides: 12.5,
   yIncrement: 16,
+  computerLevel: 2,
 };
 
 const modes = [_easyMode, _hardMode];
@@ -69,16 +70,19 @@ class Game {
     if (this.running === false) {
       window.clearInterval(this.interval);
       this.clearGame();
-    } else if (this.playerOne().finished || this.playerTwo().finished) {
-      window.setTimeout(this.clearGame, 2000);
+    }
+
+    else if (this.playerOne().finished || this.playerTwo().finished) {
       let winner;
       if (this.playerOne().finished && this.playerTwo().finished) {
         winner = this.playerOne().timer.getTimeValues() < this.playerTwo().getTimeValues() ? this.PlayerOne() : this.playerTwo();
-      } else {
+      }
+      else {
         winner = this.playerOne().finished ? this.playerOne() : this.playerTwo();
       }
       window.clearInterval(this.interval);
-      const endMenu = new EndMenu(this.ctx, winner).drawEndMenu();
+      const endMenu = new EndMenu(this.ctx, winner);
+      window.setTimeout(endMenu.drawEndMenu, 3000);
     } else {
       this.clearGame();
       this.players.forEach((player) => {

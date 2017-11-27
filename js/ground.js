@@ -24,8 +24,8 @@ class Ground {
 
     this.path.spaces.forEach((space) => {
       // context.drawImage(img,      sx, sy, sw, sh, dx,                                dy,        dw, dh)
-      this.ctx.drawImage(space.image, 0, 0, 50, 50, space.sx, this.playerNumber === 1 ? 150 : 350, 49, 50);
-      if (space.dx === 100) {
+      this.ctx.drawImage(space.image, 0, 0, 50, 50, space.dx, this.playerNumber === 1 ? 150 : 350, 50, 50);
+      if (space.dx >= 87.5 && space.dx < 137.5) {
         this.current = space;
       }
       if (space.type !== "blank") {
@@ -36,6 +36,9 @@ class Ground {
         } else {
           space.characterFrame = 0;
         }
+      }
+      if (space.last) {
+        this.ctx.drawImage(space.sign, 0, 0, 20, 30, space.dx + 10, this.playerNumber === 1 ? 126 : 326, 20, 30);
       }
     });
   }

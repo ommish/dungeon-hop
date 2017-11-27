@@ -8,7 +8,7 @@ class Path {
   generateSpaces(spaces) {
     this.spaces = spaces.map((spaceType, i) => {
       let space = new Space(spaceType, i);
-      if (i > 102) {space.last = true;}
+      if (i === 103) {space.last = true;}
       return space;
     });
   }

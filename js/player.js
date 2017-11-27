@@ -19,6 +19,7 @@ class Player {
     this.finished = false;
     this.mode = mode;
     this.human = human;
+    this.jumpInterval = this.mode.computerLevel === 1 ? 800 : 300;
 
     this.calculateAndJump = this.calculateAndJump.bind(this);
 
@@ -62,10 +63,10 @@ class Player {
         if (this.y < this.baseY) {
           this.y += this.mode.yIncrement;
         } else {
+
           this.falling = false;
           this.jumping = false;
-
-          if (this.ground.current.dx === 100 && this.ground.current.type !== "blank") {
+          if (Math.round(this.ground.current.dx) === 100 && this.ground.current.typeIndex > 0) {
             this.crashing = true;
             this.characterFrame = 350;
             let backwardSlide;
@@ -75,15 +76,18 @@ class Player {
               backwardSlide = 100;
             }
             this.ground.slideBackward(backwardSlide);
+            this.crashing = false;
           }
 
-          if (this.ground.current.sx > 80 && this.ground.current.sx < 120 && this.ground.current.spaceNum >= 103) {
+          if (Math.round(this.ground.current.dx) === 100 && this.ground.current.spaceNum >= 103) {
             this.timer.pause();
             this.finished = true;
           }
         }
+
       }
     }
+
   }
 
   drawTime() {
@@ -105,15 +109,17 @@ class Player {
   }
 
   startAI() {
-    this.interval = window.setInterval(this.calculateAndJump, 500);
+    this.interval = window.setInterval(this.calculateAndJump, this.jumpInterval);
   }
 
   calculateAndJump(){
     if (!this.jumping && !this.finished) {
-      if (this.ground.current.typeIndex > 0) {
+      if (this.ground.path.spaces[this.ground.current.spaceNum + 1].typeIndex > 0) {
         this.jump(2);
-      } else {
+      } else if (this.ground.path.spaces[this.ground.current.spaceNum + 2].typeIndex > 0) {
         this.jump(1);
+      } else {
+        this.jump(2);
       }
     } else if (this.finished) {
       window.clearInterval(this.interval);

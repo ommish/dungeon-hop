@@ -1,27 +1,36 @@
-const _types = ["blank", "shyguy", "flyguy", "finish"];
+const _types = ["blank", "shyguy", "flyguy"];
+const _imageSrcs = ["./assets/space.png", "./assets/enemies.png", "./assets/sign.png"];
 
 class Space {
   constructor(typeIndex, spaceNum, current = false, last = false) {
     this.spaceNum = spaceNum;
     this.typeIndex = typeIndex;
     this.type = _types[typeIndex];
-    this.image = this.setImage();
+    this.image = this.setTile();
     this.obstacle = this.setObstacle();
     this.dx = spaceNum * 50;
     this.sy = this.setSY();
     this.sh = this.setSH();
     this.characterFrame = 0;
+    this.last = last;
+    this.sign = this.setSign();
   }
 
-  setImage() {
+  setTile() {
     const image = new Image();
-    image.src = "./assets/space.png";
+    image.src = _imageSrcs[0];
     return image;
   }
 
   setObstacle() {
     const image = new Image();
-    image.src = "./assets/enemies.png";
+    image.src =  _imageSrcs[1];
+    return image;
+  }
+
+  setSign() {
+    const image = new Image();
+    image.src = _imageSrcs[2];
     return image;
   }
 

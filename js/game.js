@@ -6,16 +6,16 @@ const Ground = require('./ground.js');
 const Timer = require('../node_modules/easytimer.js/dist/easytimer.min.js');
 
 const _easyMode = {
-  oneForwardSlide: 5,
-  twoForwardSlides: 7.143,
+  oneSlide: 5,
+  twoSlides: 7.143,
   yIncrement: 8,
   computerLevel: 1,
   obstacleTypes: 2,
 };
 
 const _hardMode = {
-  oneForwardSlide: 8.333,
-  twoForwardSlides: 12.5,
+  oneSlide: 8.333,
+  twoSlides: 12.5,
   yIncrement: 16,
   computerLevel: 2,
   obstacleTypes: 3,

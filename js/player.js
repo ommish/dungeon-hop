@@ -34,19 +34,11 @@ class Player {
 
   slideGround(direction) {
     let delta;
-    if (direction === -1) {
       if (this.jumpHeight === this.baseY - 32) {
-        delta = this.mode.oneForwardSlide;
+        delta = this.mode.oneSlide;
       } else {
-        delta = this.mode.twoForwardSlides;
+        delta = this.mode.twoSlides;
       }
-    } else {
-      if (this.jumpHeight === this.baseY - 32) {
-        delta = 50;
-      } else {
-        delta = 100;
-      }
-    }
     this.ground.slide(delta * direction);
   }
 
@@ -63,14 +55,13 @@ class Player {
   land() {
     this.falling = false;
     this.jumping = false;
+    this.crashing = false;
   }
 
   handleCollision() {
     if (Math.round(this.ground.current.dx) === 100 && this.ground.current.typeIndex > 0) {
       this.crashing = true;
       this.characterFrame = 350;
-      this.slideGround(1);
-      this.crashing = false;
     }
   }
 
@@ -86,35 +77,20 @@ class Player {
 
   drawPlayer() {
     this.ctx.drawImage(this.character, this.characterFrame, 0, 25, 33, this.x, this.y, 25, 33);
-
-    if (this.jumping === true) {
+    this.setCharacterFrame();
+    if (this.crashing) {
+      this.slideGround(1);
       this.jump();
-    } else if (this.finished === true) {
-      this.setCharacterFrame();
-
-      if (this.falling === false) {
-        if (this.y > this.jumpHeight) {
-          this.incrementY(-1);
-        } else {
-          this.falling = true;
-        }
-      } else {
-        if (this.y < this.baseY) {
-          this.incrementY(1);
-        } else {
-          this.land();
-          this.handleCollision();
-          this.handleFinish();
-        }
-      }
+    } else if (this.jumping) {
+      this.slideGround(-1);
+      this.jump();
+    } else if (this.finished) {
+        this.jump();
     }
   }
 
   jump() {
-    this.slideGround(-1);
-    this.setCharacterFrame();
-
-    if (this.falling === false) {
+    if (!this.falling) {
       if (this.y > this.jumpHeight) {
         this.incrementY(-1);
       } else {
@@ -132,7 +108,7 @@ class Player {
   }
 
   setJump(spaces) {
-    if (this.jumping === false) {
+    if (!this.jumping) {
       this.jumping = true;
       if (spaces === 1) {
         this.jumpHeight = this.baseY - 32;

@@ -391,7 +391,7 @@ class Player {
     this.mode = mode;
     this.human = human;
 
-    this.characterFrame = 75;
+    this.characterFrame = 0;
     this.x = 112.5;
     this.baseY = this.playerNumber === 1 ? 118 : 318;
     this.y = this.baseY;
@@ -412,7 +412,7 @@ class Player {
 
   setImage() {
     const image = new Image();
-    image.src = "./assets/toads.png";
+    image.src = "./assets/jaghami.png";
     return image;
   }
 
@@ -428,11 +428,11 @@ class Player {
 
   setCharacterFrame() {
     if (this.y === this.baseY) {
-      this.characterFrame = 75;
+      this.characterFrame = 2;
     } else if (this.y >= this.baseY - 20) {
-      this.characterFrame = 100;
-    } else if (this.y >= this.baseY - 30) {
-      this.characterFrame = 125;
+      this.characterFrame = 27;
+    } else if (this.y >= this.baseY - 40) {
+      this.characterFrame = 52;
     }
   }
 
@@ -460,7 +460,7 @@ class Player {
   }
 
   drawPlayer() {
-    this.ctx.drawImage(this.character, this.characterFrame, 0, 25, 33, this.x, this.y, 25, 33);
+    this.ctx.drawImage(this.character, this.characterFrame, 2, 20, 30, this.x, this.y, 25, 33);
     this.setCharacterFrame();
     if (this.crashing) {
       this.slideGround(1);

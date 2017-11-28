@@ -12,7 +12,7 @@ class Player {
     this.baseY = this.playerNumber === 1 ? 118 : 318;
     this.y = this.baseY;
     this.jumpHeight = 0;
-    this.jumpInterval = this.mode.computerLevel === 1 ? 450 : 100;
+    this.jumpInterval = this.mode.computerLevel === 1 ? 400 : 500;
 
     this.character = this.setImage();
 
@@ -88,8 +88,8 @@ class Player {
     this.ctx.drawImage(this.character, this.characterFrame, 0, 25, 33, this.x, this.y, 25, 33);
 
     if (this.jumping === true) {
-
-      this.slideGround(-1);
+      this.jump();
+    } else if (this.finished === true) {
       this.setCharacterFrame();
 
       if (this.falling === false) {
@@ -106,13 +106,32 @@ class Player {
           this.handleCollision();
           this.handleFinish();
         }
-
       }
     }
-
   }
 
-  jump(spaces) {
+  jump() {
+    this.slideGround(-1);
+    this.setCharacterFrame();
+
+    if (this.falling === false) {
+      if (this.y > this.jumpHeight) {
+        this.incrementY(-1);
+      } else {
+        this.falling = true;
+      }
+    } else {
+      if (this.y < this.baseY) {
+        this.incrementY(1);
+      } else {
+        this.land();
+        this.handleCollision();
+        this.handleFinish();
+      }
+    }
+  }
+
+  setJump(spaces) {
     if (this.jumping === false) {
       this.jumping = true;
       if (spaces === 1) {
@@ -127,15 +146,19 @@ class Player {
     this.interval = window.setInterval(this.calculateAndJump, this.jumpInterval);
   }
 
+  stopAI() {
+    window.clearInterval(this.interval);
+  }
+
   calculateAndJump(){
     if (!this.jumping && !this.finished) {
       if (this.ground.path.spaces[this.ground.current.spaceNum + 1].typeIndex > 0) {
-        this.jump(2);
+        this.setJump(2);
       } else if (this.ground.path.spaces[this.ground.current.spaceNum + 2].typeIndex > 0) {
-        this.jump(1);
+        this.setJump(1);
       } else {
         let spaces = Math.floor(Math.random() * 10) % 2 + 1;
-        this.jump(spaces);
+        this.setJump(spaces);
       }
     } else if (this.finished) {
       window.clearInterval(this.interval);

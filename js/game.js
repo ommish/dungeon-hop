@@ -5,7 +5,6 @@ const EndMenu = require('./end_menu.js');
 const Ground = require('./ground.js');
 const Timer = require('../node_modules/easytimer.js/dist/easytimer.min.js');
 
-
 const _easyMode = {
   oneForwardSlide: 5,
   twoForwardSlides: 7.143,
@@ -31,24 +30,29 @@ class Game {
     this.canvas = canvasEl;
     this.ctx = canvasEl.getContext("2d");
 
+    this.drawGame = this.drawGame.bind(this);
+    this.handleKeyPress = this.handleKeyPress.bind(this);
+    this.handleKeyDown = this.handleKeyDown.bind(this);
+    this.clearGame = this.clearGame.bind(this);
+    this.reset = this.reset.bind(this);
+
+    this.reset();
+
+    this.addListeners();
+  }
+
+  reset() {
+    window.clearInterval(this.interval);
     this.difficulty = 1;
     this.humanPlayerCount = 1;
     this.running = false;
     this.paused = false;
 
     this.startMenu = new StartMenu(this.ctx);
-    this.players = [];
-
-    this.drawGame = this.drawGame.bind(this);
-    this.handleKeyPress = this.handleKeyPress.bind(this);
-    this.handleKeyDown = this.handleKeyDown.bind(this);
-    this.clearGame = this.clearGame.bind(this);
-
     this.timer = new Timer();
-
-    this.addListeners();
+    this.players = [];
+    this.winner = null;
   }
-
 
   drawTime() {
     this.ctx.font = "20px Arial";
@@ -83,30 +87,25 @@ class Game {
   }
 
   drawGame() {
-    if (this.running === false) {
-      window.clearInterval(this.interval);
-      this.clearGame();
-    }
+    this.clearGame();
+    this.players.forEach((player) => {
+      player.ground.drawGround();
+      player.drawPlayer();
+    });
 
-    else if (this.playerOne().finished || this.playerTwo().finished) {
+    if (this.playerOne().finished || this.playerTwo().finished) {
+      this.playerTwo().stopAI();
+      this.running = false;
       this.timer.pause();
-      let winner;
       if (this.playerOne().finished && this.playerTwo().finished) {
-        winner = this.playerOne().timer.getTimeValues() < this.playerTwo().getTimeValues() ? this.PlayerOne() : this.playerTwo();
+        this.winner = this.playerOne().timer.getTimeValues() < this.playerTwo().getTimeValues() ? this.PlayerOne() : this.playerTwo();
       }
       else {
-        winner = this.playerOne().finished ? this.playerOne() : this.playerTwo();
+        this.winner = this.playerOne().finished ? this.playerOne() : this.playerTwo();
       }
-      window.clearInterval(this.interval);
-      const endMenu = new EndMenu(this.ctx, winner, this.timer.getTimeValues().toString(['minutes', 'seconds', 'secondTenths']));
-      this.timer.stop();
-      window.setTimeout(endMenu.drawEndMenu, 3000);
+      this.endMenu = new EndMenu(this.ctx, this.winner, this.timer.getTimeValues().toString(['minutes', 'seconds', 'secondTenths']));
+      this.endMenu.drawEndMenu();
     } else {
-      this.clearGame();
-      this.players.forEach((player) => {
-        player.ground.drawGround();
-        player.drawPlayer();
-      });
       this.drawTime();
     }
   }
@@ -143,8 +142,11 @@ class Game {
   }
 
   handleKeyPress(e) {
-    if (this.running === false) {
+    if (!this.running && !this.winner) {
       switch (e.keyCode) {
+        case 20:
+        e.preventDefault();
+        return;
         case 49:
         this.humanPlayerCount = parseInt(e.key);
         this.startMenu.humanPlayerCount = this.humanPlayerCount;
@@ -159,8 +161,11 @@ class Game {
         default:
         return;
       }
-    } else if (this.running === true && this.paused === false) {
+    } else if (this.running && !this.paused) {
       switch (e.keyCode) {
+        case 20:
+        e.preventDefault();
+        return;
         case 81: // q
         this.running = false;
         this.endGame();
@@ -170,32 +175,39 @@ class Game {
         return;
         case 97:
         if (!this.playerOne().finished) {
-          this.playerOne().jump(1);
+          this.playerOne().setJump(1);
         }
         return;
         case 115:
         if (!this.playerOne().finished) {
-          this.playerOne().jump(2);
+          this.playerOne().setJump(2);
         }
         return;
         case 107:
         if (this.playerTwo().human && !this.playerTwo().finished) {
-          this.playerTwo().jump(1);
+          this.playerTwo().setJump(1);
         }
         return;
         case 108:
         if (this.playerTwo().human && !this.playerTwo().finished) {
-          this.playerTwo().jump(2);
+          this.playerTwo().setJump(2);
         }
         return;
         default:
         return;
       }
-    } else {
+    } else if (this.running && this.paused) {
       switch (e.keyCode) {
         case 32: // spacebar
         this.togglePause();
         return;
+        }
+      } else {
+        switch (e.keyCode) {
+          case 114:
+          // restart game;
+          this.reset();
+          return;
       }
     }
   }

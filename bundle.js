@@ -9,37 +9,19 @@ class EndMenu {
     this.finishTime = finishTime;
 
     this.drawEndMenu = this.drawEndMenu.bind(this);
-    this.clearEndMenu = this.clearEndMenu.bind(this);
-
-    this.start();
-  }
-
-  start() {
-    this.interval = window.setInterval(this.drawEndMenu, 50);
-  }
-
-  clearEndMenu() {
-    this.ctx.clearRect(0, 0, this.width, this.height);
-    window.clearInterval(this.interval);
   }
 
   drawEndMenu() {
 
-    this.clear();
-
-    this.ctx.stroke();
     this.ctx.font = '20px Julius Sans One';
-    this.ctx.fillStyle = "black";
+    this.ctx.fillStyle = "white";
     this.ctx.textAlign = "center";
-    this.ctx.rect(0, 0, this.width, this.height);
     this.ctx.fillText(`WINNER: Player ${this.winner.playerNumber}`, this.width / 2, 50);
     this.ctx.fillText(`TIME: ${this.finishTime}`, this.width / 2, 70);
+    this.ctx.fillText("hit r to start again", this.width / 2, 120);
 
   }
 
-  clear() {
-    this.ctx.clearRect(0, 0, 350, 400);
-  }
 }
 
 module.exports = EndMenu;
@@ -51,7 +33,6 @@ const Path = require('./path.js');
 const EndMenu = require('./end_menu.js');
 const Ground = require('./ground.js');
 const Timer = require('../node_modules/easytimer.js/dist/easytimer.min.js');
-
 
 const _easyMode = {
   oneForwardSlide: 5,
@@ -78,24 +59,29 @@ class Game {
     this.canvas = canvasEl;
     this.ctx = canvasEl.getContext("2d");
 
+    this.drawGame = this.drawGame.bind(this);
+    this.handleKeyPress = this.handleKeyPress.bind(this);
+    this.handleKeyDown = this.handleKeyDown.bind(this);
+    this.clearGame = this.clearGame.bind(this);
+    this.reset = this.reset.bind(this);
+
+    this.reset();
+
+    this.addListeners();
+  }
+
+  reset() {
+    window.clearInterval(this.interval);
     this.difficulty = 1;
     this.humanPlayerCount = 1;
     this.running = false;
     this.paused = false;
 
     this.startMenu = new StartMenu(this.ctx);
-    this.players = [];
-
-    this.drawGame = this.drawGame.bind(this);
-    this.handleKeyPress = this.handleKeyPress.bind(this);
-    this.handleKeyDown = this.handleKeyDown.bind(this);
-    this.clearGame = this.clearGame.bind(this);
-
     this.timer = new Timer();
-
-    this.addListeners();
+    this.players = [];
+    this.winner = null;
   }
-
 
   drawTime() {
     this.ctx.font = "20px Arial";
@@ -130,30 +116,25 @@ class Game {
   }
 
   drawGame() {
-    if (this.running === false) {
-      window.clearInterval(this.interval);
-      this.clearGame();
-    }
+    this.clearGame();
+    this.players.forEach((player) => {
+      player.ground.drawGround();
+      player.drawPlayer();
+    });
 
-    else if (this.playerOne().finished || this.playerTwo().finished) {
+    if (this.playerOne().finished || this.playerTwo().finished) {
+      this.playerTwo().stopAI();
+      this.running = false;
       this.timer.pause();
-      let winner;
       if (this.playerOne().finished && this.playerTwo().finished) {
-        winner = this.playerOne().timer.getTimeValues() < this.playerTwo().getTimeValues() ? this.PlayerOne() : this.playerTwo();
+        this.winner = this.playerOne().timer.getTimeValues() < this.playerTwo().getTimeValues() ? this.PlayerOne() : this.playerTwo();
       }
       else {
-        winner = this.playerOne().finished ? this.playerOne() : this.playerTwo();
+        this.winner = this.playerOne().finished ? this.playerOne() : this.playerTwo();
       }
-      window.clearInterval(this.interval);
-      const endMenu = new EndMenu(this.ctx, winner, this.timer.getTimeValues().toString(['minutes', 'seconds', 'secondTenths']));
-      this.timer.stop();
-      window.setTimeout(endMenu.drawEndMenu, 3000);
+      this.endMenu = new EndMenu(this.ctx, this.winner, this.timer.getTimeValues().toString(['minutes', 'seconds', 'secondTenths']));
+      this.endMenu.drawEndMenu();
     } else {
-      this.clearGame();
-      this.players.forEach((player) => {
-        player.ground.drawGround();
-        player.drawPlayer();
-      });
       this.drawTime();
     }
   }
@@ -190,8 +171,11 @@ class Game {
   }
 
   handleKeyPress(e) {
-    if (this.running === false) {
+    if (!this.running && !this.winner) {
       switch (e.keyCode) {
+        case 20:
+        e.preventDefault();
+        return;
         case 49:
         this.humanPlayerCount = parseInt(e.key);
         this.startMenu.humanPlayerCount = this.humanPlayerCount;
@@ -206,8 +190,11 @@ class Game {
         default:
         return;
       }
-    } else if (this.running === true && this.paused === false) {
+    } else if (this.running && !this.paused) {
       switch (e.keyCode) {
+        case 20:
+        e.preventDefault();
+        return;
         case 81: // q
         this.running = false;
         this.endGame();
@@ -217,32 +204,39 @@ class Game {
         return;
         case 97:
         if (!this.playerOne().finished) {
-          this.playerOne().jump(1);
+          this.playerOne().setJump(1);
         }
         return;
         case 115:
         if (!this.playerOne().finished) {
-          this.playerOne().jump(2);
+          this.playerOne().setJump(2);
         }
         return;
         case 107:
         if (this.playerTwo().human && !this.playerTwo().finished) {
-          this.playerTwo().jump(1);
+          this.playerTwo().setJump(1);
         }
         return;
         case 108:
         if (this.playerTwo().human && !this.playerTwo().finished) {
-          this.playerTwo().jump(2);
+          this.playerTwo().setJump(2);
         }
         return;
         default:
         return;
       }
-    } else {
+    } else if (this.running && this.paused) {
       switch (e.keyCode) {
         case 32: // spacebar
         this.togglePause();
         return;
+        }
+      } else {
+        switch (e.keyCode) {
+          case 114:
+          // restart game;
+          this.reset();
+          return;
       }
     }
   }
@@ -402,7 +396,7 @@ class Player {
     this.baseY = this.playerNumber === 1 ? 118 : 318;
     this.y = this.baseY;
     this.jumpHeight = 0;
-    this.jumpInterval = this.mode.computerLevel === 1 ? 450 : 100;
+    this.jumpInterval = this.mode.computerLevel === 1 ? 400 : 500;
 
     this.character = this.setImage();
 
@@ -478,8 +472,8 @@ class Player {
     this.ctx.drawImage(this.character, this.characterFrame, 0, 25, 33, this.x, this.y, 25, 33);
 
     if (this.jumping === true) {
-
-      this.slideGround(-1);
+      this.jump();
+    } else if (this.finished === true) {
       this.setCharacterFrame();
 
       if (this.falling === false) {
@@ -496,13 +490,32 @@ class Player {
           this.handleCollision();
           this.handleFinish();
         }
-
       }
     }
-
   }
 
-  jump(spaces) {
+  jump() {
+    this.slideGround(-1);
+    this.setCharacterFrame();
+
+    if (this.falling === false) {
+      if (this.y > this.jumpHeight) {
+        this.incrementY(-1);
+      } else {
+        this.falling = true;
+      }
+    } else {
+      if (this.y < this.baseY) {
+        this.incrementY(1);
+      } else {
+        this.land();
+        this.handleCollision();
+        this.handleFinish();
+      }
+    }
+  }
+
+  setJump(spaces) {
     if (this.jumping === false) {
       this.jumping = true;
       if (spaces === 1) {
@@ -517,15 +530,19 @@ class Player {
     this.interval = window.setInterval(this.calculateAndJump, this.jumpInterval);
   }
 
+  stopAI() {
+    window.clearInterval(this.interval);
+  }
+
   calculateAndJump(){
     if (!this.jumping && !this.finished) {
       if (this.ground.path.spaces[this.ground.current.spaceNum + 1].typeIndex > 0) {
-        this.jump(2);
+        this.setJump(2);
       } else if (this.ground.path.spaces[this.ground.current.spaceNum + 2].typeIndex > 0) {
-        this.jump(1);
+        this.setJump(1);
       } else {
         let spaces = Math.floor(Math.random() * 10) % 2 + 1;
-        this.jump(spaces);
+        this.setJump(spaces);
       }
     } else if (this.finished) {
       window.clearInterval(this.interval);

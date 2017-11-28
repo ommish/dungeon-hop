@@ -8,37 +8,19 @@ class EndMenu {
     this.finishTime = finishTime;
 
     this.drawEndMenu = this.drawEndMenu.bind(this);
-    this.clearEndMenu = this.clearEndMenu.bind(this);
-
-    this.start();
-  }
-
-  start() {
-    this.interval = window.setInterval(this.drawEndMenu, 50);
-  }
-
-  clearEndMenu() {
-    this.ctx.clearRect(0, 0, this.width, this.height);
-    window.clearInterval(this.interval);
   }
 
   drawEndMenu() {
 
-    this.clear();
-
-    this.ctx.stroke();
     this.ctx.font = '20px Julius Sans One';
-    this.ctx.fillStyle = "black";
+    this.ctx.fillStyle = "white";
     this.ctx.textAlign = "center";
-    this.ctx.rect(0, 0, this.width, this.height);
     this.ctx.fillText(`WINNER: Player ${this.winner.playerNumber}`, this.width / 2, 50);
     this.ctx.fillText(`TIME: ${this.finishTime}`, this.width / 2, 70);
+    this.ctx.fillText("hit r to start again", this.width / 2, 120);
 
   }
 
-  clear() {
-    this.ctx.clearRect(0, 0, 350, 400);
-  }
 }
 
 module.exports = EndMenu;

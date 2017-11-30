@@ -1,20 +1,38 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="utf-8">
-    <link href="https://fonts.googleapis.com/css?family=Julius+Sans+One" rel="stylesheet">
-    <link rel="stylesheet" href="./css/reset.css">
-    <link rel="stylesheet" href="./css/application.css">
-    <script type="text/javascript" src="bundle.js">
-    </script>
-    <title>Dungeon Hop</title>
-  </head>
-  <body>
-    <header>
-      <h1>Dungeon Hop</h1>
-    </header>
-    <main>
-      <canvas id="canvas" width="350" height="400"></canvas>
-    </main>
-  </body>
+<head>
+  <meta charset="utf-8">
+  <link href="https://fonts.googleapis.com/css?family=Julius+Sans+One" rel="stylesheet">
+  <link rel="stylesheet" href="./css/reset.css">
+  <link rel="stylesheet" href="./css/application.css">
+  <script src="https://www.gstatic.com/firebasejs/4.6.2/firebase.js"></script>
+  
+  <script>
+  // Initialize Firebase
+  var config = {
+    apiKey: "AIzaSyDai1Dz2ZqCGR6XjvZQiEDNg_g---CgodM",
+    authDomain: "dungeon-hop.firebaseapp.com",
+    databaseURL: "https://dungeon-hop.firebaseio.com",
+    projectId: "dungeon-hop",
+    storageBucket: "",
+    messagingSenderId: "45799513741"
+  };
+  // rules
+  // ".read": "auth != null",
+  // ".write": "auth != null"
+  firebase.initializeApp(config);
+  </script>
+
+  <script type="text/javascript" src="bundle.js">
+  </script>
+  <title>Dungeon Hop</title>
+</head>
+<body>
+  <header>
+    <h1>Dungeon Hop</h1>
+  </header>
+  <main>
+    <canvas id="canvas" width="350" height="400"></canvas>
+  </main>
+</body>
 </html>

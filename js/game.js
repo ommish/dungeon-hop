@@ -1,25 +1,27 @@
 const StartMenu = require('./start_menu.js');
 const Player = require('./player.js');
 const Path = require('./path.js');
-const EndMenu = require('./end_menu.js');
 const Ground = require('./ground.js');
 const Timer = require('../node_modules/easytimer.js/dist/easytimer.min.js');
+const Scoreboard = require('./scoreboard.js');
 
 const _easyMode = {
   oneSlide: 5,
-  twoSlides: 7.143,
+  twoSlides: 7.1428571429,
   yIncrement: 8,
   computerLevel: 1,
   obstacleTypes: 2,
 };
 
 const _hardMode = {
-  oneSlide: 8.333,
+  oneSlide: 8.3333333,
   twoSlides: 12.5,
   yIncrement: 16,
   computerLevel: 2,
   obstacleTypes: 3,
 };
+
+// every 50 frames, moving 8 pixels; 14 times;
 
 const modes = [_easyMode, _hardMode];
 
@@ -50,12 +52,13 @@ class Game {
 
     this.startMenu = new StartMenu(this.ctx);
     this.timer = new Timer();
+    this.scoreboard = null;
     this.players = [];
     this.winner = null;
   }
 
   drawTime() {
-    this.ctx.font = "20px Arial";
+    this.ctx.font = "20px Julius Sans One";
     this.ctx.fillStyle = "white";
     this.ctx.textAlign = "center";
     this.ctx.fillText(this.timer.getTimeValues().toString(['minutes', 'seconds', 'secondTenths']), 175, 210);
@@ -92,26 +95,32 @@ class Game {
       player.ground.drawGround();
       player.drawPlayer();
     });
+    if (this.scoreboard) {this.scoreboard.drawScoreboard();}
 
-    if (this.playerOne().finished || this.playerTwo().finished) {
+    if ((this.playerOne().finishTime || this.playerTwo().finishTime) && this.running) {
       this.playerTwo().stopAI();
       this.running = false;
       this.timer.pause();
-      if (this.playerOne().finished && this.playerTwo().finished) {
-        this.winner = this.playerOne().timer.getTimeValues() < this.playerTwo().getTimeValues() ? this.PlayerOne() : this.playerTwo();
+      if (this.playerOne().finishTime && this.playerTwo().finishTime) {
+        this.winner = this.playerOne().finishTime < this.playerTwo().finishTime ? this.PlayerOne() : this.playerTwo();
       }
       else {
-        this.winner = this.playerOne().finished ? this.playerOne() : this.playerTwo();
+        this.winner = this.playerOne().finishTime ? this.playerOne() : this.playerTwo();
       }
-      this.endMenu = new EndMenu(this.ctx, this.winner, this.timer.getTimeValues().toString(['minutes', 'seconds', 'secondTenths']));
-      this.endMenu.drawEndMenu();
-    } else {
+      document.removeEventListener("keypress", this.keypressListener);
+      document.removeEventListener("keydown", this.keydownListener);
+      const finishTime = this.timer.getTimeValues();
+      const date = this.winner.finishTime;
+
+      this.scoreboard = new Scoreboard(this.ctx, this.winner, finishTime, date);
+
+    } else if (this.running) {
       this.drawTime();
     }
   }
 
   togglePause() {
-    if (this.paused === false) {
+    if (!this.paused) {
       window.clearInterval(this.interval);
         this.timer.pause();
     } else {
@@ -126,8 +135,8 @@ class Game {
   }
 
   addListeners() {
-    document.addEventListener("keypress", this.handleKeyPress);
-    document.addEventListener("keydown", this.handleKeyDown);
+    this.keypressListener = document.addEventListener("keypress", this.handleKeyPress);
+    this.keydownListener = document.addEventListener("keydown", this.handleKeyDown);
   }
 
   handleKeyDown(e) {
@@ -204,8 +213,7 @@ class Game {
         }
       } else {
         switch (e.keyCode) {
-          case 114:
-          // restart game;
+          case 92:
           this.reset();
           return;
       }

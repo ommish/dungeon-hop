@@ -12,14 +12,14 @@ class Player {
     this.baseY = this.playerNumber === 1 ? 118 : 318;
     this.y = this.baseY;
     this.jumpHeight = 0;
-    this.jumpInterval = this.mode.computerLevel === 1 ? 400 : 500;
+    this.jumpInterval = this.mode.computerLevel === 1 ? 400 : 200;
 
     this.character = this.setImage();
 
     this.jumping = false;
     this.falling = false;
     this.crashing = false;
-    this.finished = false;
+    this.finishTime = null;
 
     this.calculateAndJump = this.calculateAndJump.bind(this);
 
@@ -59,15 +59,15 @@ class Player {
   }
 
   handleCollision() {
-    if (Math.round(this.ground.current.dx) === 100 && this.ground.current.typeIndex > 0) {
+    if (this.ground.current.dx < 103 && this.ground.current.dx > 97 && this.ground.current.typeIndex > 0) {
       this.crashing = true;
       this.characterFrame = 350;
     }
   }
 
   handleFinish() {
-    if (Math.round(this.ground.current.dx) === 100 && this.ground.current.spaceNum >= 103) {
-      this.finished = true;
+    if ((this.ground.current.dx < 103 && this.ground.current.dx > 97) && (this.ground.current.spaceNum >= 103) && (!this.finishTime)) {
+      this.finishTime = new Date();
     }
   }
 
@@ -84,12 +84,15 @@ class Player {
     } else if (this.jumping) {
       this.slideGround(-1);
       this.jump();
-    } else if (this.finished) {
+    } else if (this.finishTime) {
         this.jump();
     }
   }
 
   jump() {
+    if (this.human) {
+      console.log("jumping!");
+    }
     if (!this.falling) {
       if (this.y > this.jumpHeight) {
         this.incrementY(-1);
@@ -127,7 +130,7 @@ class Player {
   }
 
   calculateAndJump(){
-    if (!this.jumping && !this.finished) {
+    if (!this.jumping && !this.finishTime) {
       if (this.ground.path.spaces[this.ground.current.spaceNum + 1].typeIndex > 0) {
         this.setJump(2);
       } else if (this.ground.path.spaces[this.ground.current.spaceNum + 2].typeIndex > 0) {
@@ -136,7 +139,7 @@ class Player {
         let spaces = Math.floor(Math.random() * 10) % 2 + 1;
         this.setJump(spaces);
       }
-    } else if (this.finished) {
+    } else if (this.finishTime) {
       window.clearInterval(this.interval);
     }
   }

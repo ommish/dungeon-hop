@@ -1,54 +1,28 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-class EndMenu {
-  constructor(ctx, winner, finishTime) {
-    this.ctx = ctx;
-    this.winner = winner;
-    this.width = 350;
-    this.height = 400;
-    this.level = 0;
-    this.finishTime = finishTime;
-
-    this.drawEndMenu = this.drawEndMenu.bind(this);
-  }
-
-  drawEndMenu() {
-
-    this.ctx.font = '20px Julius Sans One';
-    this.ctx.fillStyle = "white";
-    this.ctx.textAlign = "center";
-    this.ctx.fillText(`WINNER: Player ${this.winner.playerNumber}`, this.width / 2, 50);
-    this.ctx.fillText(`TIME: ${this.finishTime}`, this.width / 2, 70);
-    this.ctx.fillText("hit r to start again", this.width / 2, 120);
-
-  }
-
-}
-
-module.exports = EndMenu;
-
-},{}],2:[function(require,module,exports){
 const StartMenu = require('./start_menu.js');
 const Player = require('./player.js');
 const Path = require('./path.js');
-const EndMenu = require('./end_menu.js');
 const Ground = require('./ground.js');
 const Timer = require('../node_modules/easytimer.js/dist/easytimer.min.js');
+const Scoreboard = require('./scoreboard.js');
 
 const _easyMode = {
   oneSlide: 5,
-  twoSlides: 7.143,
+  twoSlides: 7.1428571429,
   yIncrement: 8,
   computerLevel: 1,
   obstacleTypes: 2,
 };
 
 const _hardMode = {
-  oneSlide: 8.333,
+  oneSlide: 8.3333333,
   twoSlides: 12.5,
   yIncrement: 16,
   computerLevel: 2,
   obstacleTypes: 3,
 };
+
+// every 50 frames, moving 8 pixels; 14 times;
 
 const modes = [_easyMode, _hardMode];
 
@@ -79,12 +53,13 @@ class Game {
 
     this.startMenu = new StartMenu(this.ctx);
     this.timer = new Timer();
+    this.scoreboard = null;
     this.players = [];
     this.winner = null;
   }
 
   drawTime() {
-    this.ctx.font = "20px Arial";
+    this.ctx.font = "20px Julius Sans One";
     this.ctx.fillStyle = "white";
     this.ctx.textAlign = "center";
     this.ctx.fillText(this.timer.getTimeValues().toString(['minutes', 'seconds', 'secondTenths']), 175, 210);
@@ -121,26 +96,32 @@ class Game {
       player.ground.drawGround();
       player.drawPlayer();
     });
+    if (this.scoreboard) {this.scoreboard.drawScoreboard();}
 
-    if (this.playerOne().finished || this.playerTwo().finished) {
+    if ((this.playerOne().finishTime || this.playerTwo().finishTime) && this.running) {
       this.playerTwo().stopAI();
       this.running = false;
       this.timer.pause();
-      if (this.playerOne().finished && this.playerTwo().finished) {
-        this.winner = this.playerOne().timer.getTimeValues() < this.playerTwo().getTimeValues() ? this.PlayerOne() : this.playerTwo();
+      if (this.playerOne().finishTime && this.playerTwo().finishTime) {
+        this.winner = this.playerOne().finishTime < this.playerTwo().finishTime ? this.PlayerOne() : this.playerTwo();
       }
       else {
-        this.winner = this.playerOne().finished ? this.playerOne() : this.playerTwo();
+        this.winner = this.playerOne().finishTime ? this.playerOne() : this.playerTwo();
       }
-      this.endMenu = new EndMenu(this.ctx, this.winner, this.timer.getTimeValues().toString(['minutes', 'seconds', 'secondTenths']));
-      this.endMenu.drawEndMenu();
-    } else {
+      document.removeEventListener("keypress", this.keypressListener);
+      document.removeEventListener("keydown", this.keydownListener);
+      const finishTime = this.timer.getTimeValues();
+      const date = this.winner.finishTime;
+
+      this.scoreboard = new Scoreboard(this.ctx, this.winner, finishTime, date);
+
+    } else if (this.running) {
       this.drawTime();
     }
   }
 
   togglePause() {
-    if (this.paused === false) {
+    if (!this.paused) {
       window.clearInterval(this.interval);
         this.timer.pause();
     } else {
@@ -155,8 +136,8 @@ class Game {
   }
 
   addListeners() {
-    document.addEventListener("keypress", this.handleKeyPress);
-    document.addEventListener("keydown", this.handleKeyDown);
+    this.keypressListener = document.addEventListener("keypress", this.handleKeyPress);
+    this.keydownListener = document.addEventListener("keydown", this.handleKeyDown);
   }
 
   handleKeyDown(e) {
@@ -233,8 +214,7 @@ class Game {
         }
       } else {
         switch (e.keyCode) {
-          case 114:
-          // restart game;
+          case 92:
           this.reset();
           return;
       }
@@ -244,7 +224,7 @@ class Game {
 
 module.exports = Game;
 
-},{"../node_modules/easytimer.js/dist/easytimer.min.js":9,"./end_menu.js":1,"./ground.js":3,"./path.js":5,"./player.js":6,"./start_menu.js":8}],3:[function(require,module,exports){
+},{"../node_modules/easytimer.js/dist/easytimer.min.js":9,"./ground.js":2,"./path.js":4,"./player.js":5,"./scoreboard.js":6,"./start_menu.js":8}],2:[function(require,module,exports){
 const Space = require('./space.js');
 
 class Ground {
@@ -300,7 +280,7 @@ class Ground {
 
 module.exports = Ground;
 
-},{"./space.js":7}],4:[function(require,module,exports){
+},{"./space.js":7}],3:[function(require,module,exports){
 const Game = require('./game.js');
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -308,7 +288,7 @@ document.addEventListener("DOMContentLoaded", () => {
   new Game(canvasEl);
 });
 
-},{"./game.js":2}],5:[function(require,module,exports){
+},{"./game.js":1}],4:[function(require,module,exports){
 const Space = require('./space.js');
 
 class Path {
@@ -381,7 +361,7 @@ class Path {
 
 module.exports = Path;
 
-},{"./space.js":7}],6:[function(require,module,exports){
+},{"./space.js":7}],5:[function(require,module,exports){
 
 class Player {
   constructor(i, ctx, ground, mode, human = true) {
@@ -396,14 +376,14 @@ class Player {
     this.baseY = this.playerNumber === 1 ? 118 : 318;
     this.y = this.baseY;
     this.jumpHeight = 0;
-    this.jumpInterval = this.mode.computerLevel === 1 ? 400 : 500;
+    this.jumpInterval = this.mode.computerLevel === 1 ? 400 : 200;
 
     this.character = this.setImage();
 
     this.jumping = false;
     this.falling = false;
     this.crashing = false;
-    this.finished = false;
+    this.finishTime = null;
 
     this.calculateAndJump = this.calculateAndJump.bind(this);
 
@@ -443,15 +423,15 @@ class Player {
   }
 
   handleCollision() {
-    if (Math.round(this.ground.current.dx) === 100 && this.ground.current.typeIndex > 0) {
+    if (this.ground.current.dx < 103 && this.ground.current.dx > 97 && this.ground.current.typeIndex > 0) {
       this.crashing = true;
       this.characterFrame = 350;
     }
   }
 
   handleFinish() {
-    if (Math.round(this.ground.current.dx) === 100 && this.ground.current.spaceNum >= 103) {
-      this.finished = true;
+    if ((this.ground.current.dx < 103 && this.ground.current.dx > 97) && (this.ground.current.spaceNum >= 103) && (!this.finishTime)) {
+      this.finishTime = new Date();
     }
   }
 
@@ -468,12 +448,15 @@ class Player {
     } else if (this.jumping) {
       this.slideGround(-1);
       this.jump();
-    } else if (this.finished) {
+    } else if (this.finishTime) {
         this.jump();
     }
   }
 
   jump() {
+    if (this.human) {
+      console.log("jumping!");
+    }
     if (!this.falling) {
       if (this.y > this.jumpHeight) {
         this.incrementY(-1);
@@ -511,7 +494,7 @@ class Player {
   }
 
   calculateAndJump(){
-    if (!this.jumping && !this.finished) {
+    if (!this.jumping && !this.finishTime) {
       if (this.ground.path.spaces[this.ground.current.spaceNum + 1].typeIndex > 0) {
         this.setJump(2);
       } else if (this.ground.path.spaces[this.ground.current.spaceNum + 2].typeIndex > 0) {
@@ -520,13 +503,112 @@ class Player {
         let spaces = Math.floor(Math.random() * 10) % 2 + 1;
         this.setJump(spaces);
       }
-    } else if (this.finished) {
+    } else if (this.finishTime) {
       window.clearInterval(this.interval);
     }
   }
 }
 
 module.exports = Player;
+
+},{}],6:[function(require,module,exports){
+class Scoreboard {
+  constructor(ctx, winner, finishTime, date) {
+    this.ctx = ctx;
+    this.finishTime = finishTime;
+    this.date = date;
+    this.winner = winner;
+    this.winnerName = "";
+
+    this.width = 350;
+    this.height = 400;
+
+    this.drawScoreboard = this.drawScoreboard.bind(this);
+    this.handleKeypress = this.handleKeypress.bind(this);
+    this.winnerRecorded = false;
+
+    this.getScoreboard();
+
+  }
+
+  addListeners() {
+    this.keypressListener = document.addEventListener("keypress", this.handleKeypress);
+  }
+
+  handleKeypress(e) {
+    if (e.keyCode === 8) {
+      this.winnerName = this.winnerName.slice(1);
+    }
+    else if (e.keyCode === 13) {
+      this.saveScore();
+    }
+    else if (this.winnerName.length < 15) {
+      this.winnerName += e.key;
+    }
+  }
+
+  drawScoreboard() {
+    this.ctx.font = "20px Julius Sans One";
+    this.ctx.fillStyle = "white";
+    this.ctx.textAlign = "center";
+    this.ctx.fillText(`WINNER: Player ${this.winner.playerNumber}`, this.width / 2, 50);
+    this.ctx.fillText(`TIME: ${this.finishTime.toString(['minutes', 'seconds', 'secondTenths'])}`, this.width / 2, 70);
+    this.ctx.fillText("Top Scores:", this.width / 2, 120);
+    if (this.winners) {
+      this.winners.forEach((winner, i) => {
+        this.ctx.fillText(`${i + 1}. ${winner.name}: ${winner.time}`, this.width / 2, (i + 1) * 30 + 140);
+      });
+    }
+    if (this.isNewWinner && !this.winnerRecorded) {
+      this.ctx.fillText(`YOUR NAME: ${this.winnerName}`, this.width / 2, 330);
+    }
+  }
+
+  getScoreboard() {
+    firebase.database().ref('/scores/').once('value').then((snapshot) => {
+      this.winners = this.topScores(Object.values(snapshot.val())).slice(0, 5);
+      this.isNewWinner = this.winners.some((winner) => {
+        return winner.time > this.finishTime.toString();
+      });
+      if (this.isNewWinner && !this.winnerRecorded) {
+        this.addListeners();
+      }
+    });
+  }
+
+  topScores(scores) {
+    return scores.sort(this.compareScores);
+  }
+
+  compareScores(scoreA, scoreB) {
+    if (scoreA.time < scoreB.time) {
+      return -1;
+    } else if (scoreA.time > scoreB.time) {
+      return 1;
+    } else {
+      if (scoreA.date < scoreB.date) {
+        return -1;
+      } else {
+        return 1;
+      }
+    }
+  }
+
+  saveScore() {
+    const newScore = firebase.database().ref('/scores/').push();
+    const winner = this.winnerName;
+    newScore.set({
+      name: this.winnerName,
+      time: this.finishTime.toString(),
+      date: this.date.toString(),
+    });
+    this.winnerRecorded = true;
+    document.removeEventListener("keypress", this.handleKeypress);
+    this.getScoreboard();
+  }
+}
+
+module.exports = Scoreboard;
 
 },{}],7:[function(require,module,exports){
 const _types = ["blank", "shyguy", "flyguy", "ice"];
@@ -980,4 +1062,4 @@ function isUndefined(arg) {
   return arg === void 0;
 }
 
-},{}]},{},[4]);
+},{}]},{},[3]);

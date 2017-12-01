@@ -80,12 +80,25 @@ class Scoreboard {
       }
     }
   }
+  //
+  // saveScore() {
+  //   const newScore = firebase.database().ref('/scores/').push();
+  //   const winner = this.winnerName;
+  //   newScore.set({
+  //     name: this.winnerName,
+  //     time: this.finishTime.toString(),
+  //     date: this.date.toString(),
+  //   });
+  //   this.winnerRecorded = true;
+  //   document.removeEventListener("keypress", this.handleKeypress);
+  //   this.getScoreboard();
+  // }
 
   saveScore() {
-    const newScore = firebase.database().ref('/scores/').push();
+    const newScore = firebase.database().ref('/scores' + this.user.uid).push();
     const winner = this.winnerName;
     newScore.set({
-      name: this.winnerName,
+      name: this.user.username,
       time: this.finishTime.toString(),
       date: this.date.toString(),
     });

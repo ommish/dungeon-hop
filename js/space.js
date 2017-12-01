@@ -57,11 +57,11 @@ class Space {
   setSW() {
     switch (this.typeIndex) {
       case 1:
-      return 20;
+      return 23;
       case 2:
-      return 20;
+      return 23;
       case 3:
-      return 20;
+      return 23;
       default:
       return null;
     }

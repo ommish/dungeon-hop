@@ -7,27 +7,28 @@ const Timer = require('../node_modules/easytimer.js/dist/easytimer.min.js');
 const Scoreboard = require('./scoreboard.js');
 
 const _easyMode = {
-  oneSlide: 81 / 18,
-  twoSlides: 162 / 24,
-  yIncrement: 9,
-  computerLevel: 1,
+  oneSlide: 81 / 10,
+  twoSlides: 162 / 14,
+  yIncrement: 16,
   obstacleTypes: 2,
+  randomness: 0.7,
+  jumpInterval: 300,
 };
 
 const _hardMode = {
-  oneSlide: 81 / 12,
-  twoSlides: 162 / 16,
-  yIncrement: 15,
-  computerLevel: 2,
+  oneSlide: 81 / 8,
+  twoSlides: 162 / 10,
+  yIncrement: 24,
   obstacleTypes: 3,
+  randomness: 0.8,
+  jumpInterval: 200,
 };
 
 const modes = [_easyMode, _hardMode];
 
-
 class Game {
 
-  constructor(canvasEl, user) {
+  constructor(canvasEl) {
     this.canvas = canvasEl;
     this.ctx = canvasEl.getContext("2d");
 
@@ -36,7 +37,6 @@ class Game {
     this.handleKeyDown = this.handleKeyDown.bind(this);
     this.clearGame = this.clearGame.bind(this);
     this.reset = this.reset.bind(this);
-    this.user = user;
 
     this.reset();
 
@@ -112,7 +112,7 @@ class Game {
       const finishTime = this.timer.getTimeValues();
       const date = this.winner.finishTime;
 
-      this.scoreboard = new Scoreboard(this.ctx, this.winner, finishTime, date, this.user);
+      this.scoreboard = new Scoreboard(this.ctx, this.winner, finishTime, date);
 
     } else if (this.running) {
       this.drawTime();
@@ -242,7 +242,7 @@ class Ground {
 
   drawBackground() {
     // context.drawImage(img,          sx,sy, sw, sh, dx,                             dy,      dw, dh)
-    this.ctx.drawImage(this.background, 5, 10, 250, 100, 0, this.playerNumber === 1 ? 0 : 300, 500, 218);
+    this.ctx.drawImage(this.background, 5, 10, 250, 100, 0, this.playerNumber === 1 ? 0 : 300, 500, 219);
   }
 
   drawGround() {
@@ -250,7 +250,7 @@ class Ground {
 
     this.path.spaces.forEach((space) => {
       // context.drawImage(img,      sx, sy, sw, sh, dx,                                dy,        dw, dh)
-      this.ctx.drawImage(space.image, 0, 0, 100, 100, space.dx, this.playerNumber === 1 ? 218 : 518, 81, 81);
+      this.ctx.drawImage(space.image, 0, 0, 100, 100, space.dx, this.playerNumber === 1 ? 219 : 519, 81, 81);
       if (space.dx >= 141.75 && space.dx < 222.75) {
         this.current = space;
       }
@@ -282,35 +282,9 @@ module.exports = Ground;
 },{"./space.js":7}],3:[function(require,module,exports){
 const Game = require('./game.js');
 
-const provider = new firebase.auth.GoogleAuthProvider();
-
-firebase.auth().getRedirectResult().then(function(result) {
-  if (result.credential) {
-    // This gives you a Google Access Token. You can use it to access the Google API.
-
-    const token = result.credential.accessToken;
-    // ...
-  }
-  debugger
-  // The signed-in user info.
-  const user = result.user;
-
-}).catch(function(error) {
-  debugger
-  // Handle Errors here.
-  const errorCode = error.code;
-  const errorMessage = error.message;
-  // The email of the user's account used.
-  const email = error.email;
-  // The firebase.auth.AuthCredential type that was used.
-  const credential = error.credential;
-  // ...
-});
-
-
 document.addEventListener("DOMContentLoaded", () => {
   const canvasEl = document.getElementsByTagName('canvas')[0];
-  new Game(canvasEl, user);
+  new Game(canvasEl);
 });
 
 },{"./game.js":1}],4:[function(require,module,exports){
@@ -401,7 +375,6 @@ class Player {
     this.baseY = this.playerNumber === 1 ? 154 : 454;
     this.y = this.baseY;
     this.jumpHeight = 0;
-    this.jumpInterval = this.mode.computerLevel === 1 ? 300 : 200;
 
     this.character = this.setImage();
 
@@ -479,9 +452,6 @@ class Player {
   }
 
   jump() {
-    if (this.human) {
-      console.log("jumping!");
-    }
     if (!this.falling) {
       if (this.y > this.jumpHeight) {
         this.incrementY(-1);
@@ -511,7 +481,7 @@ class Player {
   }
 
   startAI() {
-    this.interval = window.setInterval(this.calculateAndJump, this.jumpInterval);
+    this.interval = window.setInterval(this.calculateAndJump, this.mode.jumpInterval);
   }
 
   stopAI() {
@@ -519,11 +489,16 @@ class Player {
   }
 
   calculateAndJump(){
-    if (!this.jumping && !this.finishTime) {
-      if (this.ground.path.spaces[this.ground.current.spaceNum + 1].typeIndex > 0) {
-        this.setJump(2);
-      } else if (this.ground.path.spaces[this.ground.current.spaceNum + 2].typeIndex > 0) {
-        this.setJump(1);
+    if (!this.jumping && !this.crashing && !this.finishTime) {
+      if (Math.random() <= this.mode.randomness) {
+        if (this.ground.path.spaces[this.ground.current.spaceNum + 1].typeIndex > 0) {
+          this.setJump(2);
+        } else if (this.ground.path.spaces[this.ground.current.spaceNum + 2].typeIndex > 0) {
+          this.setJump(1);
+        } else {
+          let spaces = Math.floor(Math.random() * 10) % 2 + 1;
+          this.setJump(spaces);
+        }
       } else {
         let spaces = Math.floor(Math.random() * 10) % 2 + 1;
         this.setJump(spaces);
@@ -538,13 +513,12 @@ module.exports = Player;
 
 },{}],6:[function(require,module,exports){
 class Scoreboard {
-  constructor(ctx, winner, finishTime, date, user) {
+  constructor(ctx, winner, finishTime, date) {
     this.ctx = ctx;
     this.finishTime = finishTime;
     this.date = date;
     this.winner = winner;
     this.winnerName = "";
-    this.user = user;
 
     this.width = 500;
     this.height = 600;
@@ -582,11 +556,12 @@ class Scoreboard {
     this.ctx.fillText("Top Scores:", this.width / 2, 140);
     if (this.winners) {
       this.winners.forEach((winner, i) => {
-        this.ctx.fillText(`${i + 1}. ${winner.name}: ${winner.time}`, this.width / 2, (i + 1) * 30 + 170);
+        this.ctx.fillText(`${i + 1}. ${winner.name}: ${winner.time}`, this.width / 2, (i + 1) * 40 + 170);
       });
     }
-    if (this.isNewWinner && !this.winnerRecorded) {
-      this.ctx.fillText(`YOUR NAME: ${this.winnerName}`, this.width / 2, 350);
+    this.ctx.fillText("Hit \\ to restart", this.width / 2, 460);
+    if (this.isNewWinner && !this.winnerRecorded && this.winner.human) {
+      this.ctx.fillText(`YOUR NAME: ${this.winnerName}`, this.width / 2, 400);
     }
   }
 
@@ -596,7 +571,7 @@ class Scoreboard {
       this.isNewWinner = this.winners.some((winner) => {
         return winner.time > this.finishTime.toString();
       });
-      if (this.isNewWinner && !this.winnerRecorded) {
+      if (this.isNewWinner && !this.winnerRecorded && this.winner.human) {
         this.addListeners();
       }
     });
@@ -619,25 +594,12 @@ class Scoreboard {
       }
     }
   }
-  //
-  // saveScore() {
-  //   const newScore = firebase.database().ref('/scores/').push();
-  //   const winner = this.winnerName;
-  //   newScore.set({
-  //     name: this.winnerName,
-  //     time: this.finishTime.toString(),
-  //     date: this.date.toString(),
-  //   });
-  //   this.winnerRecorded = true;
-  //   document.removeEventListener("keypress", this.handleKeypress);
-  //   this.getScoreboard();
-  // }
+
 
   saveScore() {
-    const newScore = firebase.database().ref('/scores' + this.user.uid).push();
-    const winner = this.winnerName;
+    const newScore = firebase.database().ref('/scores').push();
     newScore.set({
-      name: this.user.username,
+      name: this.winnerName,
       time: this.finishTime.toString(),
       date: this.date.toString(),
     });
@@ -709,11 +671,11 @@ class Space {
   setSW() {
     switch (this.typeIndex) {
       case 1:
-      return 20;
+      return 23;
       case 2:
-      return 20;
+      return 23;
       case 3:
-      return 20;
+      return 23;
       default:
       return null;
     }

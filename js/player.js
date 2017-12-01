@@ -12,7 +12,6 @@ class Player {
     this.baseY = this.playerNumber === 1 ? 154 : 454;
     this.y = this.baseY;
     this.jumpHeight = 0;
-    this.jumpInterval = this.mode.computerLevel === 1 ? 300 : 200;
 
     this.character = this.setImage();
 
@@ -90,9 +89,6 @@ class Player {
   }
 
   jump() {
-    if (this.human) {
-      console.log("jumping!");
-    }
     if (!this.falling) {
       if (this.y > this.jumpHeight) {
         this.incrementY(-1);
@@ -122,7 +118,7 @@ class Player {
   }
 
   startAI() {
-    this.interval = window.setInterval(this.calculateAndJump, this.jumpInterval);
+    this.interval = window.setInterval(this.calculateAndJump, this.mode.jumpInterval);
   }
 
   stopAI() {
@@ -130,11 +126,16 @@ class Player {
   }
 
   calculateAndJump(){
-    if (!this.jumping && !this.finishTime) {
-      if (this.ground.path.spaces[this.ground.current.spaceNum + 1].typeIndex > 0) {
-        this.setJump(2);
-      } else if (this.ground.path.spaces[this.ground.current.spaceNum + 2].typeIndex > 0) {
-        this.setJump(1);
+    if (!this.jumping && !this.crashing && !this.finishTime) {
+      if (Math.random() <= this.mode.randomness) {
+        if (this.ground.path.spaces[this.ground.current.spaceNum + 1].typeIndex > 0) {
+          this.setJump(2);
+        } else if (this.ground.path.spaces[this.ground.current.spaceNum + 2].typeIndex > 0) {
+          this.setJump(1);
+        } else {
+          let spaces = Math.floor(Math.random() * 10) % 2 + 1;
+          this.setJump(spaces);
+        }
       } else {
         let spaces = Math.floor(Math.random() * 10) % 2 + 1;
         this.setJump(spaces);

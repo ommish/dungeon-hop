@@ -1,11 +1,10 @@
 class Scoreboard {
-  constructor(ctx, winner, finishTime, date, user) {
+  constructor(ctx, winner, finishTime, date) {
     this.ctx = ctx;
     this.finishTime = finishTime;
     this.date = date;
     this.winner = winner;
     this.winnerName = "";
-    this.user = user;
 
     this.width = 500;
     this.height = 600;
@@ -43,11 +42,12 @@ class Scoreboard {
     this.ctx.fillText("Top Scores:", this.width / 2, 140);
     if (this.winners) {
       this.winners.forEach((winner, i) => {
-        this.ctx.fillText(`${i + 1}. ${winner.name}: ${winner.time}`, this.width / 2, (i + 1) * 30 + 170);
+        this.ctx.fillText(`${i + 1}. ${winner.name}: ${winner.time}`, this.width / 2, (i + 1) * 40 + 170);
       });
     }
-    if (this.isNewWinner && !this.winnerRecorded) {
-      this.ctx.fillText(`YOUR NAME: ${this.winnerName}`, this.width / 2, 350);
+    this.ctx.fillText("Hit \\ to restart", this.width / 2, 460);
+    if (this.isNewWinner && !this.winnerRecorded && this.winner.human) {
+      this.ctx.fillText(`YOUR NAME: ${this.winnerName}`, this.width / 2, 400);
     }
   }
 
@@ -57,7 +57,7 @@ class Scoreboard {
       this.isNewWinner = this.winners.some((winner) => {
         return winner.time > this.finishTime.toString();
       });
-      if (this.isNewWinner && !this.winnerRecorded) {
+      if (this.isNewWinner && !this.winnerRecorded && this.winner.human) {
         this.addListeners();
       }
     });
@@ -80,25 +80,12 @@ class Scoreboard {
       }
     }
   }
-  //
-  // saveScore() {
-  //   const newScore = firebase.database().ref('/scores/').push();
-  //   const winner = this.winnerName;
-  //   newScore.set({
-  //     name: this.winnerName,
-  //     time: this.finishTime.toString(),
-  //     date: this.date.toString(),
-  //   });
-  //   this.winnerRecorded = true;
-  //   document.removeEventListener("keypress", this.handleKeypress);
-  //   this.getScoreboard();
-  // }
+
 
   saveScore() {
-    const newScore = firebase.database().ref('/scores' + this.user.uid).push();
-    const winner = this.winnerName;
+    const newScore = firebase.database().ref('/scores').push();
     newScore.set({
-      name: this.user.username,
+      name: this.winnerName,
       time: this.finishTime.toString(),
       date: this.date.toString(),
     });

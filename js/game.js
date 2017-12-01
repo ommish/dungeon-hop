@@ -6,27 +6,28 @@ const Timer = require('../node_modules/easytimer.js/dist/easytimer.min.js');
 const Scoreboard = require('./scoreboard.js');
 
 const _easyMode = {
-  oneSlide: 81 / 18,
-  twoSlides: 162 / 24,
-  yIncrement: 9,
-  computerLevel: 1,
+  oneSlide: 81 / 10,
+  twoSlides: 162 / 14,
+  yIncrement: 16,
   obstacleTypes: 2,
+  randomness: 0.7,
+  jumpInterval: 300,
 };
 
 const _hardMode = {
-  oneSlide: 81 / 12,
-  twoSlides: 162 / 16,
-  yIncrement: 15,
-  computerLevel: 2,
+  oneSlide: 81 / 8,
+  twoSlides: 162 / 10,
+  yIncrement: 24,
   obstacleTypes: 3,
+  randomness: 0.8,
+  jumpInterval: 200,
 };
 
 const modes = [_easyMode, _hardMode];
 
-
 class Game {
 
-  constructor(canvasEl, user) {
+  constructor(canvasEl) {
     this.canvas = canvasEl;
     this.ctx = canvasEl.getContext("2d");
 
@@ -35,7 +36,6 @@ class Game {
     this.handleKeyDown = this.handleKeyDown.bind(this);
     this.clearGame = this.clearGame.bind(this);
     this.reset = this.reset.bind(this);
-    this.user = user;
 
     this.reset();
 
@@ -111,7 +111,7 @@ class Game {
       const finishTime = this.timer.getTimeValues();
       const date = this.winner.finishTime;
 
-      this.scoreboard = new Scoreboard(this.ctx, this.winner, finishTime, date, this.user);
+      this.scoreboard = new Scoreboard(this.ctx, this.winner, finishTime, date);
 
     } else if (this.running) {
       this.drawTime();

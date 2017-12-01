@@ -14,7 +14,7 @@ class Space {
     this.type = _types[typeIndex];
     this.image = this.setTile();
     this.obstacle = this.setObstacle();
-    this.dx = spaceNum * 50;
+    this.dx = spaceNum * 81;
     this.sy = this.setSY();
     this.sh = this.setSH();
     this.sw = this.setSW();

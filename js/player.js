@@ -8,11 +8,11 @@ class Player {
     this.human = human;
 
     this.characterFrame = 0;
-    this.x = 112.5;
-    this.baseY = this.playerNumber === 1 ? 118 : 318;
+    this.x = 182.25;
+    this.baseY = this.playerNumber === 1 ? 154 : 454;
     this.y = this.baseY;
     this.jumpHeight = 0;
-    this.jumpInterval = this.mode.computerLevel === 1 ? 400 : 200;
+    this.jumpInterval = this.mode.computerLevel === 1 ? 300 : 200;
 
     this.character = this.setImage();
 
@@ -34,7 +34,7 @@ class Player {
 
   slideGround(direction) {
     let delta;
-      if (this.jumpHeight === this.baseY - 32) {
+      if (this.jumpHeight === this.baseY - 64) {
         delta = this.mode.oneSlide;
       } else {
         delta = this.mode.twoSlides;
@@ -45,9 +45,9 @@ class Player {
   setCharacterFrame() {
     if (this.y === this.baseY) {
       this.characterFrame = 2;
-    } else if (this.y >= this.baseY - 20) {
-      this.characterFrame = 27;
     } else if (this.y >= this.baseY - 40) {
+      this.characterFrame = 27;
+    } else if (this.y >= this.baseY - 70) {
       this.characterFrame = 52;
     }
   }
@@ -59,14 +59,14 @@ class Player {
   }
 
   handleCollision() {
-    if (this.ground.current.dx < 103 && this.ground.current.dx > 97 && this.ground.current.typeIndex > 0) {
+    if (this.ground.current.dx > 160 && this.ground.current.dx < 164 && this.ground.current.typeIndex > 0) {
       this.crashing = true;
       this.characterFrame = 350;
     }
   }
 
   handleFinish() {
-    if ((this.ground.current.dx < 103 && this.ground.current.dx > 97) && (this.ground.current.spaceNum >= 103) && (!this.finishTime)) {
+    if ((this.ground.current.dx > 160 && this.ground.current.dx < 164) && (this.ground.current.spaceNum >= 103) && (!this.finishTime)) {
       this.finishTime = new Date();
     }
   }
@@ -76,7 +76,7 @@ class Player {
   }
 
   drawPlayer() {
-    this.ctx.drawImage(this.character, this.characterFrame, 2, 20, 30, this.x, this.y, 25, 33);
+    this.ctx.drawImage(this.character, this.characterFrame, 2, 20, 30, this.x, this.y, 40.5, 66);
     this.setCharacterFrame();
     if (this.crashing) {
       this.slideGround(1);
@@ -114,9 +114,9 @@ class Player {
     if (!this.jumping) {
       this.jumping = true;
       if (spaces === 1) {
-        this.jumpHeight = this.baseY - 32;
+        this.jumpHeight = this.baseY - 64;
       } else {
-        this.jumpHeight = this.baseY - 48;
+        this.jumpHeight = this.baseY - 96;
       }
     }
   }

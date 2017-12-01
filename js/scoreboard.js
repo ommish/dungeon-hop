@@ -1,13 +1,14 @@
 class Scoreboard {
-  constructor(ctx, winner, finishTime, date) {
+  constructor(ctx, winner, finishTime, date, user) {
     this.ctx = ctx;
     this.finishTime = finishTime;
     this.date = date;
     this.winner = winner;
     this.winnerName = "";
+    this.user = user;
 
-    this.width = 350;
-    this.height = 400;
+    this.width = 500;
+    this.height = 600;
 
     this.drawScoreboard = this.drawScoreboard.bind(this);
     this.handleKeypress = this.handleKeypress.bind(this);
@@ -34,19 +35,19 @@ class Scoreboard {
   }
 
   drawScoreboard() {
-    this.ctx.font = "20px Julius Sans One";
+    this.ctx.font = "30px Julius Sans One";
     this.ctx.fillStyle = "white";
     this.ctx.textAlign = "center";
     this.ctx.fillText(`WINNER: Player ${this.winner.playerNumber}`, this.width / 2, 50);
-    this.ctx.fillText(`TIME: ${this.finishTime.toString(['minutes', 'seconds', 'secondTenths'])}`, this.width / 2, 70);
-    this.ctx.fillText("Top Scores:", this.width / 2, 120);
+    this.ctx.fillText(`TIME: ${this.finishTime.toString(['minutes', 'seconds', 'secondTenths'])}`, this.width / 2, 80);
+    this.ctx.fillText("Top Scores:", this.width / 2, 140);
     if (this.winners) {
       this.winners.forEach((winner, i) => {
-        this.ctx.fillText(`${i + 1}. ${winner.name}: ${winner.time}`, this.width / 2, (i + 1) * 30 + 140);
+        this.ctx.fillText(`${i + 1}. ${winner.name}: ${winner.time}`, this.width / 2, (i + 1) * 30 + 170);
       });
     }
     if (this.isNewWinner && !this.winnerRecorded) {
-      this.ctx.fillText(`YOUR NAME: ${this.winnerName}`, this.width / 2, 330);
+      this.ctx.fillText(`YOUR NAME: ${this.winnerName}`, this.width / 2, 350);
     }
   }
 

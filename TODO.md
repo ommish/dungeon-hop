@@ -9,3 +9,5 @@ add music
 set up backend to store global scores (try new framework?)
 
 work on menu design
+
+jumping bug- hitting obstacles too often offsets location

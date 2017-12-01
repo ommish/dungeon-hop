@@ -6,29 +6,27 @@ const Timer = require('../node_modules/easytimer.js/dist/easytimer.min.js');
 const Scoreboard = require('./scoreboard.js');
 
 const _easyMode = {
-  oneSlide: 5,
-  twoSlides: 7.1428571429,
-  yIncrement: 8,
+  oneSlide: 81 / 18,
+  twoSlides: 162 / 24,
+  yIncrement: 9,
   computerLevel: 1,
   obstacleTypes: 2,
 };
 
 const _hardMode = {
-  oneSlide: 8.3333333,
-  twoSlides: 12.5,
-  yIncrement: 16,
+  oneSlide: 81 / 12,
+  twoSlides: 162 / 16,
+  yIncrement: 15,
   computerLevel: 2,
   obstacleTypes: 3,
 };
-
-// every 50 frames, moving 8 pixels; 14 times;
 
 const modes = [_easyMode, _hardMode];
 
 
 class Game {
 
-  constructor(canvasEl) {
+  constructor(canvasEl, user) {
     this.canvas = canvasEl;
     this.ctx = canvasEl.getContext("2d");
 
@@ -37,6 +35,7 @@ class Game {
     this.handleKeyDown = this.handleKeyDown.bind(this);
     this.clearGame = this.clearGame.bind(this);
     this.reset = this.reset.bind(this);
+    this.user = user;
 
     this.reset();
 
@@ -58,10 +57,10 @@ class Game {
   }
 
   drawTime() {
-    this.ctx.font = "20px Julius Sans One";
+    this.ctx.font = "40px Julius Sans One";
     this.ctx.fillStyle = "white";
     this.ctx.textAlign = "center";
-    this.ctx.fillText(this.timer.getTimeValues().toString(['minutes', 'seconds', 'secondTenths']), 175, 210);
+    this.ctx.fillText(this.timer.getTimeValues().toString(['minutes', 'seconds', 'secondTenths']), 250, 315);
   }
 
   playerOne() {
@@ -112,7 +111,7 @@ class Game {
       const finishTime = this.timer.getTimeValues();
       const date = this.winner.finishTime;
 
-      this.scoreboard = new Scoreboard(this.ctx, this.winner, finishTime, date);
+      this.scoreboard = new Scoreboard(this.ctx, this.winner, finishTime, date, this.user);
 
     } else if (this.running) {
       this.drawTime();
@@ -131,7 +130,7 @@ class Game {
   }
 
   clearGame() {
-    this.ctx.clearRect(0, 0, 350, 400);
+    this.ctx.clearRect(0, 0, 500, 600);
   }
 
   addListeners() {

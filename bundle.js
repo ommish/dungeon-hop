@@ -7,29 +7,27 @@ const Timer = require('../node_modules/easytimer.js/dist/easytimer.min.js');
 const Scoreboard = require('./scoreboard.js');
 
 const _easyMode = {
-  oneSlide: 5,
-  twoSlides: 7.1428571429,
-  yIncrement: 8,
+  oneSlide: 81 / 18,
+  twoSlides: 162 / 24,
+  yIncrement: 9,
   computerLevel: 1,
   obstacleTypes: 2,
 };
 
 const _hardMode = {
-  oneSlide: 8.3333333,
-  twoSlides: 12.5,
-  yIncrement: 16,
+  oneSlide: 81 / 12,
+  twoSlides: 162 / 16,
+  yIncrement: 15,
   computerLevel: 2,
   obstacleTypes: 3,
 };
-
-// every 50 frames, moving 8 pixels; 14 times;
 
 const modes = [_easyMode, _hardMode];
 
 
 class Game {
 
-  constructor(canvasEl) {
+  constructor(canvasEl, user) {
     this.canvas = canvasEl;
     this.ctx = canvasEl.getContext("2d");
 
@@ -38,6 +36,7 @@ class Game {
     this.handleKeyDown = this.handleKeyDown.bind(this);
     this.clearGame = this.clearGame.bind(this);
     this.reset = this.reset.bind(this);
+    this.user = user;
 
     this.reset();
 
@@ -59,10 +58,10 @@ class Game {
   }
 
   drawTime() {
-    this.ctx.font = "20px Julius Sans One";
+    this.ctx.font = "40px Julius Sans One";
     this.ctx.fillStyle = "white";
     this.ctx.textAlign = "center";
-    this.ctx.fillText(this.timer.getTimeValues().toString(['minutes', 'seconds', 'secondTenths']), 175, 210);
+    this.ctx.fillText(this.timer.getTimeValues().toString(['minutes', 'seconds', 'secondTenths']), 250, 315);
   }
 
   playerOne() {
@@ -113,7 +112,7 @@ class Game {
       const finishTime = this.timer.getTimeValues();
       const date = this.winner.finishTime;
 
-      this.scoreboard = new Scoreboard(this.ctx, this.winner, finishTime, date);
+      this.scoreboard = new Scoreboard(this.ctx, this.winner, finishTime, date, this.user);
 
     } else if (this.running) {
       this.drawTime();
@@ -132,7 +131,7 @@ class Game {
   }
 
   clearGame() {
-    this.ctx.clearRect(0, 0, 350, 400);
+    this.ctx.clearRect(0, 0, 500, 600);
   }
 
   addListeners() {
@@ -242,8 +241,8 @@ class Ground {
   }
 
   drawBackground() {
-    // context.drawImage(img,          sx,sy, sw, sh, dx,                             dy,     dw, dh)
-    this.ctx.drawImage(this.background, 5, 10, 250, 100, 0, this.playerNumber === 1 ? 0 : 200, 350, 150);
+    // context.drawImage(img,          sx,sy, sw, sh, dx,                             dy,      dw, dh)
+    this.ctx.drawImage(this.background, 5, 10, 250, 100, 0, this.playerNumber === 1 ? 0 : 300, 500, 218);
   }
 
   drawGround() {
@@ -251,13 +250,13 @@ class Ground {
 
     this.path.spaces.forEach((space) => {
       // context.drawImage(img,      sx, sy, sw, sh, dx,                                dy,        dw, dh)
-      this.ctx.drawImage(space.image, 0, 0, 100, 100, space.dx, this.playerNumber === 1 ? 150 : 350, 50, 50);
-      if (space.dx >= 87.5 && space.dx < 137.5) {
+      this.ctx.drawImage(space.image, 0, 0, 100, 100, space.dx, this.playerNumber === 1 ? 218 : 518, 81, 81);
+      if (space.dx >= 141.75 && space.dx < 222.75) {
         this.current = space;
       }
       if (space.type !== "blank") {
-        // context.drawImage(img,          sx,                   sy,       sw, sh,       dx,                                         dy,    dw, dh)
-        this.ctx.drawImage(space.obstacle, space.characterFrame, space.sy, space.sw, space.sh, space.dx + 10, this.playerNumber === 1 ? 126 : 326, 20, 30);
+        // context.drawImage(img,          sx,                   sy,       sw, sh,       dx,                                            dy,    dw, dh)
+        this.ctx.drawImage(space.obstacle, space.characterFrame, space.sy, space.sw, space.sh, space.dx + 22.5, this.playerNumber === 1 ? 178 : 478, 36, 51);
         if (space.characterFrame < 75) {
           space.characterFrame += 25;
         } else {
@@ -265,11 +264,11 @@ class Ground {
         }
       }
       if (space.last) {
-        this.ctx.drawImage(space.sign, 0, 0, 20, 30, space.dx + 10, this.playerNumber === 1 ? 126 : 326, 20, 30);
+        this.ctx.drawImage(space.sign, 0, 0, 20, 30, space.dx + 20.5, this.playerNumber === 1 ? 178 : 478, 36, 51);
       }
     });
   }
-  
+
   slide(delta) {
     this.path.spaces.forEach((space) => {
       space.dx += delta;
@@ -284,8 +283,28 @@ module.exports = Ground;
 const Game = require('./game.js');
 
 document.addEventListener("DOMContentLoaded", () => {
+  const provider = new firebase.auth.GoogleAuthProvider();
+  firebase.auth().getRedirectResult().then(function(result) {
+    if (result.credential) {
+      // This gives you a Google Access Token. You can use it to access the Google API.
+      const token = result.credential.accessToken;
+      // ...
+    }
+    // The signed-in user info.
+    const user = result.user;
+  }).catch(function(error) {
+    // Handle Errors here.
+    const errorCode = error.code;
+    const errorMessage = error.message;
+    // The email of the user's account used.
+    const email = error.email;
+    // The firebase.auth.AuthCredential type that was used.
+    const credential = error.credential;
+    // ...
+  });
+
   const canvasEl = document.getElementsByTagName('canvas')[0];
-  new Game(canvasEl);
+  new Game(canvasEl, user);
 });
 
 },{"./game.js":1}],4:[function(require,module,exports){
@@ -372,11 +391,11 @@ class Player {
     this.human = human;
 
     this.characterFrame = 0;
-    this.x = 112.5;
-    this.baseY = this.playerNumber === 1 ? 118 : 318;
+    this.x = 182.25;
+    this.baseY = this.playerNumber === 1 ? 154 : 454;
     this.y = this.baseY;
     this.jumpHeight = 0;
-    this.jumpInterval = this.mode.computerLevel === 1 ? 400 : 200;
+    this.jumpInterval = this.mode.computerLevel === 1 ? 300 : 200;
 
     this.character = this.setImage();
 
@@ -398,7 +417,7 @@ class Player {
 
   slideGround(direction) {
     let delta;
-      if (this.jumpHeight === this.baseY - 32) {
+      if (this.jumpHeight === this.baseY - 64) {
         delta = this.mode.oneSlide;
       } else {
         delta = this.mode.twoSlides;
@@ -409,9 +428,9 @@ class Player {
   setCharacterFrame() {
     if (this.y === this.baseY) {
       this.characterFrame = 2;
-    } else if (this.y >= this.baseY - 20) {
-      this.characterFrame = 27;
     } else if (this.y >= this.baseY - 40) {
+      this.characterFrame = 27;
+    } else if (this.y >= this.baseY - 70) {
       this.characterFrame = 52;
     }
   }
@@ -423,14 +442,14 @@ class Player {
   }
 
   handleCollision() {
-    if (this.ground.current.dx < 103 && this.ground.current.dx > 97 && this.ground.current.typeIndex > 0) {
+    if (this.ground.current.dx > 160 && this.ground.current.dx < 164 && this.ground.current.typeIndex > 0) {
       this.crashing = true;
       this.characterFrame = 350;
     }
   }
 
   handleFinish() {
-    if ((this.ground.current.dx < 103 && this.ground.current.dx > 97) && (this.ground.current.spaceNum >= 103) && (!this.finishTime)) {
+    if ((this.ground.current.dx > 160 && this.ground.current.dx < 164) && (this.ground.current.spaceNum >= 103) && (!this.finishTime)) {
       this.finishTime = new Date();
     }
   }
@@ -440,7 +459,7 @@ class Player {
   }
 
   drawPlayer() {
-    this.ctx.drawImage(this.character, this.characterFrame, 2, 20, 30, this.x, this.y, 25, 33);
+    this.ctx.drawImage(this.character, this.characterFrame, 2, 20, 30, this.x, this.y, 40.5, 66);
     this.setCharacterFrame();
     if (this.crashing) {
       this.slideGround(1);
@@ -478,9 +497,9 @@ class Player {
     if (!this.jumping) {
       this.jumping = true;
       if (spaces === 1) {
-        this.jumpHeight = this.baseY - 32;
+        this.jumpHeight = this.baseY - 64;
       } else {
-        this.jumpHeight = this.baseY - 48;
+        this.jumpHeight = this.baseY - 96;
       }
     }
   }
@@ -513,15 +532,16 @@ module.exports = Player;
 
 },{}],6:[function(require,module,exports){
 class Scoreboard {
-  constructor(ctx, winner, finishTime, date) {
+  constructor(ctx, winner, finishTime, date, user) {
     this.ctx = ctx;
     this.finishTime = finishTime;
     this.date = date;
     this.winner = winner;
     this.winnerName = "";
+    this.user = user;
 
-    this.width = 350;
-    this.height = 400;
+    this.width = 500;
+    this.height = 600;
 
     this.drawScoreboard = this.drawScoreboard.bind(this);
     this.handleKeypress = this.handleKeypress.bind(this);
@@ -548,19 +568,19 @@ class Scoreboard {
   }
 
   drawScoreboard() {
-    this.ctx.font = "20px Julius Sans One";
+    this.ctx.font = "30px Julius Sans One";
     this.ctx.fillStyle = "white";
     this.ctx.textAlign = "center";
     this.ctx.fillText(`WINNER: Player ${this.winner.playerNumber}`, this.width / 2, 50);
-    this.ctx.fillText(`TIME: ${this.finishTime.toString(['minutes', 'seconds', 'secondTenths'])}`, this.width / 2, 70);
-    this.ctx.fillText("Top Scores:", this.width / 2, 120);
+    this.ctx.fillText(`TIME: ${this.finishTime.toString(['minutes', 'seconds', 'secondTenths'])}`, this.width / 2, 80);
+    this.ctx.fillText("Top Scores:", this.width / 2, 140);
     if (this.winners) {
       this.winners.forEach((winner, i) => {
-        this.ctx.fillText(`${i + 1}. ${winner.name}: ${winner.time}`, this.width / 2, (i + 1) * 30 + 140);
+        this.ctx.fillText(`${i + 1}. ${winner.name}: ${winner.time}`, this.width / 2, (i + 1) * 30 + 170);
       });
     }
     if (this.isNewWinner && !this.winnerRecorded) {
-      this.ctx.fillText(`YOUR NAME: ${this.winnerName}`, this.width / 2, 330);
+      this.ctx.fillText(`YOUR NAME: ${this.winnerName}`, this.width / 2, 350);
     }
   }
 
@@ -627,7 +647,7 @@ class Space {
     this.type = _types[typeIndex];
     this.image = this.setTile();
     this.obstacle = this.setObstacle();
-    this.dx = spaceNum * 50;
+    this.dx = spaceNum * 81;
     this.sy = this.setSY();
     this.sh = this.setSH();
     this.sw = this.setSW();
@@ -701,8 +721,8 @@ class StartMenu {
   constructor(ctx) {
     this.ctx = ctx;
     this.humanPlayerCount = 1;
-    this.width = 350;
-    this.height = 400;
+    this.width = 500;
+    this.height = 600;
     this.level = 0;
 
     this.drawStartMenu = this.drawStartMenu.bind(this);
@@ -727,28 +747,30 @@ class StartMenu {
     this.ctx.stroke();
     this.ctx.rect(0, 0, this.width, this.height);
 
-    this.ctx.font = '20px Julius Sans One';
+    this.ctx.font = '30px Julius Sans One';
     this.ctx.fillStyle = "black";
     this.ctx.textAlign = "center";
 
     this.ctx.fillText(`Num. Players (1/2):  ${this.humanPlayerCount}`, this.width / 2, 50);
-    this.ctx.fillText(`Speed (← / →): ${["slow", "fast"][this.level]}`, this.width / 2, 70);
+    this.ctx.fillText(`Speed (← / →): ${["slow", "fast"][this.level]}`, this.width / 2, 80);
 
-    this.ctx.fillText('Hit Space to Start', this.width / 2, 120);
+    this.ctx.fillText('Hit Space to Start', this.width / 2, 140);
 
-    this.ctx.fillText('Player One:', this.width / 2, 170);
+    this.ctx.fillText('Player One:', this.width / 2, 200);
 
-    this.ctx.fillText('a to jump one space', this.width / 2, 190);
-    this.ctx.fillText('s to jump two spaces', this.width / 2, 210);
+    this.ctx.fillText('a to jump one space', this.width / 2, 230);
+    this.ctx.fillText('s to jump two spaces', this.width / 2, 260);
 
-    this.ctx.fillText('Player Two:', this.width / 2, 260);
-    this.ctx.fillText('k to jump one space', this.width / 2, 280);
-    this.ctx.fillText('l to jump two spaces', this.width / 2, 300);
+    this.ctx.fillText('Player Two:', this.width / 2, 320);
+    this.ctx.fillText('k to jump one space', this.width / 2, 350);
+    this.ctx.fillText('l to jump two spaces', this.width / 2, 380);
+
+    this.ctx.fillText('Jump over the bad guys', this.width / 2, 440);
 
   }
 
   clear() {
-    this.ctx.clearRect(0, 0, 350, 400);
+    this.ctx.clearRect(0, 0, this.width, this.height);
   }
 
 }

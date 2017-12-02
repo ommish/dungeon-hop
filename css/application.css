@@ -9,18 +9,39 @@ main {
   background: black;
   color: orange;
   font-family: 'Julius Sans One', sans-serif;
-  justify-content: space-between;
+  justify-content: center;
 }
 
 header {
   display: flex;
   flex-direction: column;
-  margin-right: 10px;
+  margin-left: 50px;
 }
 
-header > h1 {
+.title {
+  display: flex;
+  align-items: center;
+}
+
+header h1 {
   font-size: 50px;
 }
+
+.music {
+  height: 35px;
+  width: 35px;
+  font-size: 20px;
+  margin-left: 20px;
+  border-radius: 7px;
+  color: black;
+  background: orange;
+}
+
+.music.disabled {
+  background: grey;
+  color: black;
+}
+
 
 section > * {
   margin: 20px auto;

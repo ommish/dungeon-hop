@@ -57,17 +57,16 @@ class Game {
   }
 
   drawTimeAndRules() {
-    timeCtx.clear
-    timeCtx.font = "40px Julius Sans One";
-    timeCtx.fillStyle = "black";
-    timeCtx.textAlign = "left";
-    timeCtx.fillText(this.timer.getTimeValues().toString(['minutes', 'seconds', 'secondTenths']), 100, 100);
+    this.ctx.font = "40px Julius Sans One";
+    this.ctx.fillStyle = "white";
+    this.ctx.textAlign = "left";
+    this.ctx.fillText(this.timer.getTimeValues().toString(['minutes', 'seconds', 'secondTenths']), 250, 315);
 
-    timeCtx.font = "30px Julius Sans One";
-    timeCtx.fillStyle = "black";
-    timeCtx.textAlign = "left";
-    timeCtx.fillText('\\ to restart', 0, 0);
-    timeCtx.fillText('space to pause', 0, 0);
+    this.ctx.font = "20px Julius Sans One";
+    this.ctx.fillStyle = "white";
+    this.ctx.textAlign = "left";
+    this.ctx.fillText('\\ to restart', 0, 210);
+    this.ctx.fillText('space to pause', 0, 320);
   }
 
   playerOne() {
@@ -90,9 +89,6 @@ class Game {
     }
 
     this.startMenu.clearStartMenu();
-
-    $("section").append("<canvas id=time width=400 height=200></canvas>");
-    this.timerCanvas = document.getElementById("time");
 
     this.running = true;
     this.interval = window.setInterval(this.drawGame, 50);
@@ -127,8 +123,6 @@ class Game {
 
     } else if (this.running) {
       this.drawTimeAndRules();
-      this.timeCtx = this.timerCanvas.getContext("2d");
-
     }
   }
 

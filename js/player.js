@@ -58,8 +58,10 @@ class Player {
   }
 
   handleCollision() {
+    
     if (this.ground.current.dx > 160 && this.ground.current.dx < 164 && this.ground.current.typeIndex > 0) {
       this.crashing = true;
+      this.jumping = true;
       this.characterFrame = 350;
     }
   }

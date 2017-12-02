@@ -2,6 +2,7 @@ body {
   display: flex;
   flex-direction: row;
   padding: 50px;
+  background: black;
 }
 
 header {
@@ -10,8 +11,10 @@ header {
 
 h1 {
   font-size: 50px;
+  color: orange;
 }
 
 canvas {
   min-height: 60vh;
+  background: white;
 }

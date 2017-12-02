@@ -23,7 +23,7 @@ class Ground {
     this.drawBackground();
 
     this.path.spaces.forEach((space) => {
-      // context.drawImage(img,      sx, sy, sw, sh, dx,                                dy,        dw, dh)
+      // context.drawImage(img,      sx, sy, sw, sh, dx,                                dy,          dw, dh)
       this.ctx.drawImage(space.image, 0, 0, 100, 100, space.dx, this.playerNumber === 1 ? 219 : 519, 81, 81);
       if (space.dx >= 141.75 && space.dx < 222.75) {
         this.current = space;

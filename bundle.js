@@ -21,7 +21,7 @@ const _hardMode = {
   yIncrement: 24,
   obstacleTypes: 3,
   randomness: 0.8,
-  jumpInterval: 200,
+  jumpInterval: 600,
 };
 
 const modes = [_easyMode, _hardMode];
@@ -57,11 +57,18 @@ class Game {
     this.winner = null;
   }
 
-  drawTime() {
-    this.ctx.font = "40px Julius Sans One";
-    this.ctx.fillStyle = "white";
-    this.ctx.textAlign = "center";
-    this.ctx.fillText(this.timer.getTimeValues().toString(['minutes', 'seconds', 'secondTenths']), 250, 315);
+  drawTimeAndRules() {
+    timeCtx.clear
+    timeCtx.font = "40px Julius Sans One";
+    timeCtx.fillStyle = "black";
+    timeCtx.textAlign = "left";
+    timeCtx.fillText(this.timer.getTimeValues().toString(['minutes', 'seconds', 'secondTenths']), 100, 100);
+
+    timeCtx.font = "30px Julius Sans One";
+    timeCtx.fillStyle = "black";
+    timeCtx.textAlign = "left";
+    timeCtx.fillText('\\ to restart', 0, 0);
+    timeCtx.fillText('space to pause', 0, 0);
   }
 
   playerOne() {
@@ -84,9 +91,14 @@ class Game {
     }
 
     this.startMenu.clearStartMenu();
+
+    $("section").append("<canvas id=time width=400 height=200></canvas>");
+    this.timerCanvas = document.getElementById("time");
+
     this.running = true;
     this.interval = window.setInterval(this.drawGame, 50);
     this.timer.start({precision: 'secondTenths'});
+
   }
 
   drawGame() {
@@ -115,7 +127,9 @@ class Game {
       this.scoreboard = new Scoreboard(this.ctx, this.winner, finishTime, date);
 
     } else if (this.running) {
-      this.drawTime();
+      this.drawTimeAndRules();
+      this.timeCtx = this.timerCanvas.getContext("2d");
+
     }
   }
 
@@ -165,6 +179,7 @@ class Game {
         this.startMenu.humanPlayerCount = this.humanPlayerCount;
         return;
         case 32:
+        e.preventDefault();
         this.startGame();
         return;
         default:
@@ -172,6 +187,9 @@ class Game {
       }
     } else if (this.running && !this.paused) {
       switch (e.keyCode) {
+        case 92:
+        this.reset();
+        return;
         case 20:
         e.preventDefault();
         return;
@@ -180,6 +198,7 @@ class Game {
         this.endGame();
         return;
         case 32: // spacebar
+        e.preventDefault();
         this.togglePause();
         return;
         case 97:
@@ -207,15 +226,19 @@ class Game {
       }
     } else if (this.running && this.paused) {
       switch (e.keyCode) {
-        case 32: // spacebar
+        case 32:
+        e.preventDefault();
         this.togglePause();
         return;
-        }
-      } else {
-        switch (e.keyCode) {
-          case 92:
-          this.reset();
-          return;
+        case 92:
+        this.reset();
+        return;
+      }
+    } else {
+      switch (e.keyCode) {
+        case 92:
+        this.reset();
+        return;
       }
     }
   }
@@ -231,18 +254,20 @@ class Ground {
     this.playerNumber = i;
     this.ctx = ctx;
     this.path = path;
-    this.background = this.setBackground();
+    // this.background = this.setBackground();
   }
 
-  setBackground() {
-    const image = new Image();
-    image.src = "./assets/backdrop.png";
-    return image;
-  }
-
+  // setBackground() {
+  //   const image = new Image();
+  //   image.src = "./assets/ruins.jpg";
+  //   return image;
+  // }
+  //
   drawBackground() {
     // context.drawImage(img,          sx,sy, sw, sh, dx,                             dy,      dw, dh)
-    this.ctx.drawImage(this.background, 5, 10, 250, 100, 0, this.playerNumber === 1 ? 0 : 300, 500, 219);
+    // this.ctx.drawImage(this.background, 0, 0, 500, 400, 0, this.playerNumber === 1 ? 0 : 300, 500, 219);
+    this.ctx.fillStyle = "black";
+    this.ctx.fillRect(0, this.playerNumber === 1 ? 0 : 300, 500, 219);
   }
 
   drawGround() {
@@ -255,16 +280,20 @@ class Ground {
         this.current = space;
       }
       if (space.type !== "blank") {
-        // context.drawImage(img,          sx,                   sy,       sw, sh,       dx,                                            dy,    dw, dh)
-        this.ctx.drawImage(space.obstacle, space.characterFrame, space.sy, space.sw, space.sh, space.dx + 22.5, this.playerNumber === 1 ? 178 : 478, 36, 51);
-        if (space.characterFrame < 75) {
-          space.characterFrame += 25;
-        } else {
-          space.characterFrame = 0;
+        // context.drawImage(img,          sx,                   sy,       sw, sh,       dx,                                      dy,    dw, dh)
+        this.ctx.drawImage(space.obstacle, space.sx, space.sy, space.sw, space.sh, space.dx + 22.5, this.playerNumber === 1 ? 185 : 485, 42, 42);
+        space.drawCount++;
+        if (space.drawCount === 3) {
+          space.drawCount = 0;
+          if (space.sx <= 1500) {
+            space.sx += 190;
+          } else {
+            space.sx = 0;
+          }
         }
       }
       if (space.last) {
-        this.ctx.drawImage(space.sign, 0, 0, 20, 30, space.dx + 20.5, this.playerNumber === 1 ? 178 : 478, 36, 51);
+        this.ctx.drawImage(space.sign, 0, 0, 20, 30, space.dx + 20.5, this.playerNumber === 1 ? 178 : 478, 36, 45);
       }
     });
   }
@@ -370,14 +399,15 @@ class Player {
     this.mode = mode;
     this.human = human;
 
-    this.characterFrame = 0;
+    this.sx = 1500;
+    this.sy = (i - 1) * 330;
     this.x = 182.25;
-    this.baseY = this.playerNumber === 1 ? 154 : 454;
+    this.baseY = this.playerNumber === 1 ? 160 : 460;
     this.y = this.baseY;
     this.jumpHeight = 0;
 
-    this.character = this.setImage();
-
+    this.character = this.setImage("./assets/marios.png");
+    this.bang = this.setImage("./assets/bang.png");
     this.jumping = false;
     this.falling = false;
     this.crashing = false;
@@ -388,29 +418,31 @@ class Player {
     if (!this.human) {this.startAI();}
   }
 
-  setImage() {
+  setImage(src) {
     const image = new Image();
-    image.src = "./assets/jaghami.png";
+    image.src = src;
     return image;
   }
 
   slideGround(direction) {
     let delta;
-      if (this.jumpHeight === this.baseY - 64) {
-        delta = this.mode.oneSlide;
-      } else {
-        delta = this.mode.twoSlides;
-      }
+    if (this.jumpHeight === this.baseY - 64) {
+      delta = this.mode.oneSlide;
+    } else {
+      delta = this.mode.twoSlides;
+    }
     this.ground.slide(delta * direction);
   }
 
-  setCharacterFrame() {
+  setsx() {
     if (this.y === this.baseY) {
-      this.characterFrame = 2;
-    } else if (this.y >= this.baseY - 40) {
-      this.characterFrame = 27;
-    } else if (this.y >= this.baseY - 70) {
-      this.characterFrame = 52;
+        this.sx = 1500;
+    } else if (this.y >= this.baseY - 10) {
+        this.sx = 1250;
+    } else if (this.y >= this.baseY - 50) {
+        this.sx = 1000;
+    } else if (this.y >= this.baseY - 100) {
+      this.sx = 750;
     }
   }
 
@@ -421,11 +453,9 @@ class Player {
   }
 
   handleCollision() {
-    
     if (this.ground.current.dx > 160 && this.ground.current.dx < 164 && this.ground.current.typeIndex > 0) {
       this.crashing = true;
       this.jumping = true;
-      this.characterFrame = 350;
     }
   }
 
@@ -440,16 +470,18 @@ class Player {
   }
 
   drawPlayer() {
-    this.ctx.drawImage(this.character, this.characterFrame, 2, 20, 30, this.x, this.y, 40.5, 66);
-    this.setCharacterFrame();
+    // context.drawImage(img,          sx,      sy,       sw,  sh,  dx,    dy,      dw, dh)
+    this.ctx.drawImage(this.character, this.sx, this.sy, 250, 330, this.x, this.y, 40.5, 66);
+    this.setsx();
     if (this.crashing) {
       this.slideGround(1);
       this.jump();
+      this.ctx.drawImage(this.bang, 0, 0, 300, 500, this.x - 15, this.y - 15, 15, 25);
     } else if (this.jumping) {
       this.slideGround(-1);
       this.jump();
     } else if (this.finishTime) {
-        this.jump();
+      this.jump();
     }
   }
 
@@ -561,10 +593,11 @@ class Scoreboard {
         this.ctx.fillText(`${i + 1}. ${winner.name}: ${winner.time}`, this.width / 2, (i + 1) * 40 + 170);
       });
     }
-    this.ctx.fillText("Hit \\ to restart", this.width / 2, 460);
     if (this.isNewWinner && !this.winnerRecorded && this.winner.human) {
-      this.ctx.fillText(`YOUR NAME: ${this.winnerName}`, this.width / 2, 400);
+      this.ctx.fillText(`ENTER YOUR NAME:`, this.width / 2, 430);
+      this.ctx.fillText(`${this.winnerName}`, this.width / 2, 460);
     }
+    this.ctx.fillText("Hit \\ to restart", this.width / 2, 520);
   }
 
   getScoreboard() {
@@ -614,7 +647,7 @@ class Scoreboard {
 module.exports = Scoreboard;
 
 },{}],7:[function(require,module,exports){
-const _types = ["blank", "shyguy", "flyguy", "ice"];
+const _types = ["blank", "spikey", "spikeBeetle", "whacka"];
 const _imageSrcs = [
   "./assets/ground.png",
   "./assets/enemies.png",
@@ -631,12 +664,13 @@ class Space {
     this.image = this.setTile();
     this.obstacle = this.setObstacle();
     this.dx = spaceNum * 81;
+    this.sx = 0;
     this.sy = this.setSY();
     this.sh = this.setSH();
     this.sw = this.setSW();
-    this.characterFrame = 0;
     this.last = last;
     this.sign = this.setSign();
+    this.drawCount = 0;
   }
 
   setTile() {
@@ -660,11 +694,11 @@ class Space {
   setSH() {
     switch (this.typeIndex) {
       case 1:
-      return 30;
+      return 175;
       case 2:
-      return 35;
+      return 190;
       case 3:
-      return 35;
+      return 165;
       default:
       return null;
     }
@@ -673,11 +707,11 @@ class Space {
   setSW() {
     switch (this.typeIndex) {
       case 1:
-      return 23;
+      return 190;
       case 2:
-      return 23;
+      return 190;
       case 3:
-      return 23;
+      return 190;
       default:
       return null;
     }
@@ -688,9 +722,9 @@ class Space {
       case 1:
         return 0;
       case 2:
-        return 32;
+        return 175;
       case 3:
-        return 32;
+        return 365;
       default:
         return null;
     }
@@ -747,8 +781,6 @@ class StartMenu {
     this.ctx.fillText('Player Two:', this.width / 2, 320);
     this.ctx.fillText('k to jump one space', this.width / 2, 350);
     this.ctx.fillText('l to jump two spaces', this.width / 2, 380);
-
-    this.ctx.fillText('Jump over the bad guys', this.width / 2, 440);
 
   }
 

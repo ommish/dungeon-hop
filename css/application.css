@@ -1,20 +1,44 @@
 body {
+  background: grey;
+}
+
+main {
   display: flex;
   flex-direction: row;
   padding: 50px;
   background: black;
+  color: orange;
+  font-family: 'Julius Sans One', sans-serif;
+  justify-content: space-between;
 }
 
 header {
-  margin-right: 50px;
+  display: flex;
+  flex-direction: column;
+  margin-right: 10px;
 }
 
-h1 {
+header > h1 {
   font-size: 50px;
-  color: orange;
+}
+
+section > * {
+  margin: 20px auto;
 }
 
 canvas {
-  min-height: 60vh;
   background: white;
+}
+
+footer {
+  display: flex;
+  padding: 25px;
+  color: black;
+  justify-content: center;
+  align-items: center;
+  font-family: 'Spectral SC', serif;
+}
+
+footer > a {
+  margin: 0 20px;
 }

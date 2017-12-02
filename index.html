@@ -2,13 +2,16 @@
 <html>
 <head>
   <meta charset="utf-8">
+
   <link href="https://fonts.googleapis.com/css?family=Julius+Sans+One" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=Spectral+SC" rel="stylesheet">
+
   <link rel="stylesheet" href="./css/reset.css">
   <link rel="stylesheet" href="./css/application.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
   <script src="https://www.gstatic.com/firebasejs/4.6.2/firebase.js"></script>
 
   <script>
-  // Initialize Firebase
   var config = {
     apiKey: "AIzaSyDai1Dz2ZqCGR6XjvZQiEDNg_g---CgodM",
     authDomain: "dungeon-hop.firebaseapp.com",
@@ -17,22 +20,31 @@
     storageBucket: "",
     messagingSenderId: "45799513741"
   };
-  // rules
-  // ".read": "auth != null",
-  // ".write": "auth != null"
   firebase.initializeApp(config);
   </script>
 
-  <script type="text/javascript" src="bundle.js">
-  </script>
+  <script type="text/javascript" src="bundle.js"></script>
   <title>Dungeon Hop</title>
+
 </head>
+
+
 <body>
+  <main>
   <header>
     <h1>Dungeon Hop</h1>
+    <h5>&nbsp;by Ommi Shimizu</h5>
+    <section>
+      <h4 class="explanation">Hop your way through the dungeon to save Princess Peach! Make sure to hop over anything in your path.</h4>
+    </section>
   </header>
-  <main>
     <canvas id="canvas" width="500" height="600"></canvas>
   </main>
+
+  <footer>
+    <a href="https://www.linkedin.com/in/ommish" target="_blank">LinkedIn</a>
+    <a href="https://www.github.com/ommish">Github</a>
+    <a href="https://www.ommish.com">Portfolio</a>
+  </footer>
 </body>
 </html>

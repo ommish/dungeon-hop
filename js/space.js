@@ -1,4 +1,4 @@
-const _types = ["blank", "shyguy", "flyguy", "ice"];
+const _types = ["blank", "spikey", "spikeBeetle", "whacka"];
 const _imageSrcs = [
   "./assets/ground.png",
   "./assets/enemies.png",
@@ -15,12 +15,13 @@ class Space {
     this.image = this.setTile();
     this.obstacle = this.setObstacle();
     this.dx = spaceNum * 81;
+    this.sx = 0;
     this.sy = this.setSY();
     this.sh = this.setSH();
     this.sw = this.setSW();
-    this.characterFrame = 0;
     this.last = last;
     this.sign = this.setSign();
+    this.drawCount = 0;
   }
 
   setTile() {
@@ -44,11 +45,11 @@ class Space {
   setSH() {
     switch (this.typeIndex) {
       case 1:
-      return 30;
+      return 175;
       case 2:
-      return 35;
+      return 190;
       case 3:
-      return 35;
+      return 165;
       default:
       return null;
     }
@@ -57,11 +58,11 @@ class Space {
   setSW() {
     switch (this.typeIndex) {
       case 1:
-      return 23;
+      return 190;
       case 2:
-      return 23;
+      return 190;
       case 3:
-      return 23;
+      return 190;
       default:
       return null;
     }
@@ -72,9 +73,9 @@ class Space {
       case 1:
         return 0;
       case 2:
-        return 32;
+        return 175;
       case 3:
-        return 32;
+        return 365;
       default:
         return null;
     }

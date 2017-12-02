@@ -20,7 +20,7 @@ const _hardMode = {
   yIncrement: 24,
   obstacleTypes: 3,
   randomness: 0.8,
-  jumpInterval: 200,
+  jumpInterval: 600,
 };
 
 const modes = [_easyMode, _hardMode];
@@ -56,11 +56,18 @@ class Game {
     this.winner = null;
   }
 
-  drawTime() {
-    this.ctx.font = "40px Julius Sans One";
-    this.ctx.fillStyle = "white";
-    this.ctx.textAlign = "center";
-    this.ctx.fillText(this.timer.getTimeValues().toString(['minutes', 'seconds', 'secondTenths']), 250, 315);
+  drawTimeAndRules() {
+    timeCtx.clear
+    timeCtx.font = "40px Julius Sans One";
+    timeCtx.fillStyle = "black";
+    timeCtx.textAlign = "left";
+    timeCtx.fillText(this.timer.getTimeValues().toString(['minutes', 'seconds', 'secondTenths']), 100, 100);
+
+    timeCtx.font = "30px Julius Sans One";
+    timeCtx.fillStyle = "black";
+    timeCtx.textAlign = "left";
+    timeCtx.fillText('\\ to restart', 0, 0);
+    timeCtx.fillText('space to pause', 0, 0);
   }
 
   playerOne() {
@@ -83,9 +90,14 @@ class Game {
     }
 
     this.startMenu.clearStartMenu();
+
+    $("section").append("<canvas id=time width=400 height=200></canvas>");
+    this.timerCanvas = document.getElementById("time");
+
     this.running = true;
     this.interval = window.setInterval(this.drawGame, 50);
     this.timer.start({precision: 'secondTenths'});
+
   }
 
   drawGame() {
@@ -114,7 +126,9 @@ class Game {
       this.scoreboard = new Scoreboard(this.ctx, this.winner, finishTime, date);
 
     } else if (this.running) {
-      this.drawTime();
+      this.drawTimeAndRules();
+      this.timeCtx = this.timerCanvas.getContext("2d");
+
     }
   }
 
@@ -164,6 +178,7 @@ class Game {
         this.startMenu.humanPlayerCount = this.humanPlayerCount;
         return;
         case 32:
+        e.preventDefault();
         this.startGame();
         return;
         default:
@@ -171,6 +186,9 @@ class Game {
       }
     } else if (this.running && !this.paused) {
       switch (e.keyCode) {
+        case 92:
+        this.reset();
+        return;
         case 20:
         e.preventDefault();
         return;
@@ -179,6 +197,7 @@ class Game {
         this.endGame();
         return;
         case 32: // spacebar
+        e.preventDefault();
         this.togglePause();
         return;
         case 97:
@@ -206,15 +225,19 @@ class Game {
       }
     } else if (this.running && this.paused) {
       switch (e.keyCode) {
-        case 32: // spacebar
+        case 32:
+        e.preventDefault();
         this.togglePause();
         return;
-        }
-      } else {
-        switch (e.keyCode) {
-          case 92:
-          this.reset();
-          return;
+        case 92:
+        this.reset();
+        return;
+      }
+    } else {
+      switch (e.keyCode) {
+        case 92:
+        this.reset();
+        return;
       }
     }
   }

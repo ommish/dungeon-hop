@@ -7,14 +7,15 @@ class Player {
     this.mode = mode;
     this.human = human;
 
-    this.characterFrame = 0;
+    this.sx = 1500;
+    this.sy = (i - 1) * 330;
     this.x = 182.25;
-    this.baseY = this.playerNumber === 1 ? 154 : 454;
+    this.baseY = this.playerNumber === 1 ? 160 : 460;
     this.y = this.baseY;
     this.jumpHeight = 0;
 
-    this.character = this.setImage();
-
+    this.character = this.setImage("./assets/marios.png");
+    this.bang = this.setImage("./assets/bang.png");
     this.jumping = false;
     this.falling = false;
     this.crashing = false;
@@ -25,29 +26,31 @@ class Player {
     if (!this.human) {this.startAI();}
   }
 
-  setImage() {
+  setImage(src) {
     const image = new Image();
-    image.src = "./assets/jaghami.png";
+    image.src = src;
     return image;
   }
 
   slideGround(direction) {
     let delta;
-      if (this.jumpHeight === this.baseY - 64) {
-        delta = this.mode.oneSlide;
-      } else {
-        delta = this.mode.twoSlides;
-      }
+    if (this.jumpHeight === this.baseY - 64) {
+      delta = this.mode.oneSlide;
+    } else {
+      delta = this.mode.twoSlides;
+    }
     this.ground.slide(delta * direction);
   }
 
-  setCharacterFrame() {
+  setsx() {
     if (this.y === this.baseY) {
-      this.characterFrame = 2;
-    } else if (this.y >= this.baseY - 40) {
-      this.characterFrame = 27;
-    } else if (this.y >= this.baseY - 70) {
-      this.characterFrame = 52;
+        this.sx = 1500;
+    } else if (this.y >= this.baseY - 10) {
+        this.sx = 1250;
+    } else if (this.y >= this.baseY - 50) {
+        this.sx = 1000;
+    } else if (this.y >= this.baseY - 100) {
+      this.sx = 750;
     }
   }
 
@@ -58,11 +61,9 @@ class Player {
   }
 
   handleCollision() {
-    
     if (this.ground.current.dx > 160 && this.ground.current.dx < 164 && this.ground.current.typeIndex > 0) {
       this.crashing = true;
       this.jumping = true;
-      this.characterFrame = 350;
     }
   }
 
@@ -77,16 +78,18 @@ class Player {
   }
 
   drawPlayer() {
-    this.ctx.drawImage(this.character, this.characterFrame, 2, 20, 30, this.x, this.y, 40.5, 66);
-    this.setCharacterFrame();
+    // context.drawImage(img,          sx,      sy,       sw,  sh,  dx,    dy,      dw, dh)
+    this.ctx.drawImage(this.character, this.sx, this.sy, 250, 330, this.x, this.y, 40.5, 66);
+    this.setsx();
     if (this.crashing) {
       this.slideGround(1);
       this.jump();
+      this.ctx.drawImage(this.bang, 0, 0, 300, 500, this.x - 15, this.y - 15, 15, 25);
     } else if (this.jumping) {
       this.slideGround(-1);
       this.jump();
     } else if (this.finishTime) {
-        this.jump();
+      this.jump();
     }
   }
 

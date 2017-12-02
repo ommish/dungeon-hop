@@ -46,8 +46,6 @@ class StartMenu {
     this.ctx.fillText('k to jump one space', this.width / 2, 350);
     this.ctx.fillText('l to jump two spaces', this.width / 2, 380);
 
-    this.ctx.fillText('Jump over the bad guys', this.width / 2, 440);
-
   }
 
   clear() {

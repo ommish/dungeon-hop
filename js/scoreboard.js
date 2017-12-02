@@ -45,10 +45,11 @@ class Scoreboard {
         this.ctx.fillText(`${i + 1}. ${winner.name}: ${winner.time}`, this.width / 2, (i + 1) * 40 + 170);
       });
     }
-    this.ctx.fillText("Hit \\ to restart", this.width / 2, 460);
     if (this.isNewWinner && !this.winnerRecorded && this.winner.human) {
-      this.ctx.fillText(`YOUR NAME: ${this.winnerName}`, this.width / 2, 400);
+      this.ctx.fillText(`ENTER YOUR NAME:`, this.width / 2, 430);
+      this.ctx.fillText(`${this.winnerName}`, this.width / 2, 460);
     }
+    this.ctx.fillText("Hit \\ to restart", this.width / 2, 520);
   }
 
   getScoreboard() {

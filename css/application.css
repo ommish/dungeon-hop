@@ -28,19 +28,28 @@ header h1 {
   font-size: 50px;
 }
 
-.music {
-  height: 35px;
-  width: 35px;
+.music-button {
+  height: 45px;
+  width: 45px;
   font-size: 20px;
   margin-left: 20px;
   border-radius: 7px;
   color: black;
   background: orange;
+  text-align: center;
 }
 
-.music.disabled {
+.music-button > p {
+  font-size: 6px;
+}
+
+.music-button.disabled {
   background: grey;
   color: black;
+}
+
+.music-button:hover {
+  cursor: pointer;
 }
 
 

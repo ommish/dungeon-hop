@@ -12,8 +12,9 @@ keep track of who's ahead
 refactor Scoreboard
 
 // load scripts from separate file
-fix backspace
+
 star for temporary invincibility
+
 user auth
 
 moving obstacle
@@ -21,8 +22,6 @@ moving obstacle
 item to allow 3 jump spaces
 
 item that slows down other player
-
-loop music
 
 sound effects
 

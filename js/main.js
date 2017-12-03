@@ -11,20 +11,20 @@ document.addEventListener("DOMContentLoaded", () => {
 
 function addMusic() {
   let autoplay = "";
-  const musicButton = $(".music");
+  const musicButton = $(".music-button");
   if (localStorage.getItem('autoplay') !== "off") {
     autoplay = "autoplay";
   } else {
     musicButton.toggleClass("disabled");
   }
-  const audio = $(`<audio ${autoplay}></audio>`);
+  const audio = $(`<audio loop ${autoplay}></audio>`);
   audio.append("<source src=./assets/bgmusic.mp3 type=audio/ogg>");
   $("head").append(audio);
 }
 
 function toggleMusic() {
   const audio = $("audio");
-  const musicButton = $(".music");
+  const musicButton = $(".music-button");
   musicButton.on("click", (e) => {
     musicButton.toggleClass("disabled");
     if (musicButton.hasClass("disabled")) {

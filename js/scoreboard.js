@@ -59,7 +59,7 @@ class Scoreboard {
     firebase.database().ref('/scores/').once('value').then((snapshot) => {
       this.winners = this.topScores(Object.values(snapshot.val())).slice(0, 5);
       this.isNewWinner = this.winners.some((winner) => {
-        return winner.time > this.finishTime.toString();
+        return winner.time > this.finishTime.toString(['minutes', 'seconds', 'secondTenths']);
       });
       if (this.isNewWinner && !this.winnerRecorded && this.winner.human) {
         this.addListeners();
@@ -89,7 +89,7 @@ class Scoreboard {
     const newScore = firebase.database().ref('/scores').push();
     newScore.set({
       name: this.winnerName,
-      time: this.finishTime.toString(),
+      time: this.finishTime.toString(['minutes', 'seconds', 'secondTenths']),
       date: this.date.toString(),
     });
     this.winnerRecorded = true;

@@ -15,12 +15,13 @@ main {
 header {
   display: flex;
   flex-direction: column;
-  margin-left: 50px;
+  margin-left: 200px;
+  margin-right: 50px;
 }
 
 .title {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
 }
 
 header h1 {
@@ -49,6 +50,7 @@ section > * {
 
 canvas {
   background: white;
+  margin-right: 200px;
 }
 
 footer {
@@ -62,4 +64,9 @@ footer {
 
 footer > a {
   margin: 0 20px;
+}
+
+footer > a:hover {
+  color: orange;
+  text-decoration: underline;
 }

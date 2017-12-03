@@ -1,8 +1,7 @@
-bugs:
 
 change obstacle sprites
 
-change player sprites: different sprites for players 1 and 2
+add princess
 
 add music
 
@@ -11,3 +10,22 @@ work on menu design
 keep track of who's ahead
 
 refactor Scoreboard
+
+// load scripts from separate file
+fix backspace
+star for temporary invincibility
+user auth
+
+moving obstacle
+
+item to allow 3 jump spaces
+
+item that slows down other player
+
+loop music
+
+sound effects
+
+after starting game, have countdown before race actually starts
+
+save game settings after reset

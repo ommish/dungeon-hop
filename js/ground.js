@@ -5,20 +5,20 @@ class Ground {
     this.playerNumber = i;
     this.ctx = ctx;
     this.path = path;
-    // this.background = this.setBackground();
+    this.background = this.setBackground();
   }
 
-  // setBackground() {
-  //   const image = new Image();
-  //   image.src = "./assets/ruins.jpg";
-  //   return image;
-  // }
-  //
+  setBackground() {
+    const image = new Image();
+    image.src = "./assets/backdrop.png";
+    return image;
+  }
+
   drawBackground() {
     // context.drawImage(img,          sx,sy, sw, sh, dx,                             dy,      dw, dh)
-    // this.ctx.drawImage(this.background, 0, 0, 500, 400, 0, this.playerNumber === 1 ? 0 : 300, 500, 219);
-    this.ctx.fillStyle = "black";
-    this.ctx.fillRect(0, this.playerNumber === 1 ? 0 : 300, 500, 219);
+    this.ctx.drawImage(this.background, 10, 10, 200, 100, 0, this.playerNumber === 1 ? 0 : 300, 500, 219);
+    // this.ctx.fillStyle = "black";
+    // this.ctx.fillRect(0, this.playerNumber === 1 ? 0 : 300, 500, 219);
   }
 
   drawGround() {

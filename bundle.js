@@ -81,12 +81,14 @@ class Game {
   startGame() {
     this.pathPattern = Path.generateRandomPath(30, modes[this.startMenu.level].obstacleTypes);
 
-    for (let i = 1; i <= this.humanPlayerCount; i++) {
-      this.players.push(new Player(i, this.ctx, new Ground(i, this.ctx, new Path(this.pathPattern)), modes[this.startMenu.level]));
-    }
-
-    if (this.players.length < 2) {
-      this.players.push(new Player(2, this.ctx, new Ground(2, this.ctx, new Path(this.pathPattern)), modes[this.startMenu.level], false));
+    for (let i = 1; i < 3; i++) {
+      let human;
+      if (i === 1 || this.humanPlayerCount > 1) {
+        human = true;
+      } else {
+        human = false;
+      }
+      this.players.push(new Player(i, this.ctx, new Ground(i, this.ctx, new Path(this.pathPattern)), modes[this.startMenu.level], human));
     }
 
     this.startMenu.clearStartMenu();
@@ -94,36 +96,25 @@ class Game {
     this.running = true;
     this.interval = window.setInterval(this.drawGame, 50);
     this.timer.start({precision: 'secondTenths'});
-
   }
 
   drawGame() {
     this.clearGame();
+
     this.players.forEach((player) => {
       player.ground.drawGround();
       player.drawPlayer();
     });
+
     if (this.scoreboard) {this.scoreboard.drawScoreboard();}
 
+    if (this.running) {this.drawTimeAndRules();}
+
     if ((this.playerOne().finishTime || this.playerTwo().finishTime) && this.running) {
-      this.playerTwo().stopAI();
-      this.running = false;
-      this.timer.pause();
-      if (this.playerOne().finishTime && this.playerTwo().finishTime) {
-        this.winner = this.playerOne().finishTime < this.playerTwo().finishTime ? this.PlayerOne() : this.playerTwo();
-      }
-      else {
-        this.winner = this.playerOne().finishTime ? this.playerOne() : this.playerTwo();
-      }
-      document.removeEventListener("keypress", this.keypressListener);
-      document.removeEventListener("keydown", this.keydownListener);
-      const finishTime = this.timer.getTimeValues();
-      const date = this.winner.finishTime;
-
-      this.scoreboard = new Scoreboard(this.ctx, this.winner, finishTime, date);
-
-    } else if (this.running) {
-      this.drawTimeAndRules();
+      this.stopGame();
+      this.setWinner();
+      this.removeListeners();
+      this.setScoreboard();
     }
   }
 
@@ -142,9 +133,35 @@ class Game {
     this.ctx.clearRect(0, 0, 500, 600);
   }
 
+  stopGame() {
+    this.playerTwo().stopAI();
+    this.running = false;
+    this.timer.pause();
+  }
+
+  setWinner() {
+    if (this.playerOne().finishTime && this.playerTwo().finishTime) {
+      this.winner = this.playerOne().finishTime < this.playerTwo().finishTime ? this.PlayerOne() : this.playerTwo();
+    }
+    else {
+      this.winner = this.playerOne().finishTime ? this.playerOne() : this.playerTwo();
+    }
+  }
+
+  setScoreboard() {
+    const finishTime = this.timer.getTimeValues();
+    const date = this.winner.finishTime;
+    this.scoreboard = new Scoreboard(this.ctx, this.winner, finishTime, date);
+  }
+
   addListeners() {
     this.keypressListener = document.addEventListener("keypress", this.handleKeyPress);
     this.keydownListener = document.addEventListener("keydown", this.handleKeyDown);
+  }
+
+  removeListeners() {
+    document.removeEventListener("keypress", this.keypressListener);
+    document.removeEventListener("keydown", this.keydownListener);
   }
 
   handleKeyDown(e) {
@@ -159,11 +176,14 @@ class Game {
   }
 
   handleKeyPress(e) {
+    // at start menu
     if (!this.running && !this.winner) {
       switch (e.keyCode) {
+        // prevent caps lock
         case 20:
         e.preventDefault();
         return;
+        // 49-50 choose one or two player mode
         case 49:
         this.humanPlayerCount = parseInt(e.key);
         this.startMenu.humanPlayerCount = this.humanPlayerCount;
@@ -172,6 +192,7 @@ class Game {
         this.humanPlayerCount = parseInt(e.key);
         this.startMenu.humanPlayerCount = this.humanPlayerCount;
         return;
+        // space to start
         case 32:
         e.preventDefault();
         this.startGame();
@@ -179,37 +200,41 @@ class Game {
         default:
         return;
       }
+      // while game is running, unpaused
     } else if (this.running && !this.paused) {
       switch (e.keyCode) {
+        // \ to restart
         case 92:
         this.reset();
         return;
+        // \not sure! ...
         case 20:
         e.preventDefault();
         return;
-        case 81: // q
-        this.running = false;
-        this.endGame();
-        return;
-        case 32: // spacebar
+        // space to toggle pause
+        case 32:
         e.preventDefault();
         this.togglePause();
         return;
+        // a for P1to jump 1
         case 97:
         if (!this.playerOne().finished) {
           this.playerOne().setJump(1);
         }
         return;
+        // s for P1 to jump 2
         case 115:
         if (!this.playerOne().finished) {
           this.playerOne().setJump(2);
         }
         return;
+        // k for P2 to jump 1
         case 107:
         if (this.playerTwo().human && !this.playerTwo().finished) {
           this.playerTwo().setJump(1);
         }
         return;
+        // l for P2 to jump 2
         case 108:
         if (this.playerTwo().human && !this.playerTwo().finished) {
           this.playerTwo().setJump(2);
@@ -218,18 +243,23 @@ class Game {
         default:
         return;
       }
+      // while game is running, paused
     } else if (this.running && this.paused) {
       switch (e.keyCode) {
+        // space to toggle pause
         case 32:
         e.preventDefault();
         this.togglePause();
         return;
+        // \ to restart
         case 92:
         this.reset();
         return;
       }
+      // after game is over
     } else {
       switch (e.keyCode) {
+        // \ to restart
         case 92:
         this.reset();
         return;
@@ -248,20 +278,20 @@ class Ground {
     this.playerNumber = i;
     this.ctx = ctx;
     this.path = path;
-    // this.background = this.setBackground();
+    this.background = this.setBackground();
   }
 
-  // setBackground() {
-  //   const image = new Image();
-  //   image.src = "./assets/ruins.jpg";
-  //   return image;
-  // }
-  //
+  setBackground() {
+    const image = new Image();
+    image.src = "./assets/backdrop.png";
+    return image;
+  }
+
   drawBackground() {
     // context.drawImage(img,          sx,sy, sw, sh, dx,                             dy,      dw, dh)
-    // this.ctx.drawImage(this.background, 0, 0, 500, 400, 0, this.playerNumber === 1 ? 0 : 300, 500, 219);
-    this.ctx.fillStyle = "black";
-    this.ctx.fillRect(0, this.playerNumber === 1 ? 0 : 300, 500, 219);
+    this.ctx.drawImage(this.background, 10, 10, 200, 100, 0, this.playerNumber === 1 ? 0 : 300, 500, 219);
+    // this.ctx.fillStyle = "black";
+    // this.ctx.fillRect(0, this.playerNumber === 1 ? 0 : 300, 500, 219);
   }
 
   drawGround() {
@@ -305,28 +335,44 @@ module.exports = Ground;
 },{"./space.js":7}],3:[function(require,module,exports){
 const Game = require('./game.js');
 
+
 document.addEventListener("DOMContentLoaded", () => {
   const canvasEl = document.getElementsByTagName('canvas')[0];
+  addMusic();
   new Game(canvasEl);
+  toggleMusic();
+});
 
+
+function addMusic() {
   let autoplay = "";
+  const musicButton = $(".music");
   if (localStorage.getItem('autoplay') !== "off") {
     autoplay = "autoplay";
+  } else {
+    musicButton.toggleClass("disabled");
   }
   const audio = $(`<audio ${autoplay}></audio>`);
-  audio.append(
-    "<source src=https://soundcloud.com/ommi-shimizu/01-1348079-filuanddina-exploring-the-dungeon-game-background/ type=audio/ogg>")
+  audio.append("<source src=./assets/bgmusic.mp3 type=audio/ogg>");
   $("head").append(audio);
+}
 
-  const musicButton = $("music");
-  musicButton.on("click", () => {
+function toggleMusic() {
+  const audio = $("audio");
+  const musicButton = $(".music");
+  musicButton.on("click", (e) => {
     musicButton.toggleClass("disabled");
     if (musicButton.hasClass("disabled")) {
       localStorage.setItem('autoplay', 'off');
       audio.prop("autoplay", false);
+      audio[0].pause();
+
+    } else {
+      localStorage.removeItem('autoplay');
+      audio[0].play();
     }
   });
-});
+}
 
 },{"./game.js":1}],4:[function(require,module,exports){
 const Space = require('./space.js');
@@ -570,7 +616,7 @@ class Scoreboard {
     this.height = 600;
 
     this.drawScoreboard = this.drawScoreboard.bind(this);
-    this.handleKeypress = this.handleKeypress.bind(this);
+    this.handleKeydown = this.handleKeydown.bind(this);
     this.winnerRecorded = false;
 
     this.getScoreboard();
@@ -578,16 +624,19 @@ class Scoreboard {
   }
 
   addListeners() {
-    this.keypressListener = document.addEventListener("keypress", this.handleKeypress);
+    this.keydownListener = document.addEventListener("keydown", this.handleKeydown);
   }
 
-  handleKeypress(e) {
+  handleKeydown(e) {
+    // backspace
     if (e.keyCode === 8) {
-      this.winnerName = this.winnerName.slice(1);
+      this.winnerName = this.winnerName.slice(0, -1);
     }
+    // enter to save
     else if (e.keyCode === 13) {
       this.saveScore();
     }
+    // type in name
     else if (this.winnerName.length < 15) {
       this.winnerName += e.key;
     }
@@ -642,7 +691,6 @@ class Scoreboard {
     }
   }
 
-
   saveScore() {
     const newScore = firebase.database().ref('/scores').push();
     newScore.set({
@@ -651,7 +699,7 @@ class Scoreboard {
       date: this.date.toString(),
     });
     this.winnerRecorded = true;
-    document.removeEventListener("keypress", this.handleKeypress);
+    document.removeEventListener("keydown", this.handleKeydown);
     this.getScoreboard();
   }
 }
@@ -676,7 +724,7 @@ class Space {
     this.image = this.setTile();
     this.obstacle = this.setObstacle();
     this.dx = spaceNum * 81;
-    this.sx = 0;
+    this.sx = 0; //(Math.floor(Math.random() * 10) % 4) * 190;
     this.sy = this.setSY();
     this.sh = this.setSH();
     this.sw = this.setSW();

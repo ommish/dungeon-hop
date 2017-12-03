@@ -10,7 +10,7 @@ class Scoreboard {
     this.height = 600;
 
     this.drawScoreboard = this.drawScoreboard.bind(this);
-    this.handleKeypress = this.handleKeypress.bind(this);
+    this.handleKeydown = this.handleKeydown.bind(this);
     this.winnerRecorded = false;
 
     this.getScoreboard();
@@ -18,16 +18,19 @@ class Scoreboard {
   }
 
   addListeners() {
-    this.keypressListener = document.addEventListener("keypress", this.handleKeypress);
+    this.keydownListener = document.addEventListener("keydown", this.handleKeydown);
   }
 
-  handleKeypress(e) {
+  handleKeydown(e) {
+    // backspace
     if (e.keyCode === 8) {
-      this.winnerName = this.winnerName.slice(1);
+      this.winnerName = this.winnerName.slice(0, -1);
     }
+    // enter to save
     else if (e.keyCode === 13) {
       this.saveScore();
     }
+    // type in name
     else if (this.winnerName.length < 15) {
       this.winnerName += e.key;
     }
@@ -82,7 +85,6 @@ class Scoreboard {
     }
   }
 
-
   saveScore() {
     const newScore = firebase.database().ref('/scores').push();
     newScore.set({
@@ -91,7 +93,7 @@ class Scoreboard {
       date: this.date.toString(),
     });
     this.winnerRecorded = true;
-    document.removeEventListener("keypress", this.handleKeypress);
+    document.removeEventListener("keydown", this.handleKeydown);
     this.getScoreboard();
   }
 }

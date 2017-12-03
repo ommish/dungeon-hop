@@ -15,7 +15,7 @@ class Space {
     this.image = this.setTile();
     this.obstacle = this.setObstacle();
     this.dx = spaceNum * 81;
-    this.sx = 0;
+    this.sx = 0; //(Math.floor(Math.random() * 10) % 4) * 190;
     this.sy = this.setSY();
     this.sh = this.setSH();
     this.sw = this.setSW();

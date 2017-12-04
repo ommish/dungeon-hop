@@ -66,8 +66,8 @@ class Game {
     this.ctx.font = "20px Julius Sans One";
     this.ctx.fillStyle = "white";
     this.ctx.textAlign = "left";
-    this.ctx.fillText('\\ to restart', 0, 210);
-    this.ctx.fillText('space to pause', 0, 320);
+    this.ctx.fillText('\\ to restart', 10, 210);
+    this.ctx.fillText('space to pause', 10, 320);
   }
 
   playerOne() {
@@ -278,6 +278,7 @@ class Ground {
     this.playerNumber = i;
     this.ctx = ctx;
     this.path = path;
+    // this.peach = this.setPeach();
     this.background = this.setBackground();
   }
 
@@ -286,6 +287,12 @@ class Ground {
     image.src = "./assets/backdrop.png";
     return image;
   }
+  // 
+  // setPeach() {
+  //   const image = new Image();
+  //   image.src = "./assets/peach.png";
+  //   return image;
+  // }
 
   drawBackground() {
     // context.drawImage(img,          sx,sy, sw, sh, dx,                             dy,      dw, dh)
@@ -318,6 +325,7 @@ class Ground {
       }
       if (space.last) {
         this.ctx.drawImage(space.sign, 0, 0, 20, 30, space.dx + 20.5, this.playerNumber === 1 ? 178 : 478, 36, 45);
+        // this.ctx.drawImage(this.peach, 5, 5, 55, 100, space.dx + 100, this.playerNumber === 1 ? 165 : 465, 35, 55);
       }
     });
   }
@@ -335,41 +343,34 @@ module.exports = Ground;
 },{"./space.js":7}],3:[function(require,module,exports){
 const Game = require('./game.js');
 
-
 document.addEventListener("DOMContentLoaded", () => {
   const canvasEl = document.getElementsByTagName('canvas')[0];
-  addMusic();
+  autoplayMusic();
   new Game(canvasEl);
   toggleMusic();
 });
 
-
-function addMusic() {
-  let autoplay = "";
+function autoplayMusic() {
   const musicButton = $(".music-button");
-  if (localStorage.getItem('autoplay') !== "off") {
-    autoplay = "autoplay";
-  } else {
+  if (localStorage.getItem('autoplay')) {
     musicButton.toggleClass("disabled");
+  } else {
+    const audio = $("#bg-music");
+    audio.prop("autoplay", true);
   }
-  const audio = $(`<audio loop ${autoplay}></audio>`);
-  audio.append("<source src=./assets/bgmusic.mp3 type=audio/ogg>");
-  $("head").append(audio);
 }
 
 function toggleMusic() {
-  const audio = $("audio");
+  const audio = $("#bg-music")[0];
   const musicButton = $(".music-button");
   musicButton.on("click", (e) => {
     musicButton.toggleClass("disabled");
     if (musicButton.hasClass("disabled")) {
       localStorage.setItem('autoplay', 'off');
-      audio.prop("autoplay", false);
-      audio[0].pause();
-
+      audio.pause();
     } else {
       localStorage.removeItem('autoplay');
-      audio[0].play();
+      audio.play();
     }
   });
 }
@@ -713,7 +714,8 @@ const _imageSrcs = [
   "./assets/enemies.png",
   "./assets/enemies.png",
   "./assets/enemies.png",
-  "./assets/sign.png"
+  "./assets/sign.png",
+  "./assets/peach.png"
 ];
 
 class Space {

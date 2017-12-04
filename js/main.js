@@ -1,40 +1,33 @@
 const Game = require('./game.js');
 
-
 document.addEventListener("DOMContentLoaded", () => {
   const canvasEl = document.getElementsByTagName('canvas')[0];
-  addMusic();
+  autoplayMusic();
   new Game(canvasEl);
   toggleMusic();
 });
 
-
-function addMusic() {
-  let autoplay = "";
+function autoplayMusic() {
   const musicButton = $(".music-button");
-  if (localStorage.getItem('autoplay') !== "off") {
-    autoplay = "autoplay";
-  } else {
+  if (localStorage.getItem('autoplay')) {
     musicButton.toggleClass("disabled");
+  } else {
+    const audio = $("#bg-music");
+    audio.prop("autoplay", true);
   }
-  const audio = $(`<audio loop ${autoplay}></audio>`);
-  audio.append("<source src=./assets/bgmusic.mp3 type=audio/ogg>");
-  $("head").append(audio);
 }
 
 function toggleMusic() {
-  const audio = $("audio");
+  const audio = $("#bg-music")[0];
   const musicButton = $(".music-button");
   musicButton.on("click", (e) => {
     musicButton.toggleClass("disabled");
     if (musicButton.hasClass("disabled")) {
       localStorage.setItem('autoplay', 'off');
-      audio.prop("autoplay", false);
-      audio[0].pause();
-
+      audio.pause();
     } else {
       localStorage.removeItem('autoplay');
-      audio[0].play();
+      audio.play();
     }
   });
 }

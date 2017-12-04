@@ -3,8 +3,6 @@ change obstacle sprites
 
 add princess
 
-add music
-
 work on menu design
 
 keep track of who's ahead

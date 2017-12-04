@@ -5,6 +5,7 @@ class Ground {
     this.playerNumber = i;
     this.ctx = ctx;
     this.path = path;
+    // this.peach = this.setPeach();
     this.background = this.setBackground();
   }
 
@@ -13,6 +14,12 @@ class Ground {
     image.src = "./assets/backdrop.png";
     return image;
   }
+  // 
+  // setPeach() {
+  //   const image = new Image();
+  //   image.src = "./assets/peach.png";
+  //   return image;
+  // }
 
   drawBackground() {
     // context.drawImage(img,          sx,sy, sw, sh, dx,                             dy,      dw, dh)
@@ -45,6 +52,7 @@ class Ground {
       }
       if (space.last) {
         this.ctx.drawImage(space.sign, 0, 0, 20, 30, space.dx + 20.5, this.playerNumber === 1 ? 178 : 478, 36, 45);
+        // this.ctx.drawImage(this.peach, 5, 5, 55, 100, space.dx + 100, this.playerNumber === 1 ? 165 : 465, 35, 55);
       }
     });
   }

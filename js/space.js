@@ -4,7 +4,8 @@ const _imageSrcs = [
   "./assets/enemies.png",
   "./assets/enemies.png",
   "./assets/enemies.png",
-  "./assets/sign.png"
+  "./assets/sign.png",
+  "./assets/peach.png"
 ];
 
 class Space {

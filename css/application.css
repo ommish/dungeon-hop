@@ -9,14 +9,12 @@ main {
   background: black;
   color: orange;
   font-family: 'Julius Sans One', sans-serif;
-  justify-content: center;
+  justify-content: space-between;
 }
 
 header {
   display: flex;
   flex-direction: column;
-  margin-left: 200px;
-  margin-right: 50px;
 }
 
 ul {
@@ -47,6 +45,11 @@ ul {
   width: 50px;
 }
 
+.game-settings {
+  display: flex;
+  flex-direction: column;
+  font-size: 12px;
+}
 
 
 .music-button {
@@ -80,10 +83,7 @@ section > * {
 
 canvas {
   background: white;
-  margin-right: 200px;
 }
-
-
 
 footer {
   display: flex;

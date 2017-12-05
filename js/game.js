@@ -4,6 +4,8 @@ const Path = require('./path.js');
 const Ground = require('./ground.js');
 const Timer = require('../node_modules/easytimer.js/dist/easytimer.min.js');
 const Scoreboard = require('./scoreboard.js');
+const GameState = require('./game_state.js');
+const SettingForm = require('./setting_form.js');
 
 const _easyMode = {
   oneSlide: 81 / 10,

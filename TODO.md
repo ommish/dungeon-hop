@@ -1,3 +1,6 @@
+convert start_menu from canvas to html form
+extract game settings into separate class that receives results of SettingForm
+extract player state to separate class with functions to toggle each
 
 change obstacle sprites
 

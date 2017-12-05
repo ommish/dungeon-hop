@@ -1,3 +1,4 @@
+const PlayerState = require('./player_state.js');
 
 class Player {
   constructor(i, ctx, ground, mode, human = true) {
@@ -6,6 +7,7 @@ class Player {
     this.ground = ground;
     this.mode = mode;
     this.human = human;
+    this.state = new PlayerState();
 
     this.sx = 1500;
     this.sy = (i - 1) * 330;

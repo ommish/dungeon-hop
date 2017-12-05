@@ -5,6 +5,7 @@ class Space {
     this.type = type;
     this.spaceNum = spaceNum;
     this.enemyType = Math.floor(Math.random() * enemyTypes);
+    this.itemType = Math.floor(Math.random() * 2);
     this.tile = this.setTile();
     this.object = this.setObject();
     this.dx = spaceNum * 81;
@@ -70,7 +71,14 @@ class Space {
           return 0;
         }
       case 2:
-      return 50;
+      switch (this.itemType) {
+        case 0:
+        return 50;
+        case 1:
+        return 50;
+        default:
+        return 0;
+      }
       case 3:
       return 20;
       case 4:
@@ -94,7 +102,14 @@ class Space {
           return 0;
         }
       case 2:
-      return 245;
+      switch (this.itemType) {
+        case 0:
+        return 245;
+        case 1:
+        return 245;
+        default:
+        return 0;
+      }
       case 3:
       return 0;
       case 4:
@@ -109,7 +124,14 @@ class Space {
       case 1:
       return 0;
       case 2:
-      return 660;
+        switch (this.itemType) {
+          case 0:
+          return 660;
+          case 1:
+          return 360;
+          default:
+          return 0;
+        }
       case 3:
       return 0;
       case 4:
@@ -143,7 +165,7 @@ class Space {
       case 3:
       return 45;
       case 4:
-      return 50;
+      return 65;
       default:
       return 0;
     }
@@ -158,7 +180,7 @@ class Space {
       case 3:
       return 178;
       case 4:
-      return 180;
+      return 168;
       default:
       return 0;
     }

@@ -19,6 +19,12 @@ header {
   margin-right: 50px;
 }
 
+ul {
+  margin-left: 17px;
+  list-style-position: inside;
+  list-style: circle;
+}
+
 .title {
   display: flex;
   align-items: flex-start;

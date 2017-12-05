@@ -8,6 +8,7 @@ const Scoreboard = require('./scoreboard.js');
 const _easyMode = {
   oneSlide: 81 / 10,
   twoSlides: 162 / 14,
+  threeSlides: 243 / 18,
   yIncrement: 16,
   obstacleTypes: 2,
   randomness: 0.7,
@@ -17,6 +18,7 @@ const _easyMode = {
 const _hardMode = {
   oneSlide: 81 / 8,
   twoSlides: 162 / 10,
+  threeSlides: 243 / 12,
   yIncrement: 24,
   obstacleTypes: 3,
   randomness: 0.8,
@@ -237,16 +239,32 @@ class Game {
           this.playerOne().setJump(2);
         }
         return;
-        // k for P2 to jump 1
-        case 107:
+        // s for P1 to jump 3
+        case 100:
+        if (!this.playerOne().finished) {
+          if (this.playerOne().tripleJumps > 0) {
+            this.playerOne().setJump(3);
+          }
+        }
+        return;
+        // i for P2 to jump 1
+        case 105:
         if (this.playerTwo().human && !this.playerTwo().finished) {
           this.playerTwo().setJump(1);
         }
         return;
-        // l for P2 to jump 2
-        case 108:
+        // o for P2 to jump 2
+        case 111:
         if (this.playerTwo().human && !this.playerTwo().finished) {
           this.playerTwo().setJump(2);
+        }
+        return;
+        // p for P2 to jump 3
+        case 112:
+        if (this.playerTwo().human && !this.playerTwo().finished) {
+          if (this.playerTwo().tripleJumps > 0) {
+            this.playerTwo().setJump(3);
+          }
         }
         return;
         default:

@@ -7,9 +7,9 @@ class Path {
 
   generateSpaces(spaces, itemIndex, enemyTypes) {
     this.spaces = spaces.map((type, spaceNum) => {
-      if (spaceNum === itemIndex) {type = 2;}
+      if (spaceNum === itemIndex || spaceNum === itemIndex * 3) {type = 2;}
       if (spaceNum === 103) {type = 3;}
-      if (spaceNum === 104) {type = 4;}
+      if (spaceNum === 105) {type = 4;}
       let space = new Space(type, spaceNum, enemyTypes);
       return space;
     });

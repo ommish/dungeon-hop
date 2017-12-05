@@ -9,6 +9,7 @@ const Scoreboard = require('./scoreboard.js');
 const _easyMode = {
   oneSlide: 81 / 10,
   twoSlides: 162 / 14,
+  threeSlides: 243 / 18,
   yIncrement: 16,
   obstacleTypes: 2,
   randomness: 0.7,
@@ -18,6 +19,7 @@ const _easyMode = {
 const _hardMode = {
   oneSlide: 81 / 8,
   twoSlides: 162 / 10,
+  threeSlides: 243 / 12,
   yIncrement: 24,
   obstacleTypes: 3,
   randomness: 0.8,
@@ -238,16 +240,32 @@ class Game {
           this.playerOne().setJump(2);
         }
         return;
-        // k for P2 to jump 1
-        case 107:
+        // s for P1 to jump 3
+        case 100:
+        if (!this.playerOne().finished) {
+          if (this.playerOne().tripleJumps > 0) {
+            this.playerOne().setJump(3);
+          }
+        }
+        return;
+        // i for P2 to jump 1
+        case 105:
         if (this.playerTwo().human && !this.playerTwo().finished) {
           this.playerTwo().setJump(1);
         }
         return;
-        // l for P2 to jump 2
-        case 108:
+        // o for P2 to jump 2
+        case 111:
         if (this.playerTwo().human && !this.playerTwo().finished) {
           this.playerTwo().setJump(2);
+        }
+        return;
+        // p for P2 to jump 3
+        case 112:
+        if (this.playerTwo().human && !this.playerTwo().finished) {
+          if (this.playerTwo().tripleJumps > 0) {
+            this.playerTwo().setJump(3);
+          }
         }
         return;
         default:
@@ -376,9 +394,9 @@ class Path {
 
   generateSpaces(spaces, itemIndex, enemyTypes) {
     this.spaces = spaces.map((type, spaceNum) => {
-      if (spaceNum === itemIndex) {type = 2;}
+      if (spaceNum === itemIndex || spaceNum === itemIndex * 3) {type = 2;}
       if (spaceNum === 103) {type = 3;}
-      if (spaceNum === 104) {type = 4;}
+      if (spaceNum === 105) {type = 4;}
       let space = new Space(type, spaceNum, enemyTypes);
       return space;
     });
@@ -437,6 +455,7 @@ class Player {
     this.crashing = false;
     this.finishTime = null;
     this.invincible = false;
+    this.tripleJumps = 0;
 
     this.calculateAndJump = this.calculateAndJump.bind(this);
     this.endInvincible = this.endInvincible.bind(this);
@@ -454,8 +473,10 @@ class Player {
     let delta;
     if (this.jumpHeight === this.baseY - 64) {
       delta = this.mode.oneSlide;
-    } else {
+    } else if (this.jumpHeight === this.baseY - 96) {
       delta = this.mode.twoSlides;
+    } else {
+      delta = this.mode.threeSlides;
     }
     this.ground.slide(delta * direction);
   }
@@ -483,7 +504,11 @@ class Player {
       this.crashing = true;
       this.jumping = true;
     } else if (this.ground.current.dx > 160 && this.ground.current.dx < 164 && this.ground.current.type === 2) {
-      this.startInvincible();
+      if (this.ground.current.itemType === 0) {
+        this.startInvincible();
+      } else {
+        this.getTripleJumps();
+      }
     }
   }
 
@@ -494,6 +519,10 @@ class Player {
 
   endInvincible() {
     this.invincible = false;
+  }
+
+  getTripleJumps() {
+    this.tripleJumps += 5;
   }
 
   handleFinish() {
@@ -526,6 +555,9 @@ class Player {
   }
 
   jump() {
+    if (this.human) {
+      console.log("jumping");
+    }
     if (!this.falling) {
       if (this.y > this.jumpHeight) {
         this.incrementY(-1);
@@ -548,8 +580,11 @@ class Player {
       this.jumping = true;
       if (spaces === 1) {
         this.jumpHeight = this.baseY - 64;
-      } else {
+      } else if (spaces === 2){
         this.jumpHeight = this.baseY - 96;
+      } else if (spaces === 3) {
+        this.tripleJumps -= 1;
+        this.jumpHeight = this.baseY - 120;
       }
     }
   }
@@ -564,7 +599,9 @@ class Player {
 
   calculateAndJump(){
     if (!this.jumping && !this.crashing && !this.finishTime) {
-      if (Math.random() <= this.mode.randomness) {
+      if (this.invincible) {
+        this.setJump(2);
+      } else if (Math.random() <= this.mode.randomness) {
         if (this.ground.path.spaces[this.ground.current.spaceNum + 1].type === 1) {
           this.setJump(2);
         } else if (this.ground.path.spaces[this.ground.current.spaceNum + 2].type === 1) {
@@ -699,6 +736,7 @@ class Space {
     this.type = type;
     this.spaceNum = spaceNum;
     this.enemyType = Math.floor(Math.random() * enemyTypes);
+    this.itemType = Math.floor(Math.random() * 2);
     this.tile = this.setTile();
     this.object = this.setObject();
     this.dx = spaceNum * 81;
@@ -764,7 +802,14 @@ class Space {
           return 0;
         }
       case 2:
-      return 50;
+      switch (this.itemType) {
+        case 0:
+        return 50;
+        case 1:
+        return 50;
+        default:
+        return 0;
+      }
       case 3:
       return 20;
       case 4:
@@ -788,7 +833,14 @@ class Space {
           return 0;
         }
       case 2:
-      return 245;
+      switch (this.itemType) {
+        case 0:
+        return 245;
+        case 1:
+        return 245;
+        default:
+        return 0;
+      }
       case 3:
       return 0;
       case 4:
@@ -803,7 +855,14 @@ class Space {
       case 1:
       return 0;
       case 2:
-      return 660;
+        switch (this.itemType) {
+          case 0:
+          return 660;
+          case 1:
+          return 360;
+          default:
+          return 0;
+        }
       case 3:
       return 0;
       case 4:
@@ -837,7 +896,7 @@ class Space {
       case 3:
       return 45;
       case 4:
-      return 50;
+      return 65;
       default:
       return 0;
     }
@@ -852,7 +911,7 @@ class Space {
       case 3:
       return 178;
       case 4:
-      return 180;
+      return 168;
       default:
       return 0;
     }

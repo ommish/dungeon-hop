@@ -79,7 +79,8 @@ class Game {
   }
 
   startGame() {
-    this.pathPattern = Path.generateRandomPath(30, modes[this.startMenu.level].obstacleTypes);
+    this.pathPattern = Path.generateRandomPath();
+    const itemIndex = Math.floor(Math.random() * 20) + 10;
 
     for (let i = 1; i < 3; i++) {
       let human;
@@ -88,7 +89,16 @@ class Game {
       } else {
         human = false;
       }
-      this.players.push(new Player(i, this.ctx, new Ground(i, this.ctx, new Path(this.pathPattern)), modes[this.startMenu.level], human));
+
+      this.players.push(
+        new Player(
+          i,
+          this.ctx,
+          new Ground(i, this.ctx, new Path(this.pathPattern, itemIndex, modes[this.startMenu.level].obstacleTypes)),
+          modes[this.startMenu.level],
+          human
+        )
+      );
     }
 
     this.startMenu.clearStartMenu();
@@ -278,7 +288,6 @@ class Ground {
     this.playerNumber = i;
     this.ctx = ctx;
     this.path = path;
-    // this.peach = this.setPeach();
     this.background = this.setBackground();
   }
 
@@ -287,45 +296,25 @@ class Ground {
     image.src = "./assets/backdrop.png";
     return image;
   }
-  // 
-  // setPeach() {
-  //   const image = new Image();
-  //   image.src = "./assets/peach.png";
-  //   return image;
-  // }
 
   drawBackground() {
     // context.drawImage(img,          sx,sy, sw, sh, dx,                             dy,      dw, dh)
     this.ctx.drawImage(this.background, 10, 10, 200, 100, 0, this.playerNumber === 1 ? 0 : 300, 500, 219);
-    // this.ctx.fillStyle = "black";
-    // this.ctx.fillRect(0, this.playerNumber === 1 ? 0 : 300, 500, 219);
   }
 
   drawGround() {
     this.drawBackground();
 
     this.path.spaces.forEach((space) => {
-      // context.drawImage(img,      sx, sy, sw, sh, dx,                                dy,          dw, dh)
-      this.ctx.drawImage(space.image, 0, 0, 100, 100, space.dx, this.playerNumber === 1 ? 219 : 519, 81, 81);
+      this.ctx.drawImage(space.tile, 0, 0, 100, 100, space.dx, this.playerNumber === 1 ? 219 : 519, 81, 81);
       if (space.dx >= 141.75 && space.dx < 222.75) {
         this.current = space;
       }
-      if (space.type !== "blank") {
-        // context.drawImage(img,          sx,                   sy,       sw, sh,       dx,                                      dy,    dw, dh)
-        this.ctx.drawImage(space.obstacle, space.sx, space.sy, space.sw, space.sh, space.dx + 22.5, this.playerNumber === 1 ? 185 : 485, 42, 42);
-        space.drawCount++;
-        if (space.drawCount === 3) {
-          space.drawCount = 0;
-          if (space.sx <= 1500) {
-            space.sx += 190;
-          } else {
-            space.sx = 0;
-          }
-        }
-      }
-      if (space.last) {
-        this.ctx.drawImage(space.sign, 0, 0, 20, 30, space.dx + 20.5, this.playerNumber === 1 ? 178 : 478, 36, 45);
-        // this.ctx.drawImage(this.peach, 5, 5, 55, 100, space.dx + 100, this.playerNumber === 1 ? 165 : 465, 35, 55);
+      if (space.type === 2 || space.type === 3) {
+        this.ctx.drawImage(space.object, space.sx, space.sy, space.sw, space.sh, space.dx + 20.5, this.playerNumber === 1 ? 178 : 478, space.dw, space.dh);
+      } else if (space.type === 1) {
+        this.ctx.drawImage(space.object, space.sx, space.sy, space.sw, space.sh, space.dx + 22.5, this.playerNumber === 1 ? 185 : 485, space.dw, space.dh);
+        space.incrementSx();
       }
     });
   }
@@ -379,71 +368,43 @@ function toggleMusic() {
 const Space = require('./space.js');
 
 class Path {
-  constructor(spaces) {
-    this.generateSpaces(spaces);
+  constructor(spaces, itemIndex, enemyTypes) {
+    this.generateSpaces(spaces, itemIndex, enemyTypes);
   }
 
-  generateSpaces(spaces) {
-    this.spaces = spaces.map((spaceType, i) => {
-      let space = new Space(spaceType, i);
-      if (i === 103) {space.last = true;}
+  generateSpaces(spaces, itemIndex, enemyTypes) {
+    this.spaces = spaces.map((type, spaceNum) => {
+      if (spaceNum === itemIndex) {type = 2;}
+      if (spaceNum === 103) {type = 3;}
+      let space = new Space(type, spaceNum, enemyTypes);
       return space;
     });
   }
 
-  static generateRandomPath(obstacleCount, obstacleTypes) {
-    let obstacleNum = 0;
+  static generateRandomPath() {
+
+    let obstacleCount = 0;
     let type;
-    let firstTime = true;
-    let spaceNumber;
 
-    const spaces = [];
+    const spaces = new Array(100);
+    spaces.fill(0, 0, 100);
 
-    while (obstacleNum < obstacleCount) {
-
-      for (spaceNumber = 0; spaceNumber < 103; spaceNumber++) {
-
-        if (firstTime && spaceNumber < 3) {
-          spaces.push(0);
-
-        } else if (firstTime) {
-
-        if (spaceNumber === 102) {firstTime = false;}
-
-          if (spaces[spaceNumber - 1] === 0) {
-            if (obstacleTypes === 2) {
-              type = Math.floor(Math.random() * 10) % 3;
-            } else {
-              type = Math.floor(Math.random() * 10) % 4;
-            }
-            spaces.push(type);
+    while (obstacleCount < 36) {
+      for (let spaceNumber = 0; spaceNumber <= 100; spaceNumber++) {
+        if (obstacleCount >= 36) { break;}
+          if (spaces[spaceNumber - 1] > 0 || spaces[spaceNumber + 1] > 0) {
+            spaces[spaceNumber] = 0;
           } else {
-            spaces.push(0);
-          }
-          if (type > 0) {obstacleNum++;}
-
-        } else {
-
-          if (obstacleNum < obstacleCount) {
-            spaceNumber += 5;
-            if (spaces[spaceNumber - 1] === 0) {
-              spaces[spaceNumber] = 1;
-              obstacleNum++;
-            }
-          } else {
-            break;
+            type = Math.floor(Math.random() * 2);
+            spaces[spaceNumber] = type;
+            if (type > 0) {obstacleCount++;}
           }
         }
       }
-    }
-
-    for(let i = 103; i < 110; i++) {
-      spaces.push(0);
-    }
+      spaces.unshift(0, 0 , 0);
+      spaces.push(0, 0, 0, 0, 0, 0);
     return spaces;
   }
-
-
 }
 
 module.exports = Path;
@@ -467,12 +428,15 @@ class Player {
 
     this.character = this.setImage("./assets/marios.png");
     this.bang = this.setImage("./assets/bang.png");
+    this.sparkle = this.setImage("./assets/dust.png");
     this.jumping = false;
     this.falling = false;
     this.crashing = false;
     this.finishTime = null;
+    this.invincible = false;
 
     this.calculateAndJump = this.calculateAndJump.bind(this);
+    this.endInvincible = this.endInvincible.bind(this);
 
     if (!this.human) {this.startAI();}
   }
@@ -512,10 +476,21 @@ class Player {
   }
 
   handleCollision() {
-    if (this.ground.current.dx > 160 && this.ground.current.dx < 164 && this.ground.current.typeIndex > 0) {
+    if (this.ground.current.dx > 160 && this.ground.current.dx < 164 && this.ground.current.type === 1 && !this.invincible) {
       this.crashing = true;
       this.jumping = true;
+    } else if (this.ground.current.dx > 160 && this.ground.current.dx < 164 && this.ground.current.type === 2) {
+      this.startInvincible();
     }
+  }
+
+  startInvincible() {
+    this.invincible = true;
+    window.setTimeout(this.endInvincible, 8000);
+  }
+
+  endInvincible() {
+    this.invincible = false;
   }
 
   handleFinish() {
@@ -531,6 +506,9 @@ class Player {
   drawPlayer() {
     // context.drawImage(img,          sx,      sy,       sw,  sh,  dx,    dy,      dw, dh)
     this.ctx.drawImage(this.character, this.sx, this.sy, 250, 330, this.x, this.y, 40.5, 66);
+    if (this.invincible) {
+      this.ctx.drawImage(this.sparkle, 0, 0, 100, 150, this.x, this.y, 40.5, 66);
+    }
     this.setsx();
     if (this.crashing) {
       this.slideGround(1);
@@ -584,9 +562,9 @@ class Player {
   calculateAndJump(){
     if (!this.jumping && !this.crashing && !this.finishTime) {
       if (Math.random() <= this.mode.randomness) {
-        if (this.ground.path.spaces[this.ground.current.spaceNum + 1].typeIndex > 0) {
+        if (this.ground.path.spaces[this.ground.current.spaceNum + 1].type === 1) {
           this.setJump(2);
-        } else if (this.ground.path.spaces[this.ground.current.spaceNum + 2].typeIndex > 0) {
+        } else if (this.ground.path.spaces[this.ground.current.spaceNum + 2].type === 1) {
           this.setJump(1);
         } else {
           let spaces = Math.floor(Math.random() * 10) % 2 + 1;
@@ -708,87 +686,153 @@ class Scoreboard {
 module.exports = Scoreboard;
 
 },{}],7:[function(require,module,exports){
-const _types = ["blank", "spikey", "spikeBeetle", "whacka"];
-const _imageSrcs = [
-  "./assets/ground.png",
-  "./assets/enemies.png",
-  "./assets/enemies.png",
-  "./assets/enemies.png",
-  "./assets/sign.png",
-  "./assets/peach.png"
-];
+const _imageSrcs = { 0: ["./assets/ground.png"], 1: ["./assets/enemies.png"], 2: ["./assets/items.png"], 3: ["./assets/sign.png"]};
 
 class Space {
-  constructor(typeIndex, spaceNum, current = false, last = false) {
+  constructor(type, spaceNum, enemyTypes = 0, current = false, last = false) {
+    this.type = type;
     this.spaceNum = spaceNum;
-    this.typeIndex = typeIndex;
-    this.type = _types[typeIndex];
-    this.image = this.setTile();
-    this.obstacle = this.setObstacle();
+    this.enemyType = Math.floor(Math.random() * enemyTypes);
+    this.tile = this.setTile();
+    this.object = this.setObject();
     this.dx = spaceNum * 81;
-    this.sx = 0; //(Math.floor(Math.random() * 10) % 4) * 190;
+    this.sx = this.setSX();
     this.sy = this.setSY();
     this.sh = this.setSH();
     this.sw = this.setSW();
+    this.dw = this.setDW();
+    this.dh = this.setDH();
     this.last = last;
-    this.sign = this.setSign();
     this.drawCount = 0;
   }
 
   setTile() {
     const image = new Image();
-    image.src = _imageSrcs[0];
+    image.src = _imageSrcs[0][0];
     return image;
   }
 
-  setObstacle() {
+  setObject() {
+    if (this.type === 0) {return null;}
     const image = new Image();
-    image.src =  _imageSrcs[this.typeIndex];
-    return image;
-  }
-
-  setSign() {
-    const image = new Image();
-    image.src = _imageSrcs[4];
+    image.src = _imageSrcs[this.type][0];
     return image;
   }
 
   setSH() {
-    switch (this.typeIndex) {
+    switch (this.type) {
       case 1:
-      return 175;
+      switch (this.enemyType) {
+        case 0:
+        return 175;
+        case 1:
+        return 190;
+        case 2:
+        return 165;
+        default:
+        return 0;
+      }
       case 2:
-      return 190;
+      return 50;
       case 3:
-      return 165;
+      return 30;
       default:
-      return null;
+      return 0;
     }
   }
 
   setSW() {
-    switch (this.typeIndex) {
+    switch (this.type) {
       case 1:
-      return 190;
+        switch (this.enemyType) {
+          case 0:
+          return 190;
+          case 1:
+          return 190;
+          case 2:
+          return 190;
+          default:
+          return 0;
+        }
       case 2:
-      return 190;
+      return 50;
       case 3:
-      return 190;
+      return 20;
       default:
-      return null;
+      return 0;
     }
   }
 
   setSY() {
-    switch (this.typeIndex) {
+    switch (this.type) {
       case 1:
-        return 0;
+        switch (this.enemyType) {
+          case 0:
+          return 0;
+          case 1:
+          return 175;
+          case 2:
+          return 365;
+          default:
+          return 0;
+        }
       case 2:
-        return 175;
+      return 245;
       case 3:
-        return 365;
+      return 0;
       default:
-        return null;
+      return 0;
+    }
+  }
+
+  setSX() {
+    switch (this.type) {
+      case 1:
+      return 0;
+      case 2:
+      return 660;
+      case 3:
+      return 0;
+      default:
+      return 0;
+    }
+  }
+
+  setDW() {
+    switch (this.type) {
+      case 1:
+      return 42;
+      case 2:
+      return 30;
+      case 3:
+      return 36;
+      default:
+      return 0;
+    }
+  }
+
+  setDH() {
+    switch (this.type) {
+      case 1:
+      return 42;
+      case 2:
+      return 30;
+      case 3:
+      return 45;
+      default:
+      return 0;
+    }
+  }
+
+  incrementSx() {
+    this.drawCount++;
+    if (this.drawCount === 3) {
+      this.drawCount = 0;
+      if (this.sx <= 1500) {
+        this.sx += 190;
+      } else {
+        this.sx = 0;
+      }
     }
   }
 }

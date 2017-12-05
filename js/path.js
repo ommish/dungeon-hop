@@ -1,71 +1,43 @@
 const Space = require('./space.js');
 
 class Path {
-  constructor(spaces) {
-    this.generateSpaces(spaces);
+  constructor(spaces, itemIndex, enemyTypes) {
+    this.generateSpaces(spaces, itemIndex, enemyTypes);
   }
 
-  generateSpaces(spaces) {
-    this.spaces = spaces.map((spaceType, i) => {
-      let space = new Space(spaceType, i);
-      if (i === 103) {space.last = true;}
+  generateSpaces(spaces, itemIndex, enemyTypes) {
+    this.spaces = spaces.map((type, spaceNum) => {
+      if (spaceNum === itemIndex) {type = 2;}
+      if (spaceNum === 103) {type = 3;}
+      let space = new Space(type, spaceNum, enemyTypes);
       return space;
     });
   }
 
-  static generateRandomPath(obstacleCount, obstacleTypes) {
-    let obstacleNum = 0;
+  static generateRandomPath() {
+
+    let obstacleCount = 0;
     let type;
-    let firstTime = true;
-    let spaceNumber;
 
-    const spaces = [];
+    const spaces = new Array(100);
+    spaces.fill(0, 0, 100);
 
-    while (obstacleNum < obstacleCount) {
-
-      for (spaceNumber = 0; spaceNumber < 103; spaceNumber++) {
-
-        if (firstTime && spaceNumber < 3) {
-          spaces.push(0);
-
-        } else if (firstTime) {
-
-        if (spaceNumber === 102) {firstTime = false;}
-
-          if (spaces[spaceNumber - 1] === 0) {
-            if (obstacleTypes === 2) {
-              type = Math.floor(Math.random() * 10) % 3;
-            } else {
-              type = Math.floor(Math.random() * 10) % 4;
-            }
-            spaces.push(type);
+    while (obstacleCount < 36) {
+      for (let spaceNumber = 0; spaceNumber <= 100; spaceNumber++) {
+        if (obstacleCount >= 36) { break;}
+          if (spaces[spaceNumber - 1] > 0 || spaces[spaceNumber + 1] > 0) {
+            spaces[spaceNumber] = 0;
           } else {
-            spaces.push(0);
-          }
-          if (type > 0) {obstacleNum++;}
-
-        } else {
-
-          if (obstacleNum < obstacleCount) {
-            spaceNumber += 5;
-            if (spaces[spaceNumber - 1] === 0) {
-              spaces[spaceNumber] = 1;
-              obstacleNum++;
-            }
-          } else {
-            break;
+            type = Math.floor(Math.random() * 2);
+            spaces[spaceNumber] = type;
+            if (type > 0) {obstacleCount++;}
           }
         }
       }
-    }
-
-    for(let i = 103; i < 110; i++) {
-      spaces.push(0);
-    }
+      spaces.unshift(0, 0 , 0);
+      spaces.push(0, 0, 0, 0, 0, 0);
     return spaces;
   }
-
-
 }
 
 module.exports = Path;

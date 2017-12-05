@@ -16,12 +16,15 @@ class Player {
 
     this.character = this.setImage("./assets/marios.png");
     this.bang = this.setImage("./assets/bang.png");
+    this.sparkle = this.setImage("./assets/dust.png");
     this.jumping = false;
     this.falling = false;
     this.crashing = false;
     this.finishTime = null;
+    this.invincible = false;
 
     this.calculateAndJump = this.calculateAndJump.bind(this);
+    this.endInvincible = this.endInvincible.bind(this);
 
     if (!this.human) {this.startAI();}
   }
@@ -61,10 +64,21 @@ class Player {
   }
 
   handleCollision() {
-    if (this.ground.current.dx > 160 && this.ground.current.dx < 164 && this.ground.current.typeIndex > 0) {
+    if (this.ground.current.dx > 160 && this.ground.current.dx < 164 && this.ground.current.type === 1 && !this.invincible) {
       this.crashing = true;
       this.jumping = true;
+    } else if (this.ground.current.dx > 160 && this.ground.current.dx < 164 && this.ground.current.type === 2) {
+      this.startInvincible();
     }
+  }
+
+  startInvincible() {
+    this.invincible = true;
+    window.setTimeout(this.endInvincible, 8000);
+  }
+
+  endInvincible() {
+    this.invincible = false;
   }
 
   handleFinish() {
@@ -80,6 +94,9 @@ class Player {
   drawPlayer() {
     // context.drawImage(img,          sx,      sy,       sw,  sh,  dx,    dy,      dw, dh)
     this.ctx.drawImage(this.character, this.sx, this.sy, 250, 330, this.x, this.y, 40.5, 66);
+    if (this.invincible) {
+      this.ctx.drawImage(this.sparkle, 0, 0, 100, 150, this.x, this.y, 40.5, 66);
+    }
     this.setsx();
     if (this.crashing) {
       this.slideGround(1);
@@ -133,9 +150,9 @@ class Player {
   calculateAndJump(){
     if (!this.jumping && !this.crashing && !this.finishTime) {
       if (Math.random() <= this.mode.randomness) {
-        if (this.ground.path.spaces[this.ground.current.spaceNum + 1].typeIndex > 0) {
+        if (this.ground.path.spaces[this.ground.current.spaceNum + 1].type === 1) {
           this.setJump(2);
-        } else if (this.ground.path.spaces[this.ground.current.spaceNum + 2].typeIndex > 0) {
+        } else if (this.ground.path.spaces[this.ground.current.spaceNum + 2].type === 1) {
           this.setJump(1);
         } else {
           let spaces = Math.floor(Math.random() * 10) % 2 + 1;

@@ -78,7 +78,8 @@ class Game {
   }
 
   startGame() {
-    this.pathPattern = Path.generateRandomPath(30, modes[this.startMenu.level].obstacleTypes);
+    this.pathPattern = Path.generateRandomPath();
+    const itemIndex = Math.floor(Math.random() * 20) + 10;
 
     for (let i = 1; i < 3; i++) {
       let human;
@@ -87,7 +88,16 @@ class Game {
       } else {
         human = false;
       }
-      this.players.push(new Player(i, this.ctx, new Ground(i, this.ctx, new Path(this.pathPattern)), modes[this.startMenu.level], human));
+
+      this.players.push(
+        new Player(
+          i,
+          this.ctx,
+          new Ground(i, this.ctx, new Path(this.pathPattern, itemIndex, modes[this.startMenu.level].obstacleTypes)),
+          modes[this.startMenu.level],
+          human
+        )
+      );
     }
 
     this.startMenu.clearStartMenu();

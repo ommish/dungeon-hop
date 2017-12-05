@@ -1,84 +1,150 @@
-const _types = ["blank", "spikey", "spikeBeetle", "whacka"];
-const _imageSrcs = [
-  "./assets/ground.png",
-  "./assets/enemies.png",
-  "./assets/enemies.png",
-  "./assets/enemies.png",
-  "./assets/sign.png",
-  "./assets/peach.png"
-];
+const _imageSrcs = { 0: ["./assets/ground.png"], 1: ["./assets/enemies.png"], 2: ["./assets/items.png"], 3: ["./assets/sign.png"]};
 
 class Space {
-  constructor(typeIndex, spaceNum, current = false, last = false) {
+  constructor(type, spaceNum, enemyTypes = 0, current = false, last = false) {
+    this.type = type;
     this.spaceNum = spaceNum;
-    this.typeIndex = typeIndex;
-    this.type = _types[typeIndex];
-    this.image = this.setTile();
-    this.obstacle = this.setObstacle();
+    this.enemyType = Math.floor(Math.random() * enemyTypes);
+    this.tile = this.setTile();
+    this.object = this.setObject();
     this.dx = spaceNum * 81;
-    this.sx = 0; //(Math.floor(Math.random() * 10) % 4) * 190;
+    this.sx = this.setSX();
     this.sy = this.setSY();
     this.sh = this.setSH();
     this.sw = this.setSW();
+    this.dw = this.setDW();
+    this.dh = this.setDH();
     this.last = last;
-    this.sign = this.setSign();
     this.drawCount = 0;
   }
 
   setTile() {
     const image = new Image();
-    image.src = _imageSrcs[0];
+    image.src = _imageSrcs[0][0];
     return image;
   }
 
-  setObstacle() {
+  setObject() {
+    if (this.type === 0) {return null;}
     const image = new Image();
-    image.src =  _imageSrcs[this.typeIndex];
-    return image;
-  }
-
-  setSign() {
-    const image = new Image();
-    image.src = _imageSrcs[4];
+    image.src = _imageSrcs[this.type][0];
     return image;
   }
 
   setSH() {
-    switch (this.typeIndex) {
+    switch (this.type) {
       case 1:
-      return 175;
+      switch (this.enemyType) {
+        case 0:
+        return 175;
+        case 1:
+        return 190;
+        case 2:
+        return 165;
+        default:
+        return 0;
+      }
       case 2:
-      return 190;
+      return 50;
       case 3:
-      return 165;
+      return 30;
       default:
-      return null;
+      return 0;
     }
   }
 
   setSW() {
-    switch (this.typeIndex) {
+    switch (this.type) {
       case 1:
-      return 190;
+        switch (this.enemyType) {
+          case 0:
+          return 190;
+          case 1:
+          return 190;
+          case 2:
+          return 190;
+          default:
+          return 0;
+        }
       case 2:
-      return 190;
+      return 50;
       case 3:
-      return 190;
+      return 20;
       default:
-      return null;
+      return 0;
     }
   }
 
   setSY() {
-    switch (this.typeIndex) {
+    switch (this.type) {
       case 1:
-        return 0;
+        switch (this.enemyType) {
+          case 0:
+          return 0;
+          case 1:
+          return 175;
+          case 2:
+          return 365;
+          default:
+          return 0;
+        }
       case 2:
-        return 175;
+      return 245;
       case 3:
-        return 365;
+      return 0;
       default:
-        return null;
+      return 0;
+    }
+  }
+
+  setSX() {
+    switch (this.type) {
+      case 1:
+      return 0;
+      case 2:
+      return 660;
+      case 3:
+      return 0;
+      default:
+      return 0;
+    }
+  }
+
+  setDW() {
+    switch (this.type) {
+      case 1:
+      return 42;
+      case 2:
+      return 30;
+      case 3:
+      return 36;
+      default:
+      return 0;
+    }
+  }
+
+  setDH() {
+    switch (this.type) {
+      case 1:
+      return 42;
+      case 2:
+      return 30;
+      case 3:
+      return 45;
+      default:
+      return 0;
+    }
+  }
+
+  incrementSx() {
+    this.drawCount++;
+    if (this.drawCount === 3) {
+      this.drawCount = 0;
+      if (this.sx <= 1500) {
+        this.sx += 190;
+      } else {
+        this.sx = 0;
+      }
     }
   }
 }

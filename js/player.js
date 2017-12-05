@@ -1,11 +1,11 @@
 const PlayerState = require('./player_state.js');
 
 class Player {
-  constructor(i, ctx, ground, mode, human = true) {
+  constructor(i, ctx, ground, settings, human = true) {
     this.playerNumber = i;
     this.ctx = ctx;
     this.ground = ground;
-    this.mode = mode;
+    this.settings = settings;
     this.human = human;
     this.state = new PlayerState();
 
@@ -41,11 +41,11 @@ class Player {
   slideGround(direction) {
     let delta;
     if (this.jumpHeight === this.baseY - 64) {
-      delta = this.mode.oneSlide;
+      delta = this.settings.oneSlide;
     } else if (this.jumpHeight === this.baseY - 96) {
-      delta = this.mode.twoSlides;
+      delta = this.settings.twoSlides;
     } else {
-      delta = this.mode.threeSlides;
+      delta = this.settings.threeSlides;
     }
     this.ground.slide(delta * direction);
   }
@@ -101,7 +101,7 @@ class Player {
   }
 
   incrementY(direction) {
-    this.y += this.mode.yIncrement * direction;
+    this.y += this.settings.yIncrement * direction;
   }
 
   drawPlayer() {
@@ -159,7 +159,7 @@ class Player {
   }
 
   startAI() {
-    this.interval = window.setInterval(this.calculateAndJump, this.mode.jumpInterval);
+    this.interval = window.setInterval(this.calculateAndJump, 400);
   }
 
   stopAI() {
@@ -170,7 +170,7 @@ class Player {
     if (!this.jumping && !this.crashing && !this.finishTime) {
       if (this.invincible) {
         this.setJump(2);
-      } else if (Math.random() <= this.mode.randomness) {
+      } else if (Math.random() <= this.settings.computerLevel) {
         if (this.ground.path.spaces[this.ground.current.spaceNum + 1].type === 1) {
           this.setJump(2);
         } else if (this.ground.path.spaces[this.ground.current.spaceNum + 2].type === 1) {

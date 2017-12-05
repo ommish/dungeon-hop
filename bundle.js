@@ -5,28 +5,8 @@ const Path = require('./path.js');
 const Ground = require('./ground.js');
 const Timer = require('../node_modules/easytimer.js/dist/easytimer.min.js');
 const Scoreboard = require('./scoreboard.js');
-
-const _easyMode = {
-  oneSlide: 81 / 10,
-  twoSlides: 162 / 14,
-  threeSlides: 243 / 18,
-  yIncrement: 16,
-  obstacleTypes: 2,
-  randomness: 0.7,
-  jumpInterval: 300,
-};
-
-const _hardMode = {
-  oneSlide: 81 / 8,
-  twoSlides: 162 / 10,
-  threeSlides: 243 / 12,
-  yIncrement: 24,
-  obstacleTypes: 3,
-  randomness: 0.8,
-  jumpInterval: 600,
-};
-
-const modes = [_easyMode, _hardMode];
+const GameState = require('./game_state.js');
+const SettingsForm = require('./settings_form.js');
 
 class Game {
 
@@ -36,9 +16,9 @@ class Game {
 
     this.drawGame = this.drawGame.bind(this);
     this.handleKeyPress = this.handleKeyPress.bind(this);
-    this.handleKeyDown = this.handleKeyDown.bind(this);
     this.clearGame = this.clearGame.bind(this);
     this.reset = this.reset.bind(this);
+    this.settingsForm = new SettingsForm();
 
     this.reset();
 
@@ -47,8 +27,6 @@ class Game {
 
   reset() {
     window.clearInterval(this.interval);
-    this.difficulty = 1;
-    this.humanPlayerCount = 1;
     this.running = false;
     this.paused = false;
 
@@ -81,23 +59,24 @@ class Game {
   }
 
   startGame() {
+    const settings = this.settingsForm.settings;
     this.pathPattern = Path.generateRandomPath();
+
     const itemIndex = Math.floor(Math.random() * 20) + 10;
 
     for (let i = 1; i < 3; i++) {
       let human;
-      if (i === 1 || this.humanPlayerCount > 1) {
+      if (i === 1 || settings.playerCount > 1) {
         human = true;
       } else {
         human = false;
       }
-
       this.players.push(
         new Player(
           i,
           this.ctx,
-          new Ground(i, this.ctx, new Path(this.pathPattern, itemIndex, modes[this.startMenu.level].obstacleTypes)),
-          modes[this.startMenu.level],
+          new Ground(i, this.ctx, new Path(this.pathPattern, itemIndex, settings.obstacleTypes, this.settingsForm.settings.items)),
+          settings,
           human
         )
       );
@@ -168,7 +147,6 @@ class Game {
 
   addListeners() {
     this.keypressListener = document.addEventListener("keypress", this.handleKeyPress);
-    this.keydownListener = document.addEventListener("keydown", this.handleKeyDown);
   }
 
   removeListeners() {
@@ -176,33 +154,13 @@ class Game {
     document.removeEventListener("keydown", this.keydownListener);
   }
 
-  handleKeyDown(e) {
-    switch (e.keyCode) {
-      case 37:
-      this.startMenu.level = 0;
-      return;
-      case 39:
-      this.startMenu.level = 1;
-      return;
-    }
-  }
-
   handleKeyPress(e) {
     // at start menu
-    if (!this.running && !this.winner) {
+    if (!this.running && !this.winner && this.settingsForm.settingsForm.hasClass("hidden")) {
       switch (e.keyCode) {
         // prevent caps lock
         case 20:
         e.preventDefault();
-        return;
-        // 49-50 choose one or two player mode
-        case 49:
-        this.humanPlayerCount = parseInt(e.key);
-        this.startMenu.humanPlayerCount = this.humanPlayerCount;
-        return;
-        case 50:
-        this.humanPlayerCount = parseInt(e.key);
-        this.startMenu.humanPlayerCount = this.humanPlayerCount;
         return;
         // space to start
         case 32:
@@ -217,6 +175,7 @@ class Game {
       switch (e.keyCode) {
         // \ to restart
         case 92:
+        this.settingsForm.displayForm();
         this.reset();
         return;
         // \not sure! ...
@@ -243,7 +202,7 @@ class Game {
         // s for P1 to jump 3
         case 100:
         if (!this.playerOne().finished) {
-          if (this.playerOne().tripleJumps > 0) {
+          if (this.settingsForm.settings.tripleJumps) {
             this.playerOne().setJump(3);
           }
         }
@@ -263,7 +222,7 @@ class Game {
         // p for P2 to jump 3
         case 112:
         if (this.playerTwo().human && !this.playerTwo().finished) {
-          if (this.playerTwo().tripleJumps > 0) {
+          if (this.settingsForm.settings.tripleJumps) {
             this.playerTwo().setJump(3);
           }
         }
@@ -282,6 +241,7 @@ class Game {
         // \ to restart
         case 92:
         this.reset();
+        this.settingsForm.displayForm();
         return;
       }
       // after game is over
@@ -290,6 +250,7 @@ class Game {
         // \ to restart
         case 92:
         this.reset();
+        this.settingsForm.displayForm();
         return;
       }
     }
@@ -298,7 +259,45 @@ class Game {
 
 module.exports = Game;
 
-},{"../node_modules/easytimer.js/dist/easytimer.min.js":9,"./ground.js":2,"./path.js":4,"./player.js":5,"./scoreboard.js":6,"./start_menu.js":8}],2:[function(require,module,exports){
+},{"../node_modules/easytimer.js/dist/easytimer.min.js":12,"./game_state.js":2,"./ground.js":3,"./path.js":5,"./player.js":6,"./scoreboard.js":8,"./settings_form.js":9,"./start_menu.js":11}],2:[function(require,module,exports){
+
+const _easyMode = {
+  oneSlide: 81 / 10,
+  twoSlides: 162 / 14,
+  threeSlides: 243 / 18,
+  yIncrement: 16,
+  obstacleTypes: 2,
+  randomness: 0.7,
+  jumpInterval: 300,
+};
+
+const _hardMode = {
+  oneSlide: 81 / 8,
+  twoSlides: 162 / 10,
+  threeSlides: 243 / 12,
+  yIncrement: 24,
+  obstacleTypes: 3,
+  randomness: 0.8,
+  jumpInterval: 600,
+};
+
+class GameState {
+
+  constructor(userSelections) {
+
+  }
+
+  setState() {
+    
+  }
+
+
+
+}
+
+module.exports = GameState;
+
+},{}],3:[function(require,module,exports){
 const Space = require('./space.js');
 
 class Ground {
@@ -349,7 +348,7 @@ class Ground {
 
 module.exports = Ground;
 
-},{"./space.js":7}],3:[function(require,module,exports){
+},{"./space.js":10}],4:[function(require,module,exports){
 const Game = require('./game.js');
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -384,20 +383,24 @@ function toggleMusic() {
   });
 }
 
-},{"./game.js":1}],4:[function(require,module,exports){
+},{"./game.js":1}],5:[function(require,module,exports){
 const Space = require('./space.js');
 
 class Path {
-  constructor(spaces, itemIndex, enemyTypes) {
-    this.generateSpaces(spaces, itemIndex, enemyTypes);
+  constructor(path, itemIndex, enemyTypes, items) {
+    this.path = path;
+    this.itemIndex = itemIndex;
+    this.enemyTypes = enemyTypes;
+    this.items = items;
+    this.generateSpaces();
   }
 
-  generateSpaces(spaces, itemIndex, enemyTypes) {
-    this.spaces = spaces.map((type, spaceNum) => {
-      if (spaceNum === itemIndex || spaceNum === itemIndex * 3) {type = 2;}
+  generateSpaces() {
+    this.spaces = this.path.map((type, spaceNum) => {
+      if ((this.items.length > 0) && (spaceNum === this.itemIndex || spaceNum === this.itemIndex * 3)) {type = 2;}
       if (spaceNum === 103) {type = 3;}
       if (spaceNum === 105) {type = 4;}
-      let space = new Space(type, spaceNum, enemyTypes);
+      let space = new Space(type, spaceNum, this.items, this.enemyTypes);
       return space;
     });
   }
@@ -430,15 +433,17 @@ class Path {
 
 module.exports = Path;
 
-},{"./space.js":7}],5:[function(require,module,exports){
+},{"./space.js":10}],6:[function(require,module,exports){
+const PlayerState = require('./player_state.js');
 
 class Player {
-  constructor(i, ctx, ground, mode, human = true) {
+  constructor(i, ctx, ground, settings, human = true) {
     this.playerNumber = i;
     this.ctx = ctx;
     this.ground = ground;
-    this.mode = mode;
+    this.settings = settings;
     this.human = human;
+    this.state = new PlayerState();
 
     this.sx = 1500;
     this.sy = (i - 1) * 330;
@@ -472,11 +477,11 @@ class Player {
   slideGround(direction) {
     let delta;
     if (this.jumpHeight === this.baseY - 64) {
-      delta = this.mode.oneSlide;
+      delta = this.settings.oneSlide;
     } else if (this.jumpHeight === this.baseY - 96) {
-      delta = this.mode.twoSlides;
+      delta = this.settings.twoSlides;
     } else {
-      delta = this.mode.threeSlides;
+      delta = this.settings.threeSlides;
     }
     this.ground.slide(delta * direction);
   }
@@ -532,7 +537,7 @@ class Player {
   }
 
   incrementY(direction) {
-    this.y += this.mode.yIncrement * direction;
+    this.y += this.settings.yIncrement * direction;
   }
 
   drawPlayer() {
@@ -590,7 +595,7 @@ class Player {
   }
 
   startAI() {
-    this.interval = window.setInterval(this.calculateAndJump, this.mode.jumpInterval);
+    this.interval = window.setInterval(this.calculateAndJump, 400);
   }
 
   stopAI() {
@@ -601,7 +606,7 @@ class Player {
     if (!this.jumping && !this.crashing && !this.finishTime) {
       if (this.invincible) {
         this.setJump(2);
-      } else if (Math.random() <= this.mode.randomness) {
+      } else if (Math.random() <= this.settings.computerLevel) {
         if (this.ground.path.spaces[this.ground.current.spaceNum + 1].type === 1) {
           this.setJump(2);
         } else if (this.ground.path.spaces[this.ground.current.spaceNum + 2].type === 1) {
@@ -622,7 +627,15 @@ class Player {
 
 module.exports = Player;
 
-},{}],6:[function(require,module,exports){
+},{"./player_state.js":7}],7:[function(require,module,exports){
+class PlayerState {
+
+
+}
+
+module.exports = PlayerState;
+
+},{}],8:[function(require,module,exports){
 class Scoreboard {
   constructor(ctx, winner, finishTime, date) {
     this.ctx = ctx;
@@ -728,15 +741,209 @@ class Scoreboard {
 
 module.exports = Scoreboard;
 
-},{}],7:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
+class SettingsForm {
+
+  constructor() {
+    this.settingsForm = $(document.getElementsByClassName("game-settings")[0]);
+    this.submitButtom = document.getElementById("submit-settings");
+    this.handleSubmit = this.handleSubmit.bind(this);
+    this.addListeners();
+  }
+
+  addListeners() {
+    this.submitButtom.addEventListener("click", this.handleSubmit);
+  }
+
+  displayForm() {
+    this.settingsForm.toggleClass("hidden");
+  }
+
+  handleSubmit(e) {
+    e.preventDefault();
+    this.settingsForm.toggleClass("hidden");
+    const speed = $("#speed-slider")[0].value;
+    const computerLevel = $("#computer-level-slider")[0].value;
+    const obstacleTypes = $("#obstacle-types-slider")[0].value;
+    this.formData = {
+      speed: parseInt(speed),
+      computerLevel: parseInt(computerLevel),
+      obstacleTypes: parseInt(obstacleTypes),
+      items: [],
+      playerCount: null,
+      jumpDistances: null,
+    };
+    const formData = this.settingsForm.serializeArray();
+    formData.forEach((input) => {
+      if (input.name === "items") {
+        this.formData.items.push(parseInt(input.value));
+      } else {
+        this.formData[input.name] = parseInt(input.value);
+      }
+    });
+    this.settings = {};
+    this.setSettings();
+  }
+
+  setSettings() {
+    Object.keys(this.formData).forEach((key) => {
+      let value = this.formData[key];
+      switch (key) {
+        case "items":
+        this.setItems(value);
+        break;
+        case "jumpDistances":
+        this.setJumpDistances(value);
+        break;
+        case "computerLevel":
+        this.setComputerLevel(value);
+        break;
+        case "speed":
+        this.setSlides(value);
+        this.setYIncrement(value);
+        break;
+        case "playerCount":
+        this.setPlayerCount(value);
+        break;
+        case "obstacleTypes":
+        this.setObstacleTypes(value);
+        break;
+        default:
+      }
+    });
+  }
+
+  setItems(itemChoices) {
+    this.settings.items = itemChoices;
+  }
+
+  setJumpDistances(distances) {
+    let tripleJumps;
+    switch (distances) {
+      case 1:
+      tripleJumps = false;
+      break;
+      case 2:
+      tripleJumps = true;
+      break;
+      default:
+      return;
+    }
+    this.settings.tripleJumps = tripleJumps;
+  }
+
+  setYIncrement(speed) {
+    let yIncrement;
+    switch (speed) {
+      case 0:
+      yIncrement = 16;
+      break;
+      case 50:
+      yIncrement = 24;
+      break;
+      case 100:
+      yIncrement = 24;
+      break;
+      default:
+      return;
+    }
+    this.settings.yIncrement = yIncrement;
+  }
+
+  setComputerLevel(level) {
+    let computerLevel;
+    switch (level) {
+      case 0:
+      computerLevel = 0.7;
+      break;
+      case 50:
+      computerLevel = 0.8;
+      break;
+      case 0:
+      computerLevel = 1.0;
+      break;
+      default:
+      return;
+    }
+    this.settings.computerLevel = computerLevel;
+  }
+
+  setSlides(speed) {
+    let oneSlide;
+    let twoSlides;
+    let threeSlides;
+    let yIncrement;
+    switch (speed) {
+      case 0:
+      oneSlide = 81/10;
+      twoSlides = 162/14;
+      threeSlides = 243/18;
+      yIncrement = 16;
+      break;
+      case 50:
+      oneSlide = 81/8;
+      twoSlides = 162/10;
+      threeSlides = 243/12;
+      yIncrement = 24;
+      break;
+      case 100:
+      oneSlide = 81/8;
+      twoSlides = 162/10;
+      threeSlides = 243/12;
+      yIncrement = 24;
+      break;
+      default:
+      return;
+    }
+    this.settings.oneSlide = oneSlide;
+    this.settings.twoSlides = twoSlides;
+    this.settings.threeSlides = threeSlides;
+  }
+
+  setPlayerCount(count) {
+    this.settings.playerCount = count;
+  }
+
+  setObstacleTypes(types) {
+    let obstacleTypes;
+    switch (types) {
+      case 0:
+      obstacleTypes = 1;
+      break;
+      case 25:
+      obstacleTypes = 2;
+      break;
+      case 50:
+      obstacleTypes = 3;
+      break;
+      case 75:
+      obstacleTypes = 3;
+      break;
+      case 100:
+      obstacleTypes = 3;
+      break;
+      default:
+      return;
+    }
+    this.settings.obstacleTypes = obstacleTypes;
+  }
+
+}
+
+
+
+
+module.exports = SettingsForm;
+
+},{}],10:[function(require,module,exports){
 const _imageSrcs = { 0: ["./assets/ground.png"], 1: ["./assets/enemies.png"], 2: ["./assets/items.png"], 3: ["./assets/sign.png"], 4: ["./assets/peach.png"]};
 
 class Space {
-  constructor(type, spaceNum, enemyTypes = 0, current = false, last = false) {
+  constructor(type, spaceNum, items, enemyTypes = 0, current = false, last = false) {
     this.type = type;
     this.spaceNum = spaceNum;
     this.enemyType = Math.floor(Math.random() * enemyTypes);
-    this.itemType = Math.floor(Math.random() * 2);
+    this.itemType = items[Math.floor(Math.random() * items.length)];
     this.tile = this.setTile();
     this.object = this.setObject();
     this.dx = spaceNum * 81;
@@ -777,6 +984,7 @@ class Space {
         default:
         return 0;
       }
+      break;
       case 2:
       return 50;
       case 3:
@@ -801,6 +1009,7 @@ class Space {
           default:
           return 0;
         }
+        break;
       case 2:
       switch (this.itemType) {
         case 0:
@@ -810,6 +1019,7 @@ class Space {
         default:
         return 0;
       }
+      break;
       case 3:
       return 20;
       case 4:
@@ -832,6 +1042,7 @@ class Space {
           default:
           return 0;
         }
+        break;
       case 2:
       switch (this.itemType) {
         case 0:
@@ -841,6 +1052,7 @@ class Space {
         default:
         return 0;
       }
+      break;
       case 3:
       return 0;
       case 4:
@@ -863,6 +1075,7 @@ class Space {
           default:
           return 0;
         }
+        break;
       case 3:
       return 0;
       case 4:
@@ -932,14 +1145,14 @@ class Space {
 
 module.exports = Space;
 
-},{}],8:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 class StartMenu {
-  constructor(ctx) {
+  constructor(ctx, playerCount, tripleJumps) {
     this.ctx = ctx;
-    this.humanPlayerCount = 1;
+    this.playerCount = playerCount;
     this.width = 500;
     this.height = 600;
-    this.level = 0;
+    this.tripleJumps = tripleJumps;
 
     this.drawStartMenu = this.drawStartMenu.bind(this);
     this.clear = this.clear.bind(this);
@@ -967,20 +1180,23 @@ class StartMenu {
     this.ctx.fillStyle = "black";
     this.ctx.textAlign = "center";
 
-    this.ctx.fillText(`Num. Players (1/2):  ${this.humanPlayerCount}`, this.width / 2, 50);
-    this.ctx.fillText(`Speed (← / →): ${["slow", "fast"][this.level]}`, this.width / 2, 80);
-
     this.ctx.fillText('Hit Space to Start', this.width / 2, 140);
-
-    this.ctx.fillText('Player One:', this.width / 2, 200);
 
     this.ctx.fillText('a to jump one space', this.width / 2, 230);
     this.ctx.fillText('s to jump two spaces', this.width / 2, 260);
+    // if (this.tripleJumps) {
+      this.ctx.fillText('d to jump three spaces', this.width / 2, 290);
+    // }
 
-    this.ctx.fillText('Player Two:', this.width / 2, 320);
-    this.ctx.fillText('k to jump one space', this.width / 2, 350);
-    this.ctx.fillText('l to jump two spaces', this.width / 2, 380);
-
+    if (this.playerCount > 1) {
+      this.ctx.fillText('Player One:', this.width / 2, 200);
+      this.ctx.fillText('Player Two:', this.width / 2, 350);
+      this.ctx.fillText('i to jump one space', this.width / 2, 380);
+      this.ctx.fillText('o to jump two spaces', this.width / 2, 410);
+      // if (this.tripleJumps) {
+        this.ctx.fillText('p to jump three spaces', this.width / 2, 440);
+      // }
+    }
   }
 
   clear() {
@@ -991,10 +1207,10 @@ class StartMenu {
 
 module.exports = StartMenu;
 
-},{}],9:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 !function(n,t){"object"==typeof exports&&"undefined"!=typeof module?module.exports=t():"function"==typeof define&&define.amd?define(t):n.Timer=t()}(this,function(){"use strict";function n(n,t,e){var o=void 0,i="";for(o=0;o<t;o+=1)i+=String(e);return(i+n).slice(-i.length)}function t(){this.secondTenths=0,this.seconds=0,this.minutes=0,this.hours=0,this.days=0,this.toString=function(t,e,o){t=t||["hours","minutes","seconds"],e=e||":",o=o||2;var i=[],r=void 0;for(r=0;r<t.length;r+=1)void 0!==this[t[r]]&&i.push(n(this[t[r]],o,"0"));return i.join(e)}}function e(){return"undefined"!=typeof document}function o(){return S}function i(n,t){return(n%t+t)%t}var r="undefined"!=typeof window?window.CustomEvent:void 0;"undefined"!=typeof window&&"function"!=typeof r&&((r=function(n,t){t=t||{bubbles:!1,cancelable:!1,detail:void 0};var e=document.createEvent("CustomEvent");return e.initCustomEvent(n,t.bubbles,t.cancelable,t.detail),e}).prototype=window.Event.prototype,window.CustomEvent=r);var s="function"==typeof Symbol&&"symbol"==typeof Symbol.iterator?function(n){return typeof n}:function(n){return n&&"function"==typeof Symbol&&n.constructor===Symbol&&n!==Symbol.prototype?"symbol":typeof n},u=10,d=60,c=60,f=24,a=0,v=1,h=2,l=3,p=4,m="secondTenths",y="seconds",b="minutes",w="hours",g="days",E={secondTenths:100,seconds:1e3,minutes:6e4,hours:36e5,days:864e5},T={secondTenths:u,seconds:d,minutes:c,hours:f},S="undefined"!=typeof module&&module.exports&&"function"==typeof require?require("events"):void 0;return function(){function n(n,t){var e=Math.floor(t);X[n]=e,W[n]=n!==g?i(e,T[n]):e}function r(n){return U(n,g)}function j(n){return U(n,w)}function C(n){return U(n,b)}function M(n){return U(n,y)}function L(n){return U(n,m)}function U(t,e){var o=X[e];return n(e,t/E[e]),X[e]!==o}function V(){A(),z()}function A(){clearInterval(Y),Y=void 0,$=!1,_=!1}function k(n){Q()?(cn=D(),sn=F(rn.target)):R(n),x()}function x(){var n=E[nn];O(q(Date.now()))||(Y=setInterval(P,n),$=!0,_=!1)}function D(){return q(Date.now())-X.secondTenths*E[m]*tn}function P(){var n=q(Date.now()),t=tn>0?n-cn:cn-n,e={};e[m]=L(t),e[y]=M(t),e[b]=C(t),e[w]=j(t),e[g]=r(t),I(e),en(an.detail.timer),O(n)&&(K("targetAchieved",an),J())}function q(n){return Math.floor(n/E[nn])*E[nn]}function I(n){n[m]&&K("secondTenthsUpdated",an),n[y]&&K("secondsUpdated",an),n[b]&&K("minutesUpdated",an),n[w]&&K("hoursUpdated",an),n[g]&&K("daysUpdated",an)}function O(n){return sn instanceof Array&&n>=fn}function z(){for(var n in W)W.hasOwnProperty(n)&&"number"==typeof W[n]&&(W[n]=0);for(var t in X)X.hasOwnProperty(t)&&"number"==typeof X[t]&&(X[t]=0)}function R(n){nn="string"==typeof(n=n||{}).precision?n.precision:y,en="function"==typeof n.callback?n.callback:function(){},dn=!0===n.countdown,tn=!0===dn?-1:1,"object"===s(n.startValues)&&G(n.startValues),cn=D(),"object"===s(n.target)?sn=F(n.target):dn&&(n.target={seconds:0},sn=F(n.target)),on={precision:nn,callback:en,countdown:"object"===(void 0===n?"undefined":s(n))&&!0===n.countdown,target:sn,startValues:un},rn=n}function B(n){var t=void 0,e=void 0,o=void 0,i=void 0,r=void 0,m=void 0;if("object"===(void 0===n?"undefined":s(n)))if(n instanceof Array){if(5!==n.length)throw new Error("Array size not valid");m=n}else m=[n.secondTenths||0,n.seconds||0,n.minutes||0,n.hours||0,n.days||0];for(var y=0;y<n.length;y+=1)n[y]<0&&(n[y]=0);return t=m[a],e=m[v]+Math.floor(t/u),o=m[h]+Math.floor(e/d),i=m[l]+Math.floor(o/c),r=m[p]+Math.floor(i/f),m[a]=t%u,m[v]=e%d,m[h]=o%c,m[l]=i%f,m[p]=r,m}function F(n){if(n){var t=H(sn=B(n));return fn=cn+t.secondTenths*E[m]*tn,sn}}function G(n){un=B(n),W.secondTenths=un[a],W.seconds=un[v],W.minutes=un[h],W.hours=un[l],W.days=un[p],X=H(un,X)}function H(n,t){var e=t||{};return e.days=n[p],e.hours=e.days*f+n[l],e.minutes=e.hours*c+n[h],e.seconds=e.minutes*d+n[v],e.secondTenths=e.seconds*u+n[[a]],e}function J(){V(),K("stopped",an)}function K(n,t){e()?Z.dispatchEvent(new CustomEvent(n,t)):o()&&Z.emit(n,t)}function N(){return $}function Q(){return _}var W=new t,X=new t,Y=void 0,Z=e()?document.createElement("span"):o()?new S.EventEmitter:void 0,$=!1,_=!1,nn=void 0,tn=void 0,en=void 0,on={},rn=void 0,sn=void 0,un=void 0,dn=void 0,cn=void 0,fn=void 0,an={detail:{timer:this}};void 0!==this&&(this.start=function(n){N()||(k(n),K("started",an))},this.pause=function(){A(),_=!0,K("paused",an)},this.stop=J,this.reset=function(){V(),k(rn),K("reset",an)},this.isRunning=N,this.isPaused=Q,this.getTimeValues=function(){return W},this.getTotalTimeValues=function(){return X},this.getConfig=function(){return on},this.addEventListener=function(n,t){e()?Z.addEventListener(n,t):o()&&Z.on(n,t)},this.removeEventListener=function(n,t){e()?Z.removeEventListener(n,t):o()&&Z.removeListener(n,t)})}});
 
-},{"events":10}],10:[function(require,module,exports){
+},{"events":13}],13:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -1298,4 +1514,4 @@ function isUndefined(arg) {
   return arg === void 0;
 }
 
-},{}]},{},[3]);
+},{}]},{},[4]);

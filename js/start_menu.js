@@ -1,10 +1,10 @@
 class StartMenu {
-  constructor(ctx) {
+  constructor(ctx, playerCount, tripleJumps) {
     this.ctx = ctx;
-    this.humanPlayerCount = 1;
+    this.playerCount = playerCount;
     this.width = 500;
     this.height = 600;
-    this.level = 0;
+    this.tripleJumps = tripleJumps;
 
     this.drawStartMenu = this.drawStartMenu.bind(this);
     this.clear = this.clear.bind(this);
@@ -32,20 +32,23 @@ class StartMenu {
     this.ctx.fillStyle = "black";
     this.ctx.textAlign = "center";
 
-    this.ctx.fillText(`Num. Players (1/2):  ${this.humanPlayerCount}`, this.width / 2, 50);
-    this.ctx.fillText(`Speed (← / →): ${["slow", "fast"][this.level]}`, this.width / 2, 80);
-
     this.ctx.fillText('Hit Space to Start', this.width / 2, 140);
-
-    this.ctx.fillText('Player One:', this.width / 2, 200);
 
     this.ctx.fillText('a to jump one space', this.width / 2, 230);
     this.ctx.fillText('s to jump two spaces', this.width / 2, 260);
+    // if (this.tripleJumps) {
+      this.ctx.fillText('d to jump three spaces', this.width / 2, 290);
+    // }
 
-    this.ctx.fillText('Player Two:', this.width / 2, 320);
-    this.ctx.fillText('k to jump one space', this.width / 2, 350);
-    this.ctx.fillText('l to jump two spaces', this.width / 2, 380);
-
+    if (this.playerCount > 1) {
+      this.ctx.fillText('Player One:', this.width / 2, 200);
+      this.ctx.fillText('Player Two:', this.width / 2, 350);
+      this.ctx.fillText('i to jump one space', this.width / 2, 380);
+      this.ctx.fillText('o to jump two spaces', this.width / 2, 410);
+      // if (this.tripleJumps) {
+        this.ctx.fillText('p to jump three spaces', this.width / 2, 440);
+      // }
+    }
   }
 
   clear() {

@@ -1,11 +1,11 @@
 const _imageSrcs = { 0: ["./assets/ground.png"], 1: ["./assets/enemies.png"], 2: ["./assets/items.png"], 3: ["./assets/sign.png"], 4: ["./assets/peach.png"]};
 
 class Space {
-  constructor(type, spaceNum, enemyTypes = 0, current = false, last = false) {
+  constructor(type, spaceNum, items, enemyTypes = 0, current = false, last = false) {
     this.type = type;
     this.spaceNum = spaceNum;
     this.enemyType = Math.floor(Math.random() * enemyTypes);
-    this.itemType = Math.floor(Math.random() * 2);
+    this.itemType = items[Math.floor(Math.random() * items.length)];
     this.tile = this.setTile();
     this.object = this.setObject();
     this.dx = spaceNum * 81;
@@ -46,6 +46,7 @@ class Space {
         default:
         return 0;
       }
+      break;
       case 2:
       return 50;
       case 3:
@@ -70,6 +71,7 @@ class Space {
           default:
           return 0;
         }
+        break;
       case 2:
       switch (this.itemType) {
         case 0:
@@ -79,6 +81,7 @@ class Space {
         default:
         return 0;
       }
+      break;
       case 3:
       return 20;
       case 4:
@@ -101,6 +104,7 @@ class Space {
           default:
           return 0;
         }
+        break;
       case 2:
       switch (this.itemType) {
         case 0:
@@ -110,6 +114,7 @@ class Space {
         default:
         return 0;
       }
+      break;
       case 3:
       return 0;
       case 4:
@@ -132,6 +137,7 @@ class Space {
           default:
           return 0;
         }
+        break;
       case 3:
       return 0;
       case 4:

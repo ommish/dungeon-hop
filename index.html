@@ -66,72 +66,74 @@
             </section>
           </header>
 
-          <!-- <form class="game-settings">
-            <h3>Game Settings</h3>
+                                    <div class="canvas-container">
+                                      <canvas id="canvas" width="500" height="600"></canvas>
+                                      <form class="game-settings">
+                                        <h2>Game Settings</h2>
 
-            <h5>Number of Players</h5>
-            <div class="">
+                                        <h3>Number of Players</h3>
+                                        <div class="">
 
-              <input checked type="radio" id="1-player"
-              name="playerCount" value="1">
-              <label for="1-player">1</label>
-              <input type="radio" id="2-player"
-              name="playerCount" value="2">
-              <label for="2-player">2</label>
-            </div>
+                                          <input checked type="radio" id="1-player"
+                                          name="playerCount" value="1">
+                                          <label for="1-player">1</label>
+                                          <input type="radio" id="2-player"
+                                          name="playerCount" value="2">
+                                          <label for="2-player">2</label>
+                                        </div>
 
-            <h5>Speed</h5>
-            <input type="range" list="speed" step="50">
-            <datalist id="speed">
-              <option value="0">
-                <option value="50">
-                  <option value="100">
-                  </datalist>
+                                        <h3>Speed</h3>
+                                        <input id="speed-slider" type="range" list="speed" step="50">
+                                        <datalist id="speed">
+                                          <option value="0">
+                                            <option value="50">
+                                              <option value="100">
+                                              </datalist>
 
-                  <h5>Jump Distances</h5>
+                                              <h3>Jump Distances</h3>
 
-                  <label>
-                    <input checked type="radio" id="1-2-jumps"
-                    name="jumpDistances" value="1">
-                    1, 2
-                  </label>
-                  <label>
-                    <input type="radio" id="2player"
-                    name="jumpDistances" value="2">
-                    1, 2, 3
-                  </label>
+                                              <label>
+                                                <input checked type="radio" id="1-2-jumps"
+                                                name="jumpDistances" value="1">
+                                                Single, Double
+                                              </label>
+                                              <label>
+                                                <input type="radio" id="2player"
+                                                name="jumpDistances" value="2">
+                                                Single, Double, Triple
+                                              </label>
 
-                  <h5>Computer Level</h5>
-                  <input type="range" list="computer-level" step="25">
-                  <datalist id="computer-level">
-                    <option value="0">
-                      <option value="25">
-                        <option value="50">
-                          <option value="75">
-                            <option value="100">
-                            </datalist>
+                                              <h3>Computer Level</h3>
+                                              <input id="computer-level-slider" type="range" list="computer-level" step="25">
+                                              <datalist id="computer-level">
+                                                <option value="0">
+                                                  <option value="25">
+                                                    <option value="50">
+                                                      <option value="75">
+                                                        <option value="100">
+                                                        </datalist>
 
-                            <h5>Obstacle Types</h5>
-                            <input type="range" list="obstacle-types" step="25">
-                            <datalist id="obstacle-types">
-                              <option value="0">
-                                <option value="25">
-                                  <option value="50">
-                                    <option value="75">
-                                      <option value="100">
-                                      </datalist>
-<h5>Items</h5>
-<label>
-  <input type="checkbox" name="items" value="0">
-  Star
-</label>
-<label>
-  <input type="checkbox" name="items" value="1">
-  Mushroom
-</label>
-
-                                    </form> -->
-                                    <canvas id="canvas" width="500" height="600"></canvas>
+                                                        <h3>Obstacle Types</h3>
+                                                        <input id="obstacle-types-slider" type="range" list="obstacle-types" step="25">
+                                                        <datalist id="obstacle-types">
+                                                          <option value="0">
+                                                            <option value="25">
+                                                              <option value="50">
+                                                                <option value="75">
+                                                                  <option value="100">
+                                                                  </datalist>
+                            <h3>Items</h3>
+                            <label>
+                              <input checked type="checkbox" name="items" value="0">
+                              Star
+                            </label>
+                            <label>
+                              <input checked type="checkbox" name="items" value="1">
+                              Mushroom
+                            </label>
+                            <button id="submit-settings">All Set!</button>
+                        </form>
+                                    </div>
                                   </main>
 
                                   <footer>

@@ -1,16 +1,20 @@
 const Space = require('./space.js');
 
 class Path {
-  constructor(spaces, itemIndex, enemyTypes) {
-    this.generateSpaces(spaces, itemIndex, enemyTypes);
+  constructor(path, itemIndex, enemyTypes, items) {
+    this.path = path;
+    this.itemIndex = itemIndex;
+    this.enemyTypes = enemyTypes;
+    this.items = items;
+    this.generateSpaces();
   }
 
-  generateSpaces(spaces, itemIndex, enemyTypes) {
-    this.spaces = spaces.map((type, spaceNum) => {
-      if (spaceNum === itemIndex || spaceNum === itemIndex * 3) {type = 2;}
+  generateSpaces() {
+    this.spaces = this.path.map((type, spaceNum) => {
+      if ((this.items.length > 0) && (spaceNum === this.itemIndex || spaceNum === this.itemIndex * 3)) {type = 2;}
       if (spaceNum === 103) {type = 3;}
       if (spaceNum === 105) {type = 4;}
-      let space = new Space(type, spaceNum, enemyTypes);
+      let space = new Space(type, spaceNum, this.items, this.enemyTypes);
       return space;
     });
   }

@@ -5,29 +5,7 @@ const Ground = require('./ground.js');
 const Timer = require('../node_modules/easytimer.js/dist/easytimer.min.js');
 const Scoreboard = require('./scoreboard.js');
 const GameState = require('./game_state.js');
-const SettingForm = require('./setting_form.js');
-
-const _easyMode = {
-  oneSlide: 81 / 10,
-  twoSlides: 162 / 14,
-  threeSlides: 243 / 18,
-  yIncrement: 16,
-  obstacleTypes: 2,
-  randomness: 0.7,
-  jumpInterval: 300,
-};
-
-const _hardMode = {
-  oneSlide: 81 / 8,
-  twoSlides: 162 / 10,
-  threeSlides: 243 / 12,
-  yIncrement: 24,
-  obstacleTypes: 3,
-  randomness: 0.8,
-  jumpInterval: 600,
-};
-
-const modes = [_easyMode, _hardMode];
+const SettingsForm = require('./settings_form.js');
 
 class Game {
 
@@ -37,9 +15,9 @@ class Game {
 
     this.drawGame = this.drawGame.bind(this);
     this.handleKeyPress = this.handleKeyPress.bind(this);
-    this.handleKeyDown = this.handleKeyDown.bind(this);
     this.clearGame = this.clearGame.bind(this);
     this.reset = this.reset.bind(this);
+    this.settingsForm = new SettingsForm();
 
     this.reset();
 
@@ -48,8 +26,6 @@ class Game {
 
   reset() {
     window.clearInterval(this.interval);
-    this.difficulty = 1;
-    this.humanPlayerCount = 1;
     this.running = false;
     this.paused = false;
 
@@ -82,23 +58,24 @@ class Game {
   }
 
   startGame() {
+    const settings = this.settingsForm.settings;
     this.pathPattern = Path.generateRandomPath();
+
     const itemIndex = Math.floor(Math.random() * 20) + 10;
 
     for (let i = 1; i < 3; i++) {
       let human;
-      if (i === 1 || this.humanPlayerCount > 1) {
+      if (i === 1 || settings.playerCount > 1) {
         human = true;
       } else {
         human = false;
       }
-
       this.players.push(
         new Player(
           i,
           this.ctx,
-          new Ground(i, this.ctx, new Path(this.pathPattern, itemIndex, modes[this.startMenu.level].obstacleTypes)),
-          modes[this.startMenu.level],
+          new Ground(i, this.ctx, new Path(this.pathPattern, itemIndex, settings.obstacleTypes, this.settingsForm.settings.items)),
+          settings,
           human
         )
       );
@@ -169,7 +146,6 @@ class Game {
 
   addListeners() {
     this.keypressListener = document.addEventListener("keypress", this.handleKeyPress);
-    this.keydownListener = document.addEventListener("keydown", this.handleKeyDown);
   }
 
   removeListeners() {
@@ -177,33 +153,13 @@ class Game {
     document.removeEventListener("keydown", this.keydownListener);
   }
 
-  handleKeyDown(e) {
-    switch (e.keyCode) {
-      case 37:
-      this.startMenu.level = 0;
-      return;
-      case 39:
-      this.startMenu.level = 1;
-      return;
-    }
-  }
-
   handleKeyPress(e) {
     // at start menu
-    if (!this.running && !this.winner) {
+    if (!this.running && !this.winner && this.settingsForm.settingsForm.hasClass("hidden")) {
       switch (e.keyCode) {
         // prevent caps lock
         case 20:
         e.preventDefault();
-        return;
-        // 49-50 choose one or two player mode
-        case 49:
-        this.humanPlayerCount = parseInt(e.key);
-        this.startMenu.humanPlayerCount = this.humanPlayerCount;
-        return;
-        case 50:
-        this.humanPlayerCount = parseInt(e.key);
-        this.startMenu.humanPlayerCount = this.humanPlayerCount;
         return;
         // space to start
         case 32:
@@ -218,6 +174,7 @@ class Game {
       switch (e.keyCode) {
         // \ to restart
         case 92:
+        this.settingsForm.displayForm();
         this.reset();
         return;
         // \not sure! ...
@@ -244,7 +201,7 @@ class Game {
         // s for P1 to jump 3
         case 100:
         if (!this.playerOne().finished) {
-          if (this.playerOne().tripleJumps > 0) {
+          if (this.settingsForm.settings.tripleJumps) {
             this.playerOne().setJump(3);
           }
         }
@@ -264,7 +221,7 @@ class Game {
         // p for P2 to jump 3
         case 112:
         if (this.playerTwo().human && !this.playerTwo().finished) {
-          if (this.playerTwo().tripleJumps > 0) {
+          if (this.settingsForm.settings.tripleJumps) {
             this.playerTwo().setJump(3);
           }
         }
@@ -283,6 +240,7 @@ class Game {
         // \ to restart
         case 92:
         this.reset();
+        this.settingsForm.displayForm();
         return;
       }
       // after game is over
@@ -291,6 +249,7 @@ class Game {
         // \ to restart
         case 92:
         this.reset();
+        this.settingsForm.displayForm();
         return;
       }
     }

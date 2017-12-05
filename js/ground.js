@@ -10,13 +10,15 @@ class Ground {
 
   setBackground() {
     const image = new Image();
-    image.src = "./assets/backdrop.png";
+    image.src = this.playerNumber === 1 ? "./assets/castle.png" : "./assets/hotel.png";
     return image;
   }
 
   drawBackground() {
-    // context.drawImage(img,          sx,sy, sw, sh, dx,                             dy,      dw, dh)
-    this.ctx.drawImage(this.background, 10, 10, 200, 100, 0, this.playerNumber === 1 ? 0 : 300, 500, 219);
+    // context.drawImage(img,           sx,sy, sw, sh, dx,                             dy,      dw, dh)
+    this.ctx.fillStyle = "black";
+    this.ctx.fillRect(0, this.playerNumber === 1 ? 0 : 300, 500, 300);
+    this.ctx.drawImage(this.background, 0, 0, 352, 203, 100, this.playerNumber === 1 ? 70 : 375, 275, 150);
   }
 
   drawGround() {
@@ -27,10 +29,10 @@ class Ground {
       if (space.dx >= 141.75 && space.dx < 222.75) {
         this.current = space;
       }
-      if (space.type === 2 || space.type === 3) {
-        this.ctx.drawImage(space.object, space.sx, space.sy, space.sw, space.sh, space.dx + 20.5, this.playerNumber === 1 ? 178 : 478, space.dw, space.dh);
-      } else if (space.type === 1) {
-        this.ctx.drawImage(space.object, space.sx, space.sy, space.sw, space.sh, space.dx + 22.5, this.playerNumber === 1 ? 185 : 485, space.dw, space.dh);
+      if (space.type > 0) {
+        this.ctx.drawImage(space.object, space.sx, space.sy, space.sw, space.sh, space.dx + 22.5, this.playerNumber === 1 ? space.dy : space.dy + 300, space.dw, space.dh);
+      }
+      if (space.type === 1) {
         space.incrementSx();
       }
     });

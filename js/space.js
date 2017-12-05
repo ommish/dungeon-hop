@@ -1,4 +1,4 @@
-const _imageSrcs = { 0: ["./assets/ground.png"], 1: ["./assets/enemies.png"], 2: ["./assets/items.png"], 3: ["./assets/sign.png"]};
+const _imageSrcs = { 0: ["./assets/ground.png"], 1: ["./assets/enemies.png"], 2: ["./assets/items.png"], 3: ["./assets/sign.png"], 4: ["./assets/peach.png"]};
 
 class Space {
   constructor(type, spaceNum, enemyTypes = 0, current = false, last = false) {
@@ -8,6 +8,7 @@ class Space {
     this.tile = this.setTile();
     this.object = this.setObject();
     this.dx = spaceNum * 81;
+    this.dy = this.setDY();
     this.sx = this.setSX();
     this.sy = this.setSY();
     this.sh = this.setSH();
@@ -48,6 +49,8 @@ class Space {
       return 50;
       case 3:
       return 30;
+      case 4:
+      return 110;
       default:
       return 0;
     }
@@ -70,6 +73,8 @@ class Space {
       return 50;
       case 3:
       return 20;
+      case 4:
+      return 65;
       default:
       return 0;
     }
@@ -92,6 +97,8 @@ class Space {
       return 245;
       case 3:
       return 0;
+      case 4:
+      return 3;
       default:
       return 0;
     }
@@ -105,6 +112,8 @@ class Space {
       return 660;
       case 3:
       return 0;
+      case 4:
+      return 3;
       default:
       return 0;
     }
@@ -115,9 +124,11 @@ class Space {
       case 1:
       return 42;
       case 2:
-      return 30;
+      return 36;
       case 3:
       return 36;
+      case 4:
+      return 40;
       default:
       return 0;
     }
@@ -128,9 +139,26 @@ class Space {
       case 1:
       return 42;
       case 2:
-      return 30;
+      return 36;
       case 3:
       return 45;
+      case 4:
+      return 50;
+      default:
+      return 0;
+    }
+  }
+
+  setDY() {
+    switch (this.type) {
+      case 1:
+      return 185;
+      case 2:
+      return 185;
+      case 3:
+      return 178;
+      case 4:
+      return 180;
       default:
       return 0;
     }

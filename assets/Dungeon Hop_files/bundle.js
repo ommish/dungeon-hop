@@ -293,15 +293,13 @@ class Ground {
 
   setBackground() {
     const image = new Image();
-    image.src = this.playerNumber === 1 ? "./assets/castle.png" : "./assets/hotel.png";
+    image.src = "./assets/backdrop.png";
     return image;
   }
 
   drawBackground() {
-    // context.drawImage(img,           sx,sy, sw, sh, dx,                             dy,      dw, dh)
-    this.ctx.fillStyle = "black";
-    this.ctx.fillRect(0, this.playerNumber === 1 ? 0 : 300, 500, 300);
-    this.ctx.drawImage(this.background, 0, 0, 352, 203, 100, this.playerNumber === 1 ? 70 : 375, 275, 150);
+    // context.drawImage(img,          sx,sy, sw, sh, dx,                             dy,      dw, dh)
+    this.ctx.drawImage(this.background, 10, 10, 200, 100, 0, this.playerNumber === 1 ? 0 : 300, 500, 219);
   }
 
   drawGround() {
@@ -378,7 +376,6 @@ class Path {
     this.spaces = spaces.map((type, spaceNum) => {
       if (spaceNum === itemIndex) {type = 2;}
       if (spaceNum === 103) {type = 3;}
-      if (spaceNum === 104) {type = 4;}
       let space = new Space(type, spaceNum, enemyTypes);
       return space;
     });
@@ -618,9 +615,6 @@ class Scoreboard {
     else if (e.keyCode === 13) {
       this.saveScore();
     }
-    else if ([16, 20, 9, 27, 17, 18, 57, 38, 39, 40, 38].includes(e.keyCode)) {
-      return;
-    }
     // type in name
     else if (this.winnerName.length < 15) {
       this.winnerName += e.key;
@@ -692,7 +686,7 @@ class Scoreboard {
 module.exports = Scoreboard;
 
 },{}],7:[function(require,module,exports){
-const _imageSrcs = { 0: ["./assets/ground.png"], 1: ["./assets/enemies.png"], 2: ["./assets/items.png"], 3: ["./assets/sign.png"], 4: ["./assets/peach.png"]};
+const _imageSrcs = { 0: ["./assets/ground.png"], 1: ["./assets/enemies.png"], 2: ["./assets/items.png"], 3: ["./assets/sign.png"]};
 
 class Space {
   constructor(type, spaceNum, enemyTypes = 0, current = false, last = false) {
@@ -743,8 +737,6 @@ class Space {
       return 50;
       case 3:
       return 30;
-      case 4:
-      return 110;
       default:
       return 0;
     }
@@ -767,8 +759,6 @@ class Space {
       return 50;
       case 3:
       return 20;
-      case 4:
-      return 65;
       default:
       return 0;
     }
@@ -791,8 +781,6 @@ class Space {
       return 245;
       case 3:
       return 0;
-      case 4:
-      return 3;
       default:
       return 0;
     }
@@ -806,8 +794,6 @@ class Space {
       return 660;
       case 3:
       return 0;
-      case 4:
-      return 3;
       default:
       return 0;
     }
@@ -821,8 +807,6 @@ class Space {
       return 36;
       case 3:
       return 36;
-      case 4:
-      return 40;
       default:
       return 0;
     }
@@ -836,8 +820,6 @@ class Space {
       return 36;
       case 3:
       return 45;
-      case 4:
-      return 50;
       default:
       return 0;
     }
@@ -851,8 +833,6 @@ class Space {
       return 185;
       case 3:
       return 178;
-      case 4:
-      return 180;
       default:
       return 0;
     }

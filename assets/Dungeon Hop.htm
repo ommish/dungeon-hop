@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<!-- saved from url=(0051)file:///Users/ommi/documents/dungeon-hop/index.html -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  
+
+  <link href="./Dungeon Hop_files/css" rel="stylesheet">
+  <link href="./Dungeon Hop_files/css(1)" rel="stylesheet">
+
+  <link rel="stylesheet" href="./Dungeon Hop_files/reset.css">
+  <link rel="stylesheet" href="./Dungeon Hop_files/application.css">
+  <script src="./Dungeon Hop_files/jquery.min.js"></script>
+  <script src="./Dungeon Hop_files/firebase.js"></script>
+
+  <script>
+  var config = {
+    apiKey: "AIzaSyDai1Dz2ZqCGR6XjvZQiEDNg_g---CgodM",
+    authDomain: "dungeon-hop.firebaseapp.com",
+    databaseURL: "https://dungeon-hop.firebaseio.com",
+    projectId: "dungeon-hop",
+    storageBucket: "",
+    messagingSenderId: "45799513741"
+  };
+  firebase.initializeApp(config);
+  </script>
+
+  </head><body><audio id="bg-music" loop="">
+    <source src="./assets/bgmusic.mp3" type="audio/ogg">
+  </audio>
+
+  <script type="text/javascript" src="./Dungeon Hop_files/bundle.js"></script>
+  <title>Dungeon Hop</title>
+
+
+
+
+  <main>
+    <div class="header-deco">
+    </div>
+    <header>
+      <div class="title">
+        <h1>Dungeon Hop</h1>
+        <div class="music-button disabled">♬ <p>on/off</p></div>
+      </div>
+      <h3>&nbsp;by Ommi Shimizu</h3>
+      <section class="rules">
+        <br><br>
+        <h3 class="explanation">Hop your way through the dungeon to save the Princess!</h3>
+          <br><br>
+        <h3>Avoid these enemies:</h3>
+        <div class="enemies">
+        <img src="./Dungeon Hop_files/spiny.png" alt="spiny">
+        <img src="./Dungeon Hop_files/spiketop.png" alt="spiketop">
+        <img src="./Dungeon Hop_files/whacka.png" alt="whacka">
+      </div>
+        <h5>
+          Jumping on an enemy will set you back.
+        </h5>
+        <br><br>
+        <h3>Special item:</h3>
+        <div class="items">
+          <img src="./Dungeon Hop_files/star.png" alt="whacka">
+        </div>
+        <h5>
+        The star will make you temporarily invincible. Be careful not to hop on any enemies when it runs out though!
+      </h5>
+      </section>
+    </header>
+    <canvas id="canvas" width="500" height="600"></canvas>
+  </main>
+
+  <footer>
+    <a href="https://www.linkedin.com/in/ommish" target="_blank">LinkedIn</a>
+    <a href="https://www.github.com/ommish" target="_blank">Github</a>
+    <a href="http://www.ommish.com/" target="_blank">Portfolio</a>
+  </footer>
+
+
+</body></html>

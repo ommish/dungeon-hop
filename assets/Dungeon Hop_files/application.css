@@ -15,8 +15,13 @@ main {
 header {
   display: flex;
   flex-direction: column;
-  margin-left: 200px;
-  margin-right: 50px;
+}
+
+.header-deco {
+  background-image: url("../assets/ground.png");
+  background-repeat: repeat-y;
+  height: auto;
+  width: 50%;
 }
 
 .title {
@@ -74,7 +79,6 @@ section > * {
 
 canvas {
   background: white;
-  margin-right: 200px;
 }
 
 

@@ -30,6 +30,9 @@ class Scoreboard {
     else if (e.keyCode === 13) {
       this.saveScore();
     }
+    else if ([16, 20, 9, 27, 17, 18, 57, 38, 39, 40, 38].includes(e.keyCode)) {
+      return;
+    }
     // type in name
     else if (this.winnerName.length < 15) {
       this.winnerName += e.key;

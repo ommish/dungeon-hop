@@ -9,22 +9,23 @@ class Path {
     this.spaces = spaces.map((type, spaceNum) => {
       if (spaceNum === itemIndex) {type = 2;}
       if (spaceNum === 103) {type = 3;}
+      if (spaceNum === 104) {type = 4;}
       let space = new Space(type, spaceNum, enemyTypes);
       return space;
     });
   }
 
   static generateRandomPath() {
-
+    const maxObstacles = 45;
     let obstacleCount = 0;
     let type;
 
     const spaces = new Array(100);
     spaces.fill(0, 0, 100);
 
-    while (obstacleCount < 36) {
+    while (obstacleCount < maxObstacles) {
       for (let spaceNumber = 0; spaceNumber <= 100; spaceNumber++) {
-        if (obstacleCount >= 36) { break;}
+        if (obstacleCount >= maxObstacles) { break;}
           if (spaces[spaceNumber - 1] > 0 || spaces[spaceNumber + 1] > 0) {
             spaces[spaceNumber] = 0;
           } else {

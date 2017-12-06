@@ -562,18 +562,26 @@ class Player {
   calculateAndJump(){
     if (!this.jumping && !this.crashing && !this.finishTime) {
       if (this.invincible) {
-        this.setJump(2);
+        if (this.settings.tripleJumps) {
+          this.setJump(3);
+        } else {
+          this.setJump(2);
+        }
       } else if (Math.random() <= this.settings.computerLevel) {
-        if (this.ground.path.spaces[this.ground.current.spaceNum + 1].type === 1) {
+        if (this.ground.path.spaces[this.ground.current.spaceNum + 1].type === 1 || this.ground.path.spaces[this.ground.current.spaceNum + 3].type === 1) {
           this.setJump(2);
         } else if (this.ground.path.spaces[this.ground.current.spaceNum + 2].type === 1) {
-          this.setJump(1);
+          if (this.settings.tripleJumps && this.ground.path.spaces[this.ground.current.spaceNum + 3].type !== 1) {
+            this.setJump(3);
+          } else {
+            this.setJump(1);
+          }
         } else {
-          let spaces = Math.floor(Math.random() * 10) % 2 + 1;
+          let spaces = Math.floor(Math.random() * 2) + 1;
           this.setJump(spaces);
         }
       } else {
-        let spaces = Math.floor(Math.random() * 10) % 2 + 1;
+        let spaces = Math.floor(Math.random() * 2) + 1;
         this.setJump(spaces);
       }
     } else if (this.finishTime) {

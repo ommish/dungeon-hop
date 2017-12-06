@@ -32,7 +32,7 @@ class Ground {
       if (space.type > 0) {
         this.ctx.drawImage(space.object, space.sx, space.sy, space.sw, space.sh, space.dx + 22.5, this.playerNumber === 1 ? space.dy : space.dy + 300, space.dw, space.dh);
       }
-      if (space.type === 1) {
+      if (space.type === 1 || space.type === 4) {
         space.incrementSx();
       }
     });

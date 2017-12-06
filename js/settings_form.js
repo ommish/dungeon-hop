@@ -2,6 +2,7 @@ class SettingsForm {
 
   constructor() {
     this.settingsForm = $(document.getElementsByClassName("game-settings")[0]);
+    this.isOpen = true;
     this.submitButtom = document.getElementById("submit-settings");
     this.handleSubmit = this.handleSubmit.bind(this);
     this.addListeners();
@@ -12,12 +13,14 @@ class SettingsForm {
   }
 
   displayForm() {
+    this.isOpen = true;
     this.settingsForm.toggleClass("hidden");
   }
 
   handleSubmit(e) {
     e.preventDefault();
     this.settingsForm.toggleClass("hidden");
+    this.isOpen = false;
     const speed = $("#speed-slider")[0].value;
     const computerLevel = $("#computer-level-slider")[0].value;
     const obstacleTypes = $("#obstacle-types-slider")[0].value;
@@ -98,7 +101,7 @@ class SettingsForm {
       yIncrement = 24;
       break;
       case 100:
-      yIncrement = 24;
+      yIncrement = 40;
       break;
       default:
       return;
@@ -112,10 +115,16 @@ class SettingsForm {
       case 0:
       computerLevel = 0.7;
       break;
+      case 25:
+      computerLevel = 0.75;
+      break;
       case 50:
       computerLevel = 0.8;
       break;
-      case 0:
+      case 75:
+      computerLevel = 0.9;
+      break;
+      case 100:
       computerLevel = 1.0;
       break;
       default:
@@ -134,19 +143,16 @@ class SettingsForm {
       oneSlide = 81/10;
       twoSlides = 162/14;
       threeSlides = 243/18;
-      yIncrement = 16;
       break;
       case 50:
       oneSlide = 81/8;
       twoSlides = 162/10;
       threeSlides = 243/12;
-      yIncrement = 24;
       break;
       case 100:
-      oneSlide = 81/8;
-      twoSlides = 162/10;
-      threeSlides = 243/12;
-      yIncrement = 24;
+      oneSlide = 81/6;
+      twoSlides = 162/8;
+      threeSlides = 243/8;
       break;
       default:
       return;

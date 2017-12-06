@@ -40,7 +40,7 @@ class StartMenu {
       this.ctx.fillText('d to jump three spaces', this.width / 2, 290);
     // }
 
-    if (this.playerCount > 1) {
+    // if (this.playerCount > 1) {
       this.ctx.fillText('Player One:', this.width / 2, 200);
       this.ctx.fillText('Player Two:', this.width / 2, 350);
       this.ctx.fillText('i to jump one space', this.width / 2, 380);
@@ -48,7 +48,7 @@ class StartMenu {
       // if (this.tripleJumps) {
         this.ctx.fillText('p to jump three spaces', this.width / 2, 440);
       // }
-    }
+    // }
   }
 
   clear() {

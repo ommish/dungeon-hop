@@ -5,7 +5,6 @@ const Path = require('./path.js');
 const Ground = require('./ground.js');
 const Timer = require('../node_modules/easytimer.js/dist/easytimer.min.js');
 const Scoreboard = require('./scoreboard.js');
-const GameState = require('./game_state.js');
 const SettingsForm = require('./settings_form.js');
 
 class Game {
@@ -151,12 +150,11 @@ class Game {
 
   removeListeners() {
     document.removeEventListener("keypress", this.keypressListener);
-    document.removeEventListener("keydown", this.keydownListener);
   }
 
   handleKeyPress(e) {
     // at start menu
-    if (!this.running && !this.winner && this.settingsForm.settingsForm.hasClass("hidden")) {
+    if (!this.running && !this.winner && !this.settingsForm.isOpen) {
       switch (e.keyCode) {
         // prevent caps lock
         case 20:
@@ -245,7 +243,7 @@ class Game {
         return;
       }
       // after game is over
-    } else {
+    } else if (this.winner) {
       switch (e.keyCode) {
         // \ to restart
         case 92:
@@ -259,45 +257,7 @@ class Game {
 
 module.exports = Game;
 
-},{"../node_modules/easytimer.js/dist/easytimer.min.js":12,"./game_state.js":2,"./ground.js":3,"./path.js":5,"./player.js":6,"./scoreboard.js":8,"./settings_form.js":9,"./start_menu.js":11}],2:[function(require,module,exports){
-
-const _easyMode = {
-  oneSlide: 81 / 10,
-  twoSlides: 162 / 14,
-  threeSlides: 243 / 18,
-  yIncrement: 16,
-  obstacleTypes: 2,
-  randomness: 0.7,
-  jumpInterval: 300,
-};
-
-const _hardMode = {
-  oneSlide: 81 / 8,
-  twoSlides: 162 / 10,
-  threeSlides: 243 / 12,
-  yIncrement: 24,
-  obstacleTypes: 3,
-  randomness: 0.8,
-  jumpInterval: 600,
-};
-
-class GameState {
-
-  constructor(userSelections) {
-
-  }
-
-  setState() {
-    
-  }
-
-
-
-}
-
-module.exports = GameState;
-
-},{}],3:[function(require,module,exports){
+},{"../node_modules/easytimer.js/dist/easytimer.min.js":11,"./ground.js":2,"./path.js":4,"./player.js":5,"./scoreboard.js":7,"./settings_form.js":8,"./start_menu.js":10}],2:[function(require,module,exports){
 const Space = require('./space.js');
 
 class Ground {
@@ -332,7 +292,7 @@ class Ground {
       if (space.type > 0) {
         this.ctx.drawImage(space.object, space.sx, space.sy, space.sw, space.sh, space.dx + 22.5, this.playerNumber === 1 ? space.dy : space.dy + 300, space.dw, space.dh);
       }
-      if (space.type === 1) {
+      if (space.type === 1 || space.type === 4) {
         space.incrementSx();
       }
     });
@@ -348,7 +308,7 @@ class Ground {
 
 module.exports = Ground;
 
-},{"./space.js":10}],4:[function(require,module,exports){
+},{"./space.js":9}],3:[function(require,module,exports){
 const Game = require('./game.js');
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -383,7 +343,7 @@ function toggleMusic() {
   });
 }
 
-},{"./game.js":1}],5:[function(require,module,exports){
+},{"./game.js":1}],4:[function(require,module,exports){
 const Space = require('./space.js');
 
 class Path {
@@ -433,7 +393,7 @@ class Path {
 
 module.exports = Path;
 
-},{"./space.js":10}],6:[function(require,module,exports){
+},{"./space.js":9}],5:[function(require,module,exports){
 const PlayerState = require('./player_state.js');
 
 class Player {
@@ -460,7 +420,6 @@ class Player {
     this.crashing = false;
     this.finishTime = null;
     this.invincible = false;
-    this.tripleJumps = 0;
 
     this.calculateAndJump = this.calculateAndJump.bind(this);
     this.endInvincible = this.endInvincible.bind(this);
@@ -512,7 +471,7 @@ class Player {
       if (this.ground.current.itemType === 0) {
         this.startInvincible();
       } else {
-        this.getTripleJumps();
+        // some other bonus for other item
       }
     }
   }
@@ -524,10 +483,6 @@ class Player {
 
   endInvincible() {
     this.invincible = false;
-  }
-
-  getTripleJumps() {
-    this.tripleJumps += 5;
   }
 
   handleFinish() {
@@ -568,6 +523,9 @@ class Player {
         this.incrementY(-1);
       } else {
         this.falling = true;
+        // if (this.human) {
+        //   console.log(this.y);
+        // }
       }
     } else {
       if (this.y < this.baseY) {
@@ -588,7 +546,6 @@ class Player {
       } else if (spaces === 2){
         this.jumpHeight = this.baseY - 96;
       } else if (spaces === 3) {
-        this.tripleJumps -= 1;
         this.jumpHeight = this.baseY - 120;
       }
     }
@@ -627,7 +584,7 @@ class Player {
 
 module.exports = Player;
 
-},{"./player_state.js":7}],7:[function(require,module,exports){
+},{"./player_state.js":6}],6:[function(require,module,exports){
 class PlayerState {
 
 
@@ -635,7 +592,7 @@ class PlayerState {
 
 module.exports = PlayerState;
 
-},{}],8:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 class Scoreboard {
   constructor(ctx, winner, finishTime, date) {
     this.ctx = ctx;
@@ -741,11 +698,12 @@ class Scoreboard {
 
 module.exports = Scoreboard;
 
-},{}],9:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 class SettingsForm {
 
   constructor() {
     this.settingsForm = $(document.getElementsByClassName("game-settings")[0]);
+    this.isOpen = true;
     this.submitButtom = document.getElementById("submit-settings");
     this.handleSubmit = this.handleSubmit.bind(this);
     this.addListeners();
@@ -756,12 +714,14 @@ class SettingsForm {
   }
 
   displayForm() {
+    this.isOpen = true;
     this.settingsForm.toggleClass("hidden");
   }
 
   handleSubmit(e) {
     e.preventDefault();
     this.settingsForm.toggleClass("hidden");
+    this.isOpen = false;
     const speed = $("#speed-slider")[0].value;
     const computerLevel = $("#computer-level-slider")[0].value;
     const obstacleTypes = $("#obstacle-types-slider")[0].value;
@@ -842,7 +802,7 @@ class SettingsForm {
       yIncrement = 24;
       break;
       case 100:
-      yIncrement = 24;
+      yIncrement = 40;
       break;
       default:
       return;
@@ -856,10 +816,16 @@ class SettingsForm {
       case 0:
       computerLevel = 0.7;
       break;
+      case 25:
+      computerLevel = 0.75;
+      break;
       case 50:
       computerLevel = 0.8;
       break;
-      case 0:
+      case 75:
+      computerLevel = 0.9;
+      break;
+      case 100:
       computerLevel = 1.0;
       break;
       default:
@@ -878,19 +844,16 @@ class SettingsForm {
       oneSlide = 81/10;
       twoSlides = 162/14;
       threeSlides = 243/18;
-      yIncrement = 16;
       break;
       case 50:
       oneSlide = 81/8;
       twoSlides = 162/10;
       threeSlides = 243/12;
-      yIncrement = 24;
       break;
       case 100:
-      oneSlide = 81/8;
-      twoSlides = 162/10;
-      threeSlides = 243/12;
-      yIncrement = 24;
+      oneSlide = 81/6;
+      twoSlides = 162/8;
+      threeSlides = 243/8;
       break;
       default:
       return;
@@ -935,7 +898,7 @@ class SettingsForm {
 
 module.exports = SettingsForm;
 
-},{}],10:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 const _imageSrcs = { 0: ["./assets/ground.png"], 1: ["./assets/enemies.png"], 2: ["./assets/items.png"], 3: ["./assets/sign.png"], 4: ["./assets/peach.png"]};
 
 class Space {
@@ -984,7 +947,6 @@ class Space {
         default:
         return 0;
       }
-      break;
       case 2:
       return 50;
       case 3:
@@ -1009,7 +971,6 @@ class Space {
           default:
           return 0;
         }
-        break;
       case 2:
       switch (this.itemType) {
         case 0:
@@ -1019,11 +980,10 @@ class Space {
         default:
         return 0;
       }
-      break;
       case 3:
       return 20;
       case 4:
-      return 65;
+      return 68;
       default:
       return 0;
     }
@@ -1042,7 +1002,6 @@ class Space {
           default:
           return 0;
         }
-        break;
       case 2:
       switch (this.itemType) {
         case 0:
@@ -1052,7 +1011,6 @@ class Space {
         default:
         return 0;
       }
-      break;
       case 3:
       return 0;
       case 4:
@@ -1075,7 +1033,6 @@ class Space {
           default:
           return 0;
         }
-        break;
       case 3:
       return 0;
       case 4:
@@ -1094,7 +1051,7 @@ class Space {
       case 3:
       return 36;
       case 4:
-      return 40;
+      return 43;
       default:
       return 0;
     }
@@ -1109,7 +1066,7 @@ class Space {
       case 3:
       return 45;
       case 4:
-      return 65;
+      return 68;
       default:
       return 0;
     }
@@ -1124,7 +1081,7 @@ class Space {
       case 3:
       return 178;
       case 4:
-      return 168;
+      return 165;
       default:
       return 0;
     }
@@ -1132,12 +1089,23 @@ class Space {
 
   incrementSx() {
     this.drawCount++;
-    if (this.drawCount === 3) {
-      this.drawCount = 0;
-      if (this.sx <= 1500) {
-        this.sx += 190;
-      } else {
-        this.sx = 0;
+    if (this.type === 1) {
+      if (this.drawCount === 3) {
+        this.drawCount = 0;
+        if (this.sx <= 1500) {
+          this.sx += 190;
+        } else {
+          this.sx = 0;
+        }
+      }
+    } else if (this.type === 4) {
+      if (this.drawCount === 3) {
+        this.drawCount = 0;
+        if (this.sx <= 550) {
+          this.sx += 71;
+        } else {
+          this.sx = 3;
+        }
       }
     }
   }
@@ -1145,7 +1113,7 @@ class Space {
 
 module.exports = Space;
 
-},{}],11:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 class StartMenu {
   constructor(ctx, playerCount, tripleJumps) {
     this.ctx = ctx;
@@ -1188,7 +1156,7 @@ class StartMenu {
       this.ctx.fillText('d to jump three spaces', this.width / 2, 290);
     // }
 
-    if (this.playerCount > 1) {
+    // if (this.playerCount > 1) {
       this.ctx.fillText('Player One:', this.width / 2, 200);
       this.ctx.fillText('Player Two:', this.width / 2, 350);
       this.ctx.fillText('i to jump one space', this.width / 2, 380);
@@ -1196,7 +1164,7 @@ class StartMenu {
       // if (this.tripleJumps) {
         this.ctx.fillText('p to jump three spaces', this.width / 2, 440);
       // }
-    }
+    // }
   }
 
   clear() {
@@ -1207,10 +1175,10 @@ class StartMenu {
 
 module.exports = StartMenu;
 
-},{}],12:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 !function(n,t){"object"==typeof exports&&"undefined"!=typeof module?module.exports=t():"function"==typeof define&&define.amd?define(t):n.Timer=t()}(this,function(){"use strict";function n(n,t,e){var o=void 0,i="";for(o=0;o<t;o+=1)i+=String(e);return(i+n).slice(-i.length)}function t(){this.secondTenths=0,this.seconds=0,this.minutes=0,this.hours=0,this.days=0,this.toString=function(t,e,o){t=t||["hours","minutes","seconds"],e=e||":",o=o||2;var i=[],r=void 0;for(r=0;r<t.length;r+=1)void 0!==this[t[r]]&&i.push(n(this[t[r]],o,"0"));return i.join(e)}}function e(){return"undefined"!=typeof document}function o(){return S}function i(n,t){return(n%t+t)%t}var r="undefined"!=typeof window?window.CustomEvent:void 0;"undefined"!=typeof window&&"function"!=typeof r&&((r=function(n,t){t=t||{bubbles:!1,cancelable:!1,detail:void 0};var e=document.createEvent("CustomEvent");return e.initCustomEvent(n,t.bubbles,t.cancelable,t.detail),e}).prototype=window.Event.prototype,window.CustomEvent=r);var s="function"==typeof Symbol&&"symbol"==typeof Symbol.iterator?function(n){return typeof n}:function(n){return n&&"function"==typeof Symbol&&n.constructor===Symbol&&n!==Symbol.prototype?"symbol":typeof n},u=10,d=60,c=60,f=24,a=0,v=1,h=2,l=3,p=4,m="secondTenths",y="seconds",b="minutes",w="hours",g="days",E={secondTenths:100,seconds:1e3,minutes:6e4,hours:36e5,days:864e5},T={secondTenths:u,seconds:d,minutes:c,hours:f},S="undefined"!=typeof module&&module.exports&&"function"==typeof require?require("events"):void 0;return function(){function n(n,t){var e=Math.floor(t);X[n]=e,W[n]=n!==g?i(e,T[n]):e}function r(n){return U(n,g)}function j(n){return U(n,w)}function C(n){return U(n,b)}function M(n){return U(n,y)}function L(n){return U(n,m)}function U(t,e){var o=X[e];return n(e,t/E[e]),X[e]!==o}function V(){A(),z()}function A(){clearInterval(Y),Y=void 0,$=!1,_=!1}function k(n){Q()?(cn=D(),sn=F(rn.target)):R(n),x()}function x(){var n=E[nn];O(q(Date.now()))||(Y=setInterval(P,n),$=!0,_=!1)}function D(){return q(Date.now())-X.secondTenths*E[m]*tn}function P(){var n=q(Date.now()),t=tn>0?n-cn:cn-n,e={};e[m]=L(t),e[y]=M(t),e[b]=C(t),e[w]=j(t),e[g]=r(t),I(e),en(an.detail.timer),O(n)&&(K("targetAchieved",an),J())}function q(n){return Math.floor(n/E[nn])*E[nn]}function I(n){n[m]&&K("secondTenthsUpdated",an),n[y]&&K("secondsUpdated",an),n[b]&&K("minutesUpdated",an),n[w]&&K("hoursUpdated",an),n[g]&&K("daysUpdated",an)}function O(n){return sn instanceof Array&&n>=fn}function z(){for(var n in W)W.hasOwnProperty(n)&&"number"==typeof W[n]&&(W[n]=0);for(var t in X)X.hasOwnProperty(t)&&"number"==typeof X[t]&&(X[t]=0)}function R(n){nn="string"==typeof(n=n||{}).precision?n.precision:y,en="function"==typeof n.callback?n.callback:function(){},dn=!0===n.countdown,tn=!0===dn?-1:1,"object"===s(n.startValues)&&G(n.startValues),cn=D(),"object"===s(n.target)?sn=F(n.target):dn&&(n.target={seconds:0},sn=F(n.target)),on={precision:nn,callback:en,countdown:"object"===(void 0===n?"undefined":s(n))&&!0===n.countdown,target:sn,startValues:un},rn=n}function B(n){var t=void 0,e=void 0,o=void 0,i=void 0,r=void 0,m=void 0;if("object"===(void 0===n?"undefined":s(n)))if(n instanceof Array){if(5!==n.length)throw new Error("Array size not valid");m=n}else m=[n.secondTenths||0,n.seconds||0,n.minutes||0,n.hours||0,n.days||0];for(var y=0;y<n.length;y+=1)n[y]<0&&(n[y]=0);return t=m[a],e=m[v]+Math.floor(t/u),o=m[h]+Math.floor(e/d),i=m[l]+Math.floor(o/c),r=m[p]+Math.floor(i/f),m[a]=t%u,m[v]=e%d,m[h]=o%c,m[l]=i%f,m[p]=r,m}function F(n){if(n){var t=H(sn=B(n));return fn=cn+t.secondTenths*E[m]*tn,sn}}function G(n){un=B(n),W.secondTenths=un[a],W.seconds=un[v],W.minutes=un[h],W.hours=un[l],W.days=un[p],X=H(un,X)}function H(n,t){var e=t||{};return e.days=n[p],e.hours=e.days*f+n[l],e.minutes=e.hours*c+n[h],e.seconds=e.minutes*d+n[v],e.secondTenths=e.seconds*u+n[[a]],e}function J(){V(),K("stopped",an)}function K(n,t){e()?Z.dispatchEvent(new CustomEvent(n,t)):o()&&Z.emit(n,t)}function N(){return $}function Q(){return _}var W=new t,X=new t,Y=void 0,Z=e()?document.createElement("span"):o()?new S.EventEmitter:void 0,$=!1,_=!1,nn=void 0,tn=void 0,en=void 0,on={},rn=void 0,sn=void 0,un=void 0,dn=void 0,cn=void 0,fn=void 0,an={detail:{timer:this}};void 0!==this&&(this.start=function(n){N()||(k(n),K("started",an))},this.pause=function(){A(),_=!0,K("paused",an)},this.stop=J,this.reset=function(){V(),k(rn),K("reset",an)},this.isRunning=N,this.isPaused=Q,this.getTimeValues=function(){return W},this.getTotalTimeValues=function(){return X},this.getConfig=function(){return on},this.addEventListener=function(n,t){e()?Z.addEventListener(n,t):o()&&Z.on(n,t)},this.removeEventListener=function(n,t){e()?Z.removeEventListener(n,t):o()&&Z.removeListener(n,t)})}});
 
-},{"events":13}],13:[function(require,module,exports){
+},{"events":12}],12:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -1514,4 +1482,4 @@ function isUndefined(arg) {
   return arg === void 0;
 }
 
-},{}]},{},[4]);
+},{}]},{},[3]);

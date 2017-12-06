@@ -4,7 +4,6 @@ const Path = require('./path.js');
 const Ground = require('./ground.js');
 const Timer = require('../node_modules/easytimer.js/dist/easytimer.min.js');
 const Scoreboard = require('./scoreboard.js');
-const GameState = require('./game_state.js');
 const SettingsForm = require('./settings_form.js');
 
 class Game {
@@ -150,12 +149,11 @@ class Game {
 
   removeListeners() {
     document.removeEventListener("keypress", this.keypressListener);
-    document.removeEventListener("keydown", this.keydownListener);
   }
 
   handleKeyPress(e) {
     // at start menu
-    if (!this.running && !this.winner && this.settingsForm.settingsForm.hasClass("hidden")) {
+    if (!this.running && !this.winner && !this.settingsForm.isOpen) {
       switch (e.keyCode) {
         // prevent caps lock
         case 20:
@@ -244,7 +242,7 @@ class Game {
         return;
       }
       // after game is over
-    } else {
+    } else if (this.winner) {
       switch (e.keyCode) {
         // \ to restart
         case 92:

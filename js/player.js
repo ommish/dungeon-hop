@@ -24,7 +24,6 @@ class Player {
     this.crashing = false;
     this.finishTime = null;
     this.invincible = false;
-    this.tripleJumps = 0;
 
     this.calculateAndJump = this.calculateAndJump.bind(this);
     this.endInvincible = this.endInvincible.bind(this);
@@ -76,7 +75,7 @@ class Player {
       if (this.ground.current.itemType === 0) {
         this.startInvincible();
       } else {
-        this.getTripleJumps();
+        // some other bonus for other item
       }
     }
   }
@@ -88,10 +87,6 @@ class Player {
 
   endInvincible() {
     this.invincible = false;
-  }
-
-  getTripleJumps() {
-    this.tripleJumps += 5;
   }
 
   handleFinish() {
@@ -132,6 +127,9 @@ class Player {
         this.incrementY(-1);
       } else {
         this.falling = true;
+        // if (this.human) {
+        //   console.log(this.y);
+        // }
       }
     } else {
       if (this.y < this.baseY) {
@@ -152,7 +150,6 @@ class Player {
       } else if (spaces === 2){
         this.jumpHeight = this.baseY - 96;
       } else if (spaces === 3) {
-        this.tripleJumps -= 1;
         this.jumpHeight = this.baseY - 120;
       }
     }

@@ -46,7 +46,6 @@ class Space {
         default:
         return 0;
       }
-      break;
       case 2:
       return 50;
       case 3:
@@ -71,7 +70,6 @@ class Space {
           default:
           return 0;
         }
-        break;
       case 2:
       switch (this.itemType) {
         case 0:
@@ -81,11 +79,10 @@ class Space {
         default:
         return 0;
       }
-      break;
       case 3:
       return 20;
       case 4:
-      return 65;
+      return 68;
       default:
       return 0;
     }
@@ -104,7 +101,6 @@ class Space {
           default:
           return 0;
         }
-        break;
       case 2:
       switch (this.itemType) {
         case 0:
@@ -114,7 +110,6 @@ class Space {
         default:
         return 0;
       }
-      break;
       case 3:
       return 0;
       case 4:
@@ -137,7 +132,6 @@ class Space {
           default:
           return 0;
         }
-        break;
       case 3:
       return 0;
       case 4:
@@ -156,7 +150,7 @@ class Space {
       case 3:
       return 36;
       case 4:
-      return 40;
+      return 43;
       default:
       return 0;
     }
@@ -171,7 +165,7 @@ class Space {
       case 3:
       return 45;
       case 4:
-      return 65;
+      return 68;
       default:
       return 0;
     }
@@ -186,7 +180,7 @@ class Space {
       case 3:
       return 178;
       case 4:
-      return 168;
+      return 165;
       default:
       return 0;
     }
@@ -194,12 +188,23 @@ class Space {
 
   incrementSx() {
     this.drawCount++;
-    if (this.drawCount === 3) {
-      this.drawCount = 0;
-      if (this.sx <= 1500) {
-        this.sx += 190;
-      } else {
-        this.sx = 0;
+    if (this.type === 1) {
+      if (this.drawCount === 3) {
+        this.drawCount = 0;
+        if (this.sx <= 1500) {
+          this.sx += 190;
+        } else {
+          this.sx = 0;
+        }
+      }
+    } else if (this.type === 4) {
+      if (this.drawCount === 3) {
+        this.drawCount = 0;
+        if (this.sx <= 550) {
+          this.sx += 71;
+        } else {
+          this.sx = 3;
+        }
       }
     }
   }

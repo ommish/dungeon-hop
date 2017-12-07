@@ -468,7 +468,7 @@ class Player {
       this.crashing = true;
       this.jumping = true;
     } else if (this.ground.current.dx > 160 && this.ground.current.dx < 164 && this.ground.current.type === 2) {
-      if (this.ground.current.itemType === 0) {
+      if (this.ground.current.typeName === "star") {
         this.startInvincible();
       } else {
         // some other bonus for other item
@@ -880,10 +880,10 @@ class SettingsForm {
       obstacleTypes = 3;
       break;
       case 75:
-      obstacleTypes = 3;
+      obstacleTypes = 4;
       break;
       case 100:
-      obstacleTypes = 3;
+      obstacleTypes = 5;
       break;
       default:
       return;
@@ -901,24 +901,155 @@ module.exports = SettingsForm;
 },{}],9:[function(require,module,exports){
 const _imageSrcs = { 0: ["./assets/ground.png"], 1: ["./assets/enemies.png"], 2: ["./assets/items.png"], 3: ["./assets/sign.png"], 4: ["./assets/peach.png"]};
 
+const obstacles = {
+  0: {
+    name: "spiny",
+    sh: 175,
+    sw: 195,
+    sy: 0,
+    sx: 0,
+    dw: 42,
+    dh: 42,
+    dy: 185,
+    maxX: 1500,
+  },
+  1: {
+    name: "spiketop",
+    sh: 190,
+    sw: 192,
+    sy: 175,
+    sx: 0,
+    dw: 42,
+    dh: 42,
+    dy: 185,
+    maxX: 1500,
+
+  },
+  2: {
+    name: "whacka",
+    sh: 165,
+    sw: 195,
+    sy: 365,
+    sx: 0,
+    dw: 42,
+    dh: 42,
+    dy: 185,
+    maxX: 1500,
+
+  },
+  3: {
+    name: "shuyguy",
+    sh: 200,
+    sw: 190,
+    sy: 695,
+    sx: 0,
+    dw: 50,
+    dh: 50,
+    dy: 180,
+    maxX: 1500,
+
+  },
+  4: {
+    name: "ice",
+    sh: 150,
+    sw: 194,
+    sy: 540,
+    sx: 0,
+    dw: 50,
+    dh: 42,
+    dy: 200,
+    maxX: 1500,
+
+  },
+};
+
+const items = {
+  0: {
+    name: "star",
+    sh: 50,
+    sw: 50,
+    sy: 245,
+    sx: 660,
+    dw: 36,
+    dh: 36,
+    dy: 185,
+  },
+  1: {
+    name: "mushroom",
+    sh: 50,
+    sw: 50,
+    sy: 245,
+    sx: 360,
+    dw: 36,
+    dh: 36,
+    dy: 185,
+  }
+};
+
+const sign = {
+  0: {
+    name: "sign",
+    sh: 30,
+    sw: 20,
+    sy: 0,
+    sx: 0,
+    dw: 36,
+    dh: 45,
+    dy: 178,
+  }
+};
+
+const princess = {
+  0: {
+    name: "sign",
+    sh: 110,
+    sw: 68,
+    sy: 3,
+    sx: 0,
+    dw: 43,
+    dh: 68,
+    dy: 165,
+    maxX: 550,
+  }
+};
+
+const objectParameters = [obstacles, items, sign, princess];
+
 class Space {
-  constructor(type, spaceNum, items, enemyTypes = 0, current = false, last = false) {
+  constructor(type, spaceNum, items, obstacleTypes = 0, current = false, last = false) {
     this.type = type;
     this.spaceNum = spaceNum;
-    this.enemyType = Math.floor(Math.random() * enemyTypes);
-    this.itemType = items[Math.floor(Math.random() * items.length)];
     this.tile = this.setTile();
     this.object = this.setObject();
     this.dx = spaceNum * 81;
-    this.dy = this.setDY();
-    this.sx = this.setSX();
-    this.sy = this.setSY();
-    this.sh = this.setSH();
-    this.sw = this.setSW();
-    this.dw = this.setDW();
-    this.dh = this.setDH();
     this.last = last;
     this.drawCount = 0;
+    if (this.type > 0) {
+      this.setObjectParameters(items, obstacleTypes);
+    }
+  }
+
+  setObjectParameters(items, obstacleTypes) {
+    let typeNum;
+    if (this.type === 2) {
+      typeNum = items[Math.floor(Math.random() * items.length)];
+    }
+    else if (this.type === 1) {
+      typeNum = Math.floor(Math.random() * obstacleTypes);
+    } else {
+      typeNum = 0;
+    }
+    this.typeName = objectParameters[this.type - 1][typeNum].name;
+    this.dy = objectParameters[this.type - 1][typeNum].dy;
+    this.sx = objectParameters[this.type - 1][typeNum].sx;
+    this.sy = objectParameters[this.type - 1][typeNum].sy;
+    this.sh = objectParameters[this.type - 1][typeNum].sh;
+    this.sw = objectParameters[this.type - 1][typeNum].sw;
+    this.dw = objectParameters[this.type - 1][typeNum].dw;
+    this.dh = objectParameters[this.type - 1][typeNum].dh;
+    this.maxX = objectParameters[this.type - 1][typeNum].maxX;
+    this.originalSx = objectParameters[this.type - 1][typeNum].sx;
+    this.moveDir = 1;
   }
 
   setTile() {
@@ -934,177 +1065,15 @@ class Space {
     return image;
   }
 
-  setSH() {
-    switch (this.type) {
-      case 1:
-      switch (this.enemyType) {
-        case 0:
-        return 175;
-        case 1:
-        return 190;
-        case 2:
-        return 165;
-        default:
-        return 0;
-      }
-      case 2:
-      return 50;
-      case 3:
-      return 30;
-      case 4:
-      return 110;
-      default:
-      return 0;
-    }
-  }
-
-  setSW() {
-    switch (this.type) {
-      case 1:
-        switch (this.enemyType) {
-          case 0:
-          return 190;
-          case 1:
-          return 190;
-          case 2:
-          return 190;
-          default:
-          return 0;
-        }
-      case 2:
-      switch (this.itemType) {
-        case 0:
-        return 50;
-        case 1:
-        return 50;
-        default:
-        return 0;
-      }
-      case 3:
-      return 20;
-      case 4:
-      return 68;
-      default:
-      return 0;
-    }
-  }
-
-  setSY() {
-    switch (this.type) {
-      case 1:
-        switch (this.enemyType) {
-          case 0:
-          return 0;
-          case 1:
-          return 175;
-          case 2:
-          return 365;
-          default:
-          return 0;
-        }
-      case 2:
-      switch (this.itemType) {
-        case 0:
-        return 245;
-        case 1:
-        return 245;
-        default:
-        return 0;
-      }
-      case 3:
-      return 0;
-      case 4:
-      return 3;
-      default:
-      return 0;
-    }
-  }
-
-  setSX() {
-    switch (this.type) {
-      case 1:
-      return 0;
-      case 2:
-        switch (this.itemType) {
-          case 0:
-          return 660;
-          case 1:
-          return 360;
-          default:
-          return 0;
-        }
-      case 3:
-      return 0;
-      case 4:
-      return 3;
-      default:
-      return 0;
-    }
-  }
-
-  setDW() {
-    switch (this.type) {
-      case 1:
-      return 42;
-      case 2:
-      return 36;
-      case 3:
-      return 36;
-      case 4:
-      return 43;
-      default:
-      return 0;
-    }
-  }
-
-  setDH() {
-    switch (this.type) {
-      case 1:
-      return 42;
-      case 2:
-      return 36;
-      case 3:
-      return 45;
-      case 4:
-      return 68;
-      default:
-      return 0;
-    }
-  }
-
-  setDY() {
-    switch (this.type) {
-      case 1:
-      return 185;
-      case 2:
-      return 185;
-      case 3:
-      return 178;
-      case 4:
-      return 165;
-      default:
-      return 0;
-    }
-  }
 
   incrementSx() {
     this.drawCount++;
-    if (this.type === 1) {
-      if (this.drawCount === 3) {
+    if (this.drawCount === 3) {
+      if (this.type === 1 ||  this.type === 4) {
         this.drawCount = 0;
-        if (this.sx <= 1500) {
-          this.sx += 190;
-        } else {
-          this.sx = 0;
-        }
-      }
-    } else if (this.type === 4) {
-      if (this.drawCount === 3) {
-        this.drawCount = 0;
-        if (this.sx <= 550) {
-          this.sx += 71;
-        } else {
-          this.sx = 3;
+        this.sx += this.sw * this.moveDir;
+        if (this.sx < 10 || this.sx >= this.maxX - this.sw) {
+          this.moveDir *= -1;
         }
       }
     }

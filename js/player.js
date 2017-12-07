@@ -72,7 +72,7 @@ class Player {
       this.crashing = true;
       this.jumping = true;
     } else if (this.ground.current.dx > 160 && this.ground.current.dx < 164 && this.ground.current.type === 2) {
-      if (this.ground.current.itemType === 0) {
+      if (this.ground.current.typeName === "star") {
         this.startInvincible();
       } else {
         // some other bonus for other item

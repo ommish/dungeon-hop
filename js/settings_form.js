@@ -171,10 +171,10 @@ class SettingsForm {
       obstacleTypes = 3;
       break;
       case 75:
-      obstacleTypes = 3;
+      obstacleTypes = 4;
       break;
       case 100:
-      obstacleTypes = 3;
+      obstacleTypes = 5;
       break;
       default:
       return;

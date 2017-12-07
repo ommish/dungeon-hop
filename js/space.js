@@ -71,17 +71,17 @@ const items = {
     sx: 660,
     dw: 36,
     dh: 36,
-    dy: 185,
+    dy: 187,
   },
   1: {
     name: "mushroom",
     sh: 50,
     sw: 50,
-    sy: 245,
+    sy: 237,
     sx: 360,
     dw: 36,
     dh: 36,
-    dy: 185,
+    dy: 187,
   }
 };
 

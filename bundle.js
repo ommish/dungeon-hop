@@ -972,17 +972,17 @@ const items = {
     sx: 660,
     dw: 36,
     dh: 36,
-    dy: 185,
+    dy: 187,
   },
   1: {
     name: "mushroom",
     sh: 50,
     sw: 50,
-    sy: 245,
+    sy: 237,
     sx: 360,
     dw: 36,
     dh: 36,
-    dy: 185,
+    dy: 187,
   }
 };
 
@@ -1105,19 +1105,19 @@ class StartMenu {
 
     this.ctx.fillText('a to jump one space', this.width / 2, 230);
     this.ctx.fillText('s to jump two spaces', this.width / 2, 260);
-    // if (this.tripleJumps) {
+    if (this.settings.tripleJumps) {
       this.ctx.fillText('d to jump three spaces', this.width / 2, 290);
-    // }
+    }
 
-    // if (this.playerCount > 1) {
+    if (this.settings.playerCount > 1) {
       this.ctx.fillText('Player One:', this.width / 2, 200);
       this.ctx.fillText('Player Two:', this.width / 2, 350);
       this.ctx.fillText('i to jump one space', this.width / 2, 380);
       this.ctx.fillText('o to jump two spaces', this.width / 2, 410);
-      // if (this.tripleJumps) {
+      if (this.settings.tripleJumps) {
         this.ctx.fillText('p to jump three spaces', this.width / 2, 440);
-      // }
-    // }
+      }
+    }
   }
 
   clearStartMenu() {

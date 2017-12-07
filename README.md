@@ -1,4 +1,5 @@
-# Dungeon Hop is a side-scrolling browser game where players race to the end of a course.
+# Dungeon Hop
+Dungeon hop is a side-scrolling browser game where players race to the end of a course.
 
 [Live](http://www.ommish.com/dungeon-hop)
 
@@ -21,9 +22,9 @@ Spaces may also contain items, which each change the state of the player in diff
 Scores are saved globally to a Firebase database.
 
 ## Other Features
-Audio- settings for background music are saved locally
-Pause/Restart- game can be paused or restarted
-Stopwatch- time elapsed is rendered at the center of the game canvas
+- Audio- settings for background music are saved locally
+- Pause/Restart- game can be paused or restarted
+- Stopwatch- time elapsed is rendered at the center of the game canvas
 
 ## Future Directions
 User authentication with Firebase

@@ -1,29 +1,13 @@
 class StartMenu {
-  constructor(ctx, playerCount, tripleJumps) {
-    this.ctx = ctx;
-    this.playerCount = playerCount;
+  constructor(canvasEl) {
+    this.ctx = canvasEl.getContext("2d");
     this.width = 500;
     this.height = 600;
-    this.tripleJumps = tripleJumps;
-
-    this.drawStartMenu = this.drawStartMenu.bind(this);
-    this.clear = this.clear.bind(this);
-
-    this.start();
-  }
-
-  start() {
-    this.interval = window.setInterval(this.drawStartMenu, 50);
-  }
-
-  clearStartMenu() {
-    this.ctx.clearRect(0, 0, this.width, this.height);
-    window.clearInterval(this.interval);
   }
 
   drawStartMenu() {
 
-    this.clear();
+    this.clearStartMenu();
 
     this.ctx.stroke();
     this.ctx.rect(0, 0, this.width, this.height);
@@ -51,7 +35,7 @@ class StartMenu {
     // }
   }
 
-  clear() {
+  clearStartMenu() {
     this.ctx.clearRect(0, 0, this.width, this.height);
   }
 

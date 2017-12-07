@@ -2,25 +2,17 @@ class SettingsForm {
 
   constructor() {
     this.settingsForm = $(document.getElementsByClassName("game-settings")[0]);
-    this.isOpen = true;
-    this.submitButtom = document.getElementById("submit-settings");
-    this.handleSubmit = this.handleSubmit.bind(this);
-    this.addListeners();
   }
 
-  addListeners() {
-    this.submitButtom.addEventListener("click", this.handleSubmit);
-  }
-
-  displayForm() {
-    this.isOpen = true;
+  toggleForm() {
     this.settingsForm.toggleClass("hidden");
   }
 
-  handleSubmit(e) {
-    e.preventDefault();
-    this.settingsForm.toggleClass("hidden");
-    this.isOpen = false;
+  isOpen() {
+    return !this.settingsForm.hasClass("hidden");
+  }
+
+  handleSubmit() {
     const speed = $("#speed-slider")[0].value;
     const computerLevel = $("#computer-level-slider")[0].value;
     const obstacleTypes = $("#obstacle-types-slider")[0].value;

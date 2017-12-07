@@ -5,7 +5,6 @@ const Path = require('./path.js');
 const Ground = require('./ground.js');
 const Timer = require('../node_modules/easytimer.js/dist/easytimer.min.js');
 const Scoreboard = require('./scoreboard.js');
-const SettingsForm = require('./settings_form.js');
 
 class Game {
 
@@ -15,21 +14,19 @@ class Game {
 
     this.drawGame = this.drawGame.bind(this);
     this.handleKeyPress = this.handleKeyPress.bind(this);
-    this.clearGame = this.clearGame.bind(this);
+    this.clearGameCanvas = this.clearGameCanvas.bind(this);
     this.reset = this.reset.bind(this);
-    this.settingsForm = new SettingsForm();
 
     this.reset();
 
-    this.addListeners();
   }
 
   reset() {
+    this.removeListeners();
     window.clearInterval(this.interval);
     this.running = false;
     this.paused = false;
 
-    this.startMenu = new StartMenu(this.ctx);
     this.timer = new Timer();
     this.scoreboard = null;
     this.players = [];
@@ -58,14 +55,13 @@ class Game {
   }
 
   startGame() {
-    const settings = this.settingsForm.settings;
     this.pathPattern = Path.generateRandomPath();
 
     const itemIndex = Math.floor(Math.random() * 20) + 10;
 
     for (let i = 1; i < 3; i++) {
       let human;
-      if (i === 1 || settings.playerCount > 1) {
+      if (i === 1 || this.settings.playerCount > 1) {
         human = true;
       } else {
         human = false;
@@ -74,14 +70,12 @@ class Game {
         new Player(
           i,
           this.ctx,
-          new Ground(i, this.ctx, new Path(this.pathPattern, itemIndex, settings.obstacleTypes, this.settingsForm.settings.items)),
-          settings,
+          new Ground(i, this.ctx, new Path(this.pathPattern, itemIndex, this.settings.obstacleTypes, this.settings.items)),
+          this.settings,
           human
         )
       );
     }
-
-    this.startMenu.clearStartMenu();
 
     this.running = true;
     this.interval = window.setInterval(this.drawGame, 50);
@@ -89,7 +83,7 @@ class Game {
   }
 
   drawGame() {
-    this.clearGame();
+    this.clearGameCanvas();
 
     this.players.forEach((player) => {
       player.ground.drawGround();
@@ -119,7 +113,7 @@ class Game {
     this.paused = !this.paused;
   }
 
-  clearGame() {
+  clearGameCanvas() {
     this.ctx.clearRect(0, 0, 500, 600);
   }
 
@@ -145,16 +139,16 @@ class Game {
   }
 
   addListeners() {
-    this.keypressListener = document.addEventListener("keypress", this.handleKeyPress);
+    document.addEventListener("keypress", this.handleKeyPress);
   }
 
   removeListeners() {
-    document.removeEventListener("keypress", this.keypressListener);
+    document.removeEventListener("keypress", this.handleKeyPress);
   }
 
   handleKeyPress(e) {
     // at start menu
-    if (!this.running && !this.winner && !this.settingsForm.isOpen) {
+    if (!this.running && !this.winner) {
       switch (e.keyCode) {
         // prevent caps lock
         case 20:
@@ -171,12 +165,6 @@ class Game {
       // while game is running, unpaused
     } else if (this.running && !this.paused) {
       switch (e.keyCode) {
-        // \ to restart
-        case 92:
-        this.settingsForm.displayForm();
-        this.reset();
-        return;
-        // \not sure! ...
         case 20:
         e.preventDefault();
         return;
@@ -236,20 +224,6 @@ class Game {
         e.preventDefault();
         this.togglePause();
         return;
-        // \ to restart
-        case 92:
-        this.reset();
-        this.settingsForm.displayForm();
-        return;
-      }
-      // after game is over
-    } else if (this.winner) {
-      switch (e.keyCode) {
-        // \ to restart
-        case 92:
-        this.reset();
-        this.settingsForm.displayForm();
-        return;
       }
     }
   }
@@ -257,7 +231,7 @@ class Game {
 
 module.exports = Game;
 
-},{"../node_modules/easytimer.js/dist/easytimer.min.js":11,"./ground.js":2,"./path.js":4,"./player.js":5,"./scoreboard.js":7,"./settings_form.js":8,"./start_menu.js":10}],2:[function(require,module,exports){
+},{"../node_modules/easytimer.js/dist/easytimer.min.js":11,"./ground.js":2,"./path.js":4,"./player.js":5,"./scoreboard.js":7,"./start_menu.js":10}],2:[function(require,module,exports){
 const Space = require('./space.js');
 
 class Ground {
@@ -310,40 +284,66 @@ module.exports = Ground;
 
 },{"./space.js":9}],3:[function(require,module,exports){
 const Game = require('./game.js');
+const SettingsForm = require('./settings_form.js');
+const StartMenu = require('./start_menu.js');
 
 document.addEventListener("DOMContentLoaded", () => {
   const canvasEl = document.getElementsByTagName('canvas')[0];
+  const musicButton = $(".music-button");
+  const settingsSubmitButton = document.getElementById("submit-settings");
+  const audio = $("#bg-music");
+
+  const settingsForm = new SettingsForm();
+  const game = new Game(canvasEl);
+  const startMenu = new StartMenu(canvasEl);
+
   autoplayMusic();
-  new Game(canvasEl);
   toggleMusic();
+
+  settingsSubmitButton.addEventListener("click", startGameWithSettings);
+  document.addEventListener("keypress", reset);
+
+  function startGameWithSettings(e) {
+    e.preventDefault();
+    settingsForm.toggleForm();
+    settingsForm.handleSubmit();
+    game.settings = settingsForm.settings;
+    startMenu.settings = game.settings;
+    startMenu.drawStartMenu();
+    game.addListeners();
+  }
+
+  function reset(e) {
+    e.preventDefault();
+    if (e.keyCode === 92 && !settingsForm.isOpen()) {
+      game.reset();
+      settingsForm.toggleForm();
+    }
+  }
+
+  function autoplayMusic() {
+    if (localStorage.getItem('autoplay')) {
+      musicButton.toggleClass("disabled");
+    } else {
+      audio.prop("autoplay", true);
+    }
+  }
+
+  function toggleMusic() {
+    musicButton.on("click", (e) => {
+      musicButton.toggleClass("disabled");
+      if (musicButton.hasClass("disabled")) {
+        localStorage.setItem('autoplay', 'off');
+        audio[0].pause();
+      } else {
+        localStorage.removeItem('autoplay');
+        audio[0].play();
+      }
+    });
+  }
 });
 
-function autoplayMusic() {
-  const musicButton = $(".music-button");
-  if (localStorage.getItem('autoplay')) {
-    musicButton.toggleClass("disabled");
-  } else {
-    const audio = $("#bg-music");
-    audio.prop("autoplay", true);
-  }
-}
-
-function toggleMusic() {
-  const audio = $("#bg-music")[0];
-  const musicButton = $(".music-button");
-  musicButton.on("click", (e) => {
-    musicButton.toggleClass("disabled");
-    if (musicButton.hasClass("disabled")) {
-      localStorage.setItem('autoplay', 'off');
-      audio.pause();
-    } else {
-      localStorage.removeItem('autoplay');
-      audio.play();
-    }
-  });
-}
-
-},{"./game.js":1}],4:[function(require,module,exports){
+},{"./game.js":1,"./settings_form.js":8,"./start_menu.js":10}],4:[function(require,module,exports){
 const Space = require('./space.js');
 
 class Path {
@@ -711,25 +711,17 @@ class SettingsForm {
 
   constructor() {
     this.settingsForm = $(document.getElementsByClassName("game-settings")[0]);
-    this.isOpen = true;
-    this.submitButtom = document.getElementById("submit-settings");
-    this.handleSubmit = this.handleSubmit.bind(this);
-    this.addListeners();
   }
 
-  addListeners() {
-    this.submitButtom.addEventListener("click", this.handleSubmit);
-  }
-
-  displayForm() {
-    this.isOpen = true;
+  toggleForm() {
     this.settingsForm.toggleClass("hidden");
   }
 
-  handleSubmit(e) {
-    e.preventDefault();
-    this.settingsForm.toggleClass("hidden");
-    this.isOpen = false;
+  isOpen() {
+    return !this.settingsForm.hasClass("hidden");
+  }
+
+  handleSubmit() {
     const speed = $("#speed-slider")[0].value;
     const computerLevel = $("#computer-level-slider")[0].value;
     const obstacleTypes = $("#obstacle-types-slider")[0].value;
@@ -1123,31 +1115,15 @@ module.exports = Space;
 
 },{}],10:[function(require,module,exports){
 class StartMenu {
-  constructor(ctx, playerCount, tripleJumps) {
-    this.ctx = ctx;
-    this.playerCount = playerCount;
+  constructor(canvasEl) {
+    this.ctx = canvasEl.getContext("2d");
     this.width = 500;
     this.height = 600;
-    this.tripleJumps = tripleJumps;
-
-    this.drawStartMenu = this.drawStartMenu.bind(this);
-    this.clear = this.clear.bind(this);
-
-    this.start();
-  }
-
-  start() {
-    this.interval = window.setInterval(this.drawStartMenu, 50);
-  }
-
-  clearStartMenu() {
-    this.ctx.clearRect(0, 0, this.width, this.height);
-    window.clearInterval(this.interval);
   }
 
   drawStartMenu() {
 
-    this.clear();
+    this.clearStartMenu();
 
     this.ctx.stroke();
     this.ctx.rect(0, 0, this.width, this.height);
@@ -1175,7 +1151,7 @@ class StartMenu {
     // }
   }
 
-  clear() {
+  clearStartMenu() {
     this.ctx.clearRect(0, 0, this.width, this.height);
   }
 

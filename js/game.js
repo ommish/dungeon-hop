@@ -4,7 +4,6 @@ const Path = require('./path.js');
 const Ground = require('./ground.js');
 const Timer = require('../node_modules/easytimer.js/dist/easytimer.min.js');
 const Scoreboard = require('./scoreboard.js');
-const SettingsForm = require('./settings_form.js');
 
 class Game {
 
@@ -14,21 +13,19 @@ class Game {
 
     this.drawGame = this.drawGame.bind(this);
     this.handleKeyPress = this.handleKeyPress.bind(this);
-    this.clearGame = this.clearGame.bind(this);
+    this.clearGameCanvas = this.clearGameCanvas.bind(this);
     this.reset = this.reset.bind(this);
-    this.settingsForm = new SettingsForm();
 
     this.reset();
 
-    this.addListeners();
   }
 
   reset() {
+    this.removeListeners();
     window.clearInterval(this.interval);
     this.running = false;
     this.paused = false;
 
-    this.startMenu = new StartMenu(this.ctx);
     this.timer = new Timer();
     this.scoreboard = null;
     this.players = [];
@@ -57,14 +54,13 @@ class Game {
   }
 
   startGame() {
-    const settings = this.settingsForm.settings;
     this.pathPattern = Path.generateRandomPath();
 
     const itemIndex = Math.floor(Math.random() * 20) + 10;
 
     for (let i = 1; i < 3; i++) {
       let human;
-      if (i === 1 || settings.playerCount > 1) {
+      if (i === 1 || this.settings.playerCount > 1) {
         human = true;
       } else {
         human = false;
@@ -73,14 +69,12 @@ class Game {
         new Player(
           i,
           this.ctx,
-          new Ground(i, this.ctx, new Path(this.pathPattern, itemIndex, settings.obstacleTypes, this.settingsForm.settings.items)),
-          settings,
+          new Ground(i, this.ctx, new Path(this.pathPattern, itemIndex, this.settings.obstacleTypes, this.settings.items)),
+          this.settings,
           human
         )
       );
     }
-
-    this.startMenu.clearStartMenu();
 
     this.running = true;
     this.interval = window.setInterval(this.drawGame, 50);
@@ -88,7 +82,7 @@ class Game {
   }
 
   drawGame() {
-    this.clearGame();
+    this.clearGameCanvas();
 
     this.players.forEach((player) => {
       player.ground.drawGround();
@@ -118,7 +112,7 @@ class Game {
     this.paused = !this.paused;
   }
 
-  clearGame() {
+  clearGameCanvas() {
     this.ctx.clearRect(0, 0, 500, 600);
   }
 
@@ -144,16 +138,16 @@ class Game {
   }
 
   addListeners() {
-    this.keypressListener = document.addEventListener("keypress", this.handleKeyPress);
+    document.addEventListener("keypress", this.handleKeyPress);
   }
 
   removeListeners() {
-    document.removeEventListener("keypress", this.keypressListener);
+    document.removeEventListener("keypress", this.handleKeyPress);
   }
 
   handleKeyPress(e) {
     // at start menu
-    if (!this.running && !this.winner && !this.settingsForm.isOpen) {
+    if (!this.running && !this.winner) {
       switch (e.keyCode) {
         // prevent caps lock
         case 20:
@@ -170,12 +164,6 @@ class Game {
       // while game is running, unpaused
     } else if (this.running && !this.paused) {
       switch (e.keyCode) {
-        // \ to restart
-        case 92:
-        this.settingsForm.displayForm();
-        this.reset();
-        return;
-        // \not sure! ...
         case 20:
         e.preventDefault();
         return;
@@ -234,20 +222,6 @@ class Game {
         case 32:
         e.preventDefault();
         this.togglePause();
-        return;
-        // \ to restart
-        case 92:
-        this.reset();
-        this.settingsForm.displayForm();
-        return;
-      }
-      // after game is over
-    } else if (this.winner) {
-      switch (e.keyCode) {
-        // \ to restart
-        case 92:
-        this.reset();
-        this.settingsForm.displayForm();
         return;
       }
     }

@@ -100,9 +100,9 @@ const sign = {
 
 const princess = {
   0: {
-    typeName: "sign",
+    typeName: "princess",
     sh: 110,
-    sw: 68,
+    sw: 72,
     sy: 3,
     sx: 0,
     dw: 43,
@@ -119,8 +119,6 @@ class Space {
   constructor(type, spaceNum, items, obstacleTypes = 0, current = false, last = false) {
     this.type = type;
     this.spaceNum = spaceNum;
-    this.tile = this.setTile();
-    this.objectImage = this.setObjectImage();
     this.dx = spaceNum * 81;
     this.last = last;
     this.drawCount = 0;
@@ -151,14 +149,14 @@ class Space {
   setTile() {
     const image = new Image();
     image.src = _imageSrcs[0][0];
-    return image;
+    this.tile = image;
   }
 
   setObjectImage() {
     if (this.type === 0) {return null;}
     const image = new Image();
     image.src = _imageSrcs[this.type][0];
-    return image;
+    this.objectImage = image;
   }
 
   incrementSx() {

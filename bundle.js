@@ -248,17 +248,22 @@ class Ground {
 
   drawGround() {
     this.drawBackground();
-
     this.path.spaces.forEach((space) => {
-      this.ctx.drawImage(space.tile, 0, 0, 100, 100, space.dx, this.playerNumber === 1 ? 219 : 519, 81, 81);
-      if (space.dx >= 141.75 && space.dx < 222.75) {
-        this.current = space;
-      }
-      if (space.type > 0) {
-        this.ctx.drawImage(space.objectImage, space.sx, space.sy, space.sw, space.sh, space.dx + 22.5, this.playerNumber === 1 ? space.dy : space.dy + 300, space.dw, space.dh);
-      }
-      if (space.type === 1 || space.type === 4) {
-        space.incrementSx();
+      if (space.dx >= -81 && space.dx <= 500) {
+        if (!space.tile) {
+          space.setObjectImage();
+          space.setTile();
+        }
+        this.ctx.drawImage(space.tile, 0, 0, 100, 100, space.dx, this.playerNumber === 1 ? 219 : 519, 81, 81);
+        if (space.dx >= 141.75 && space.dx < 222.75) {
+          this.current = space;
+        }
+        if (space.type > 0) {
+          this.ctx.drawImage(space.objectImage, space.sx, space.sy, space.sw, space.sh, space.dx + 22.5, this.playerNumber === 1 ? space.dy : space.dy + 300, space.dw, space.dh);
+        }
+        if (space.type === 1 || space.type === 4) {
+          space.incrementSx();
+        }
       }
     });
   }
@@ -919,9 +924,9 @@ const sign = {
 
 const princess = {
   0: {
-    typeName: "sign",
+    typeName: "princess",
     sh: 110,
-    sw: 68,
+    sw: 72,
     sy: 3,
     sx: 0,
     dw: 43,
@@ -938,8 +943,6 @@ class Space {
   constructor(type, spaceNum, items, obstacleTypes = 0, current = false, last = false) {
     this.type = type;
     this.spaceNum = spaceNum;
-    this.tile = this.setTile();
-    this.objectImage = this.setObjectImage();
     this.dx = spaceNum * 81;
     this.last = last;
     this.drawCount = 0;
@@ -970,14 +973,14 @@ class Space {
   setTile() {
     const image = new Image();
     image.src = _imageSrcs[0][0];
-    return image;
+    this.tile = image;
   }
 
   setObjectImage() {
     if (this.type === 0) {return null;}
     const image = new Image();
     image.src = _imageSrcs[this.type][0];
-    return image;
+    this.objectImage = image;
   }
 
   incrementSx() {

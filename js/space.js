@@ -2,7 +2,7 @@ const _imageSrcs = { 0: ["./assets/ground.png"], 1: ["./assets/enemies.png"], 2:
 
 const obstacles = {
   0: {
-    name: "spiny",
+    typeName: "spiny",
     sh: 175,
     sw: 195,
     sy: 0,
@@ -13,7 +13,7 @@ const obstacles = {
     maxX: 1500,
   },
   1: {
-    name: "spiketop",
+    typeName: "spiketop",
     sh: 190,
     sw: 192,
     sy: 175,
@@ -25,7 +25,7 @@ const obstacles = {
 
   },
   2: {
-    name: "whacka",
+    typeName: "whacka",
     sh: 165,
     sw: 195,
     sy: 365,
@@ -37,7 +37,7 @@ const obstacles = {
 
   },
   3: {
-    name: "shuyguy",
+    typeName: "shuyguy",
     sh: 200,
     sw: 190,
     sy: 695,
@@ -49,7 +49,7 @@ const obstacles = {
 
   },
   4: {
-    name: "ice",
+    typeName: "ice",
     sh: 150,
     sw: 194,
     sy: 540,
@@ -64,7 +64,7 @@ const obstacles = {
 
 const items = {
   0: {
-    name: "star",
+    typeName: "star",
     sh: 50,
     sw: 50,
     sy: 245,
@@ -74,7 +74,7 @@ const items = {
     dy: 187,
   },
   1: {
-    name: "mushroom",
+    typeName: "mushroom",
     sh: 50,
     sw: 50,
     sy: 237,
@@ -87,7 +87,7 @@ const items = {
 
 const sign = {
   0: {
-    name: "sign",
+    typeName: "sign",
     sh: 30,
     sw: 20,
     sy: 0,
@@ -100,7 +100,7 @@ const sign = {
 
 const princess = {
   0: {
-    name: "sign",
+    typeName: "sign",
     sh: 110,
     sw: 68,
     sy: 3,
@@ -113,13 +113,14 @@ const princess = {
 };
 
 const objectParameters = [obstacles, items, sign, princess];
+const parametersToSet = ['typeName', 'sh', 'sw', 'sy', 'sx', 'dw', 'dh', 'dy', 'maxX'];
 
 class Space {
   constructor(type, spaceNum, items, obstacleTypes = 0, current = false, last = false) {
     this.type = type;
     this.spaceNum = spaceNum;
     this.tile = this.setTile();
-    this.object = this.setObject();
+    this.objectImage = this.setObjectImage();
     this.dx = spaceNum * 81;
     this.last = last;
     this.drawCount = 0;
@@ -138,15 +139,11 @@ class Space {
     } else {
       typeNum = 0;
     }
-    this.typeName = objectParameters[this.type - 1][typeNum].name;
-    this.dy = objectParameters[this.type - 1][typeNum].dy;
-    this.sx = objectParameters[this.type - 1][typeNum].sx;
-    this.sy = objectParameters[this.type - 1][typeNum].sy;
-    this.sh = objectParameters[this.type - 1][typeNum].sh;
-    this.sw = objectParameters[this.type - 1][typeNum].sw;
-    this.dw = objectParameters[this.type - 1][typeNum].dw;
-    this.dh = objectParameters[this.type - 1][typeNum].dh;
-    this.maxX = objectParameters[this.type - 1][typeNum].maxX;
+
+    parametersToSet.forEach((parameter) => {
+      this[parameter] = objectParameters[this.type - 1][typeNum][parameter];
+    });
+
     this.originalSx = objectParameters[this.type - 1][typeNum].sx;
     this.moveDir = 1;
   }
@@ -157,13 +154,12 @@ class Space {
     return image;
   }
 
-  setObject() {
+  setObjectImage() {
     if (this.type === 0) {return null;}
     const image = new Image();
     image.src = _imageSrcs[this.type][0];
     return image;
   }
-
 
   incrementSx() {
     this.drawCount++;

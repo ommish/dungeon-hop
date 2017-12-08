@@ -1,5 +1,3 @@
-const PlayerState = require('./player_state.js');
-
 class Player {
   constructor(i, ctx, ground, settings, human = true) {
     this.playerNumber = i;
@@ -7,23 +5,23 @@ class Player {
     this.ground = ground;
     this.settings = settings;
     this.human = human;
-    this.state = new PlayerState();
 
     this.sx = 1500;
     this.sy = (i - 1) * 330;
-    this.x = 182.25;
+    this.dx = 182.25;
     this.baseY = this.playerNumber === 1 ? 160 : 460;
-    this.y = this.baseY;
+    this.dy = this.baseY;
     this.jumpHeight = 0;
 
     this.character = this.setImage("./assets/marios.png");
     this.bang = this.setImage("./assets/bang.png");
     this.sparkle = this.setImage("./assets/sparkles.png");
+
     this.jumping = false;
     this.falling = false;
     this.crashing = false;
-    this.finishTime = null;
     this.invincible = false;
+    this.finishTime = null;
 
     this.calculateAndJump = this.calculateAndJump.bind(this);
     this.endInvincible = this.endInvincible.bind(this);
@@ -37,6 +35,72 @@ class Player {
     return image;
   }
 
+  drawPlayer() {
+    if (this.invincible) {
+      this.ctx.drawImage(this.sparkle, 300 * Math.floor(Math.random() * 4), 0, 300, 340, this.dx - 15, this.dy, 80, 80);
+    }
+    // context.drawImage(img,          sx,      sy,       sw,  sh,  dx,    dy,      dw, dh)
+    this.ctx.drawImage(this.character, this.sx, this.sy, 250, 330, this.dx, this.dy, 40.5, 66);
+    this.setSx();
+    if (this.crashing) {
+      this.slideGround(1);
+      this.jump();
+      this.ctx.drawImage(this.bang, 0, 0, 300, 500, this.dx - 15, this.dy - 15, 15, 25);
+    } else if (this.jumping) {
+      this.slideGround(-1);
+      this.jump();
+    } else if (this.finishTime) {
+      this.jump();
+    }
+  }
+
+  setJump(spaces) {
+    if (!this.jumping) {
+      this.jumping = true;
+      if (spaces === 1) {
+        this.jumpHeight = this.baseY - 64;
+      } else if (spaces === 2) {
+        this.jumpHeight = this.baseY - 96;
+      } else if (spaces === 3) {
+        this.jumpHeight = this.baseY - 120;
+      }
+    }
+  }
+
+  jump() {
+    if (!this.falling) {
+      if (this.dy > this.jumpHeight) {
+        this.incrementY(-1);
+      } else {
+        this.falling = true;
+      }
+    } else {
+      if (this.dy < this.baseY) {
+        this.incrementY(1);
+      } else {
+        this.land();
+        this.handleCollision();
+        this.handleFinish();
+      }
+    }
+  }
+
+  incrementY(direction) {
+    this.dy += this.settings.yIncrement * direction;
+  }
+
+  setSx() {
+    if (this.dy === this.baseY) {
+      this.sx = 1500;
+    } else if (this.dy >= this.baseY - 10) {
+      this.sx = 1250;
+    } else if (this.dy >= this.baseY - 50) {
+      this.sx = 1000;
+    } else if (this.dy >= this.baseY - 100) {
+      this.sx = 750;
+    }
+  }
+
   slideGround(direction) {
     let delta;
     if (this.jumpHeight === this.baseY - 64) {
@@ -47,18 +111,6 @@ class Player {
       delta = this.settings.threeSlides;
     }
     this.ground.slide(delta * direction);
-  }
-
-  setsx() {
-    if (this.y === this.baseY) {
-        this.sx = 1500;
-    } else if (this.y >= this.baseY - 10) {
-        this.sx = 1250;
-    } else if (this.y >= this.baseY - 50) {
-        this.sx = 1000;
-    } else if (this.y >= this.baseY - 100) {
-      this.sx = 750;
-    }
   }
 
   land() {
@@ -80,83 +132,30 @@ class Player {
     }
   }
 
-  startInvincible() {
-    this.invincible = true;
-    window.setTimeout(this.endInvincible, 8000);
-  }
-
-  endInvincible() {
-    this.invincible = false;
-  }
-
   handleFinish() {
     if ((this.ground.current.dx > 160 && this.ground.current.dx < 164) && (this.ground.current.spaceNum >= 103) && (!this.finishTime)) {
       this.finishTime = new Date();
     }
   }
 
-  incrementY(direction) {
-    this.y += this.settings.yIncrement * direction;
+  startInvincible() {
+    this.invincible = true;
+    window.setTimeout(this.endInvincible, 8000);
   }
-
-  drawPlayer() {
-    if (this.invincible) {
-      this.ctx.drawImage(this.sparkle, 300 * Math.floor(Math.random() * 4), 0, 300, 340, this.x - 15, this.y, 80, 80);
-    }
-    // context.drawImage(img,          sx,      sy,       sw,  sh,  dx,    dy,      dw, dh)
-    this.ctx.drawImage(this.character, this.sx, this.sy, 250, 330, this.x, this.y, 40.5, 66);
-    this.setsx();
-    if (this.crashing) {
-      this.slideGround(1);
-      this.jump();
-      this.ctx.drawImage(this.bang, 0, 0, 300, 500, this.x - 15, this.y - 15, 15, 25);
-    } else if (this.jumping) {
-      this.slideGround(-1);
-      this.jump();
-    } else if (this.finishTime) {
-      this.jump();
-    }
-  }
-
-  jump() {
-    if (this.human) {
-      console.log("jumping");
-    }
-    if (!this.falling) {
-      if (this.y > this.jumpHeight) {
-        this.incrementY(-1);
-      } else {
-        this.falling = true;
-        // if (this.human) {
-        //   console.log(this.y);
-        // }
-      }
-    } else {
-      if (this.y < this.baseY) {
-        this.incrementY(1);
-      } else {
-        this.land();
-        this.handleCollision();
-        this.handleFinish();
-      }
-    }
-  }
-
-  setJump(spaces) {
-    if (!this.jumping) {
-      this.jumping = true;
-      if (spaces === 1) {
-        this.jumpHeight = this.baseY - 64;
-      } else if (spaces === 2){
-        this.jumpHeight = this.baseY - 96;
-      } else if (spaces === 3) {
-        this.jumpHeight = this.baseY - 120;
-      }
-    }
+  endInvincible() {
+    this.invincible = false;
   }
 
   startAI() {
-    this.interval = window.setInterval(this.calculateAndJump, 400);
+    let AIjumpInterval;
+    if (this.settings.yIncrement === 16) {
+      AIjumpInterval = 200;
+    } else if (this.settings.yIncrement === 24) {
+      AIjumpInterval = 350;
+    } else {
+      AIjumpInterval = 500;
+    }
+    this.interval = window.setInterval(this.calculateAndJump, AIjumpInterval);
   }
 
   stopAI() {

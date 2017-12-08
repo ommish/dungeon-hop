@@ -1,7 +1,10 @@
+const upperFirst = require('../node_modules/lodash/upperFirst.js');
+
 class SettingsForm {
 
   constructor() {
     this.settingsForm = $(document.getElementsByClassName("game-settings")[0]);
+    this.settings = {};
   }
 
   toggleForm() {
@@ -16,6 +19,7 @@ class SettingsForm {
     const speed = $("#speed-slider")[0].value;
     const computerLevel = $("#computer-level-slider")[0].value;
     const obstacleTypes = $("#obstacle-types-slider")[0].value;
+
     this.formData = {
       speed: parseInt(speed),
       computerLevel: parseInt(computerLevel),
@@ -32,35 +36,13 @@ class SettingsForm {
         this.formData[input.name] = parseInt(input.value);
       }
     });
-    this.settings = {};
     this.setSettings();
   }
 
   setSettings() {
-    Object.keys(this.formData).forEach((key) => {
-      let value = this.formData[key];
-      switch (key) {
-        case "items":
-        this.setItems(value);
-        break;
-        case "jumpDistances":
-        this.setJumpDistances(value);
-        break;
-        case "computerLevel":
-        this.setComputerLevel(value);
-        break;
-        case "speed":
-        this.setSlides(value);
-        this.setYIncrement(value);
-        break;
-        case "playerCount":
-        this.setPlayerCount(value);
-        break;
-        case "obstacleTypes":
-        this.setObstacleTypes(value);
-        break;
-        default:
-      }
+    Object.keys(this.formData).forEach((setting) => {
+      let selection = this.formData[setting];
+      this[`set${upperFirst(setting)}`](selection);
     });
   }
 
@@ -69,18 +51,7 @@ class SettingsForm {
   }
 
   setJumpDistances(distances) {
-    let tripleJumps;
-    switch (distances) {
-      case 1:
-      tripleJumps = false;
-      break;
-      case 2:
-      tripleJumps = true;
-      break;
-      default:
-      return;
-    }
-    this.settings.tripleJumps = tripleJumps;
+    this.settings.tripleJumps = distances === 1 ? false : true;
   }
 
   setYIncrement(speed) {
@@ -101,35 +72,20 @@ class SettingsForm {
     this.settings.yIncrement = yIncrement;
   }
 
+  setSpeed(speed) {
+    this.setYIncrement(speed);
+    this.setSlides(speed);
+  }
+
   setComputerLevel(level) {
-    let computerLevel;
-    switch (level) {
-      case 0:
-      computerLevel = 0.7;
-      break;
-      case 25:
-      computerLevel = 0.75;
-      break;
-      case 50:
-      computerLevel = 0.8;
-      break;
-      case 75:
-      computerLevel = 0.9;
-      break;
-      case 100:
-      computerLevel = 1.0;
-      break;
-      default:
-      return;
-    }
-    this.settings.computerLevel = computerLevel;
+    // 0.6 ~ 1.0
+    this.settings.computerLevel = 0.5 + ((level + 25)/250);
   }
 
   setSlides(speed) {
     let oneSlide;
     let twoSlides;
     let threeSlides;
-    let yIncrement;
     switch (speed) {
       case 0:
       oneSlide = 81/10;
@@ -159,27 +115,7 @@ class SettingsForm {
   }
 
   setObstacleTypes(types) {
-    let obstacleTypes;
-    switch (types) {
-      case 0:
-      obstacleTypes = 1;
-      break;
-      case 25:
-      obstacleTypes = 2;
-      break;
-      case 50:
-      obstacleTypes = 3;
-      break;
-      case 75:
-      obstacleTypes = 4;
-      break;
-      case 100:
-      obstacleTypes = 5;
-      break;
-      default:
-      return;
-    }
-    this.settings.obstacleTypes = obstacleTypes;
+    this.settings.obstacleTypes = (types + 25) / 25;
   }
 
 }

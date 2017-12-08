@@ -17,7 +17,6 @@ class Game {
     this.reset = this.reset.bind(this);
 
     this.reset();
-
   }
 
   reset() {
@@ -25,60 +24,41 @@ class Game {
     window.clearInterval(this.interval);
     this.running = false;
     this.paused = false;
-
-    this.timer = new Timer();
     this.scoreboard = null;
-    this.players = [];
     this.winner = null;
-  }
-
-  drawTimeAndRules() {
-    this.ctx.font = "40px Julius Sans One";
-    this.ctx.fillStyle = "white";
-    this.ctx.textAlign = "left";
-    this.ctx.fillText(this.timer.getTimeValues().toString(['minutes', 'seconds', 'secondTenths']), 250, 315);
-
-    this.ctx.font = "20px Julius Sans One";
-    this.ctx.fillStyle = "white";
-    this.ctx.textAlign = "left";
-    this.ctx.fillText('\\ to restart', 10, 210);
-    this.ctx.fillText('space to pause', 10, 320);
-  }
-
-  playerOne() {
-    return this.players[0];
-  }
-
-  playerTwo() {
-    return this.players[1];
+    this.players = [];
+    this.timer = new Timer();
   }
 
   startGame() {
     this.pathPattern = Path.generateRandomPath();
+    this.createPlayers();
 
+    this.running = true;
+    this.interval = window.setInterval(this.drawGame, 50);
+    this.timer.start({precision: 'secondTenths'});
+  }
+
+  createPlayers() {
     const itemIndex = Math.floor(Math.random() * 20) + 10;
-
     for (let i = 1; i < 3; i++) {
-      let human;
-      if (i === 1 || this.settings.playerCount > 1) {
-        human = true;
-      } else {
-        human = false;
-      }
       this.players.push(
         new Player(
           i,
           this.ctx,
           new Ground(i, this.ctx, new Path(this.pathPattern, itemIndex, this.settings.obstacleTypes, this.settings.items)),
           this.settings,
-          human
+          i === 1 || this.settings.playerCount > 1 ? true : false
         )
       );
     }
+  }
 
-    this.running = true;
-    this.interval = window.setInterval(this.drawGame, 50);
-    this.timer.start({precision: 'secondTenths'});
+  playerOne() {
+    return this.players[0];
+  }
+  playerTwo() {
+    return this.players[1];
   }
 
   drawGame() {
@@ -101,15 +81,17 @@ class Game {
     }
   }
 
-  togglePause() {
-    if (!this.paused) {
-      window.clearInterval(this.interval);
-        this.timer.pause();
-    } else {
-      this.interval = window.setInterval(this.drawGame, 50);
-        this.timer.start();
-    }
-    this.paused = !this.paused;
+  drawTimeAndRules() {
+    this.ctx.font = "40px Julius Sans One";
+    this.ctx.fillStyle = "white";
+    this.ctx.textAlign = "left";
+    this.ctx.fillText(this.timer.getTimeValues().toString(['minutes', 'seconds', 'secondTenths']), 250, 315);
+
+    this.ctx.font = "20px Julius Sans One";
+    this.ctx.fillStyle = "white";
+    this.ctx.textAlign = "left";
+    this.ctx.fillText('\\ to restart', 10, 210);
+    this.ctx.fillText('space to pause', 10, 320);
   }
 
   clearGameCanvas() {
@@ -137,10 +119,20 @@ class Game {
     this.scoreboard = new Scoreboard(this.ctx, this.winner, finishTime, date);
   }
 
+  togglePause() {
+    if (!this.paused) {
+      window.clearInterval(this.interval);
+      this.timer.pause();
+    } else {
+      this.interval = window.setInterval(this.drawGame, 50);
+      this.timer.start();
+    }
+    this.paused = !this.paused;
+  }
+
   addListeners() {
     document.addEventListener("keypress", this.handleKeyPress);
   }
-
   removeListeners() {
     document.removeEventListener("keypress", this.handleKeyPress);
   }
@@ -187,7 +179,7 @@ class Game {
         // s for P1 to jump 3
         case 100:
         if (!this.playerOne().finished) {
-          if (this.settingsForm.settings.tripleJumps) {
+          if (this.settings.tripleJumps) {
             this.playerOne().setJump(3);
           }
         }
@@ -207,7 +199,7 @@ class Game {
         // p for P2 to jump 3
         case 112:
         if (this.playerTwo().human && !this.playerTwo().finished) {
-          if (this.settingsForm.settings.tripleJumps) {
+          if (this.settings.tripleJumps) {
             this.playerTwo().setJump(3);
           }
         }
@@ -215,7 +207,6 @@ class Game {
         default:
         return;
       }
-      // while game is running, paused
     } else if (this.running && this.paused) {
       switch (e.keyCode) {
         // space to toggle pause

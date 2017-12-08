@@ -18,7 +18,6 @@ class Game {
     this.reset = this.reset.bind(this);
 
     this.reset();
-
   }
 
   reset() {
@@ -26,60 +25,41 @@ class Game {
     window.clearInterval(this.interval);
     this.running = false;
     this.paused = false;
-
-    this.timer = new Timer();
     this.scoreboard = null;
-    this.players = [];
     this.winner = null;
-  }
-
-  drawTimeAndRules() {
-    this.ctx.font = "40px Julius Sans One";
-    this.ctx.fillStyle = "white";
-    this.ctx.textAlign = "left";
-    this.ctx.fillText(this.timer.getTimeValues().toString(['minutes', 'seconds', 'secondTenths']), 250, 315);
-
-    this.ctx.font = "20px Julius Sans One";
-    this.ctx.fillStyle = "white";
-    this.ctx.textAlign = "left";
-    this.ctx.fillText('\\ to restart', 10, 210);
-    this.ctx.fillText('space to pause', 10, 320);
-  }
-
-  playerOne() {
-    return this.players[0];
-  }
-
-  playerTwo() {
-    return this.players[1];
+    this.players = [];
+    this.timer = new Timer();
   }
 
   startGame() {
     this.pathPattern = Path.generateRandomPath();
+    this.createPlayers();
 
+    this.running = true;
+    this.interval = window.setInterval(this.drawGame, 50);
+    this.timer.start({precision: 'secondTenths'});
+  }
+
+  createPlayers() {
     const itemIndex = Math.floor(Math.random() * 20) + 10;
-
     for (let i = 1; i < 3; i++) {
-      let human;
-      if (i === 1 || this.settings.playerCount > 1) {
-        human = true;
-      } else {
-        human = false;
-      }
       this.players.push(
         new Player(
           i,
           this.ctx,
           new Ground(i, this.ctx, new Path(this.pathPattern, itemIndex, this.settings.obstacleTypes, this.settings.items)),
           this.settings,
-          human
+          i === 1 || this.settings.playerCount > 1 ? true : false
         )
       );
     }
+  }
 
-    this.running = true;
-    this.interval = window.setInterval(this.drawGame, 50);
-    this.timer.start({precision: 'secondTenths'});
+  playerOne() {
+    return this.players[0];
+  }
+  playerTwo() {
+    return this.players[1];
   }
 
   drawGame() {
@@ -102,15 +82,17 @@ class Game {
     }
   }
 
-  togglePause() {
-    if (!this.paused) {
-      window.clearInterval(this.interval);
-        this.timer.pause();
-    } else {
-      this.interval = window.setInterval(this.drawGame, 50);
-        this.timer.start();
-    }
-    this.paused = !this.paused;
+  drawTimeAndRules() {
+    this.ctx.font = "40px Julius Sans One";
+    this.ctx.fillStyle = "white";
+    this.ctx.textAlign = "left";
+    this.ctx.fillText(this.timer.getTimeValues().toString(['minutes', 'seconds', 'secondTenths']), 250, 315);
+
+    this.ctx.font = "20px Julius Sans One";
+    this.ctx.fillStyle = "white";
+    this.ctx.textAlign = "left";
+    this.ctx.fillText('\\ to restart', 10, 210);
+    this.ctx.fillText('space to pause', 10, 320);
   }
 
   clearGameCanvas() {
@@ -138,10 +120,20 @@ class Game {
     this.scoreboard = new Scoreboard(this.ctx, this.winner, finishTime, date);
   }
 
+  togglePause() {
+    if (!this.paused) {
+      window.clearInterval(this.interval);
+      this.timer.pause();
+    } else {
+      this.interval = window.setInterval(this.drawGame, 50);
+      this.timer.start();
+    }
+    this.paused = !this.paused;
+  }
+
   addListeners() {
     document.addEventListener("keypress", this.handleKeyPress);
   }
-
   removeListeners() {
     document.removeEventListener("keypress", this.handleKeyPress);
   }
@@ -188,7 +180,7 @@ class Game {
         // s for P1 to jump 3
         case 100:
         if (!this.playerOne().finished) {
-          if (this.settingsForm.settings.tripleJumps) {
+          if (this.settings.tripleJumps) {
             this.playerOne().setJump(3);
           }
         }
@@ -208,7 +200,7 @@ class Game {
         // p for P2 to jump 3
         case 112:
         if (this.playerTwo().human && !this.playerTwo().finished) {
-          if (this.settingsForm.settings.tripleJumps) {
+          if (this.settings.tripleJumps) {
             this.playerTwo().setJump(3);
           }
         }
@@ -216,7 +208,6 @@ class Game {
         default:
         return;
       }
-      // while game is running, paused
     } else if (this.running && this.paused) {
       switch (e.keyCode) {
         // space to toggle pause
@@ -231,7 +222,7 @@ class Game {
 
 module.exports = Game;
 
-},{"../node_modules/easytimer.js/dist/easytimer.min.js":11,"./ground.js":2,"./path.js":4,"./player.js":5,"./scoreboard.js":7,"./start_menu.js":10}],2:[function(require,module,exports){
+},{"../node_modules/easytimer.js/dist/easytimer.min.js":10,"./ground.js":2,"./path.js":4,"./player.js":5,"./scoreboard.js":6,"./start_menu.js":9}],2:[function(require,module,exports){
 const Space = require('./space.js');
 
 class Ground {
@@ -264,7 +255,7 @@ class Ground {
         this.current = space;
       }
       if (space.type > 0) {
-        this.ctx.drawImage(space.object, space.sx, space.sy, space.sw, space.sh, space.dx + 22.5, this.playerNumber === 1 ? space.dy : space.dy + 300, space.dw, space.dh);
+        this.ctx.drawImage(space.objectImage, space.sx, space.sy, space.sw, space.sh, space.dx + 22.5, this.playerNumber === 1 ? space.dy : space.dy + 300, space.dw, space.dh);
       }
       if (space.type === 1 || space.type === 4) {
         space.incrementSx();
@@ -282,7 +273,7 @@ class Ground {
 
 module.exports = Ground;
 
-},{"./space.js":9}],3:[function(require,module,exports){
+},{"./space.js":8}],3:[function(require,module,exports){
 const Game = require('./game.js');
 const SettingsForm = require('./settings_form.js');
 const StartMenu = require('./start_menu.js');
@@ -343,7 +334,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 });
 
-},{"./game.js":1,"./settings_form.js":8,"./start_menu.js":10}],4:[function(require,module,exports){
+},{"./game.js":1,"./settings_form.js":7,"./start_menu.js":9}],4:[function(require,module,exports){
 const Space = require('./space.js');
 
 class Path {
@@ -393,9 +384,7 @@ class Path {
 
 module.exports = Path;
 
-},{"./space.js":9}],5:[function(require,module,exports){
-const PlayerState = require('./player_state.js');
-
+},{"./space.js":8}],5:[function(require,module,exports){
 class Player {
   constructor(i, ctx, ground, settings, human = true) {
     this.playerNumber = i;
@@ -403,23 +392,23 @@ class Player {
     this.ground = ground;
     this.settings = settings;
     this.human = human;
-    this.state = new PlayerState();
 
     this.sx = 1500;
     this.sy = (i - 1) * 330;
-    this.x = 182.25;
+    this.dx = 182.25;
     this.baseY = this.playerNumber === 1 ? 160 : 460;
-    this.y = this.baseY;
+    this.dy = this.baseY;
     this.jumpHeight = 0;
 
     this.character = this.setImage("./assets/marios.png");
     this.bang = this.setImage("./assets/bang.png");
     this.sparkle = this.setImage("./assets/sparkles.png");
+
     this.jumping = false;
     this.falling = false;
     this.crashing = false;
-    this.finishTime = null;
     this.invincible = false;
+    this.finishTime = null;
 
     this.calculateAndJump = this.calculateAndJump.bind(this);
     this.endInvincible = this.endInvincible.bind(this);
@@ -433,6 +422,72 @@ class Player {
     return image;
   }
 
+  drawPlayer() {
+    if (this.invincible) {
+      this.ctx.drawImage(this.sparkle, 300 * Math.floor(Math.random() * 4), 0, 300, 340, this.dx - 15, this.dy, 80, 80);
+    }
+    // context.drawImage(img,          sx,      sy,       sw,  sh,  dx,    dy,      dw, dh)
+    this.ctx.drawImage(this.character, this.sx, this.sy, 250, 330, this.dx, this.dy, 40.5, 66);
+    this.setSx();
+    if (this.crashing) {
+      this.slideGround(1);
+      this.jump();
+      this.ctx.drawImage(this.bang, 0, 0, 300, 500, this.dx - 15, this.dy - 15, 15, 25);
+    } else if (this.jumping) {
+      this.slideGround(-1);
+      this.jump();
+    } else if (this.finishTime) {
+      this.jump();
+    }
+  }
+
+  setJump(spaces) {
+    if (!this.jumping) {
+      this.jumping = true;
+      if (spaces === 1) {
+        this.jumpHeight = this.baseY - 64;
+      } else if (spaces === 2) {
+        this.jumpHeight = this.baseY - 96;
+      } else if (spaces === 3) {
+        this.jumpHeight = this.baseY - 120;
+      }
+    }
+  }
+
+  jump() {
+    if (!this.falling) {
+      if (this.dy > this.jumpHeight) {
+        this.incrementY(-1);
+      } else {
+        this.falling = true;
+      }
+    } else {
+      if (this.dy < this.baseY) {
+        this.incrementY(1);
+      } else {
+        this.land();
+        this.handleCollision();
+        this.handleFinish();
+      }
+    }
+  }
+
+  incrementY(direction) {
+    this.dy += this.settings.yIncrement * direction;
+  }
+
+  setSx() {
+    if (this.dy === this.baseY) {
+      this.sx = 1500;
+    } else if (this.dy >= this.baseY - 10) {
+      this.sx = 1250;
+    } else if (this.dy >= this.baseY - 50) {
+      this.sx = 1000;
+    } else if (this.dy >= this.baseY - 100) {
+      this.sx = 750;
+    }
+  }
+
   slideGround(direction) {
     let delta;
     if (this.jumpHeight === this.baseY - 64) {
@@ -443,18 +498,6 @@ class Player {
       delta = this.settings.threeSlides;
     }
     this.ground.slide(delta * direction);
-  }
-
-  setsx() {
-    if (this.y === this.baseY) {
-        this.sx = 1500;
-    } else if (this.y >= this.baseY - 10) {
-        this.sx = 1250;
-    } else if (this.y >= this.baseY - 50) {
-        this.sx = 1000;
-    } else if (this.y >= this.baseY - 100) {
-      this.sx = 750;
-    }
   }
 
   land() {
@@ -476,83 +519,30 @@ class Player {
     }
   }
 
-  startInvincible() {
-    this.invincible = true;
-    window.setTimeout(this.endInvincible, 8000);
-  }
-
-  endInvincible() {
-    this.invincible = false;
-  }
-
   handleFinish() {
     if ((this.ground.current.dx > 160 && this.ground.current.dx < 164) && (this.ground.current.spaceNum >= 103) && (!this.finishTime)) {
       this.finishTime = new Date();
     }
   }
 
-  incrementY(direction) {
-    this.y += this.settings.yIncrement * direction;
+  startInvincible() {
+    this.invincible = true;
+    window.setTimeout(this.endInvincible, 8000);
   }
-
-  drawPlayer() {
-    if (this.invincible) {
-      this.ctx.drawImage(this.sparkle, 300 * Math.floor(Math.random() * 4), 0, 300, 340, this.x - 15, this.y, 80, 80);
-    }
-    // context.drawImage(img,          sx,      sy,       sw,  sh,  dx,    dy,      dw, dh)
-    this.ctx.drawImage(this.character, this.sx, this.sy, 250, 330, this.x, this.y, 40.5, 66);
-    this.setsx();
-    if (this.crashing) {
-      this.slideGround(1);
-      this.jump();
-      this.ctx.drawImage(this.bang, 0, 0, 300, 500, this.x - 15, this.y - 15, 15, 25);
-    } else if (this.jumping) {
-      this.slideGround(-1);
-      this.jump();
-    } else if (this.finishTime) {
-      this.jump();
-    }
-  }
-
-  jump() {
-    if (this.human) {
-      console.log("jumping");
-    }
-    if (!this.falling) {
-      if (this.y > this.jumpHeight) {
-        this.incrementY(-1);
-      } else {
-        this.falling = true;
-        // if (this.human) {
-        //   console.log(this.y);
-        // }
-      }
-    } else {
-      if (this.y < this.baseY) {
-        this.incrementY(1);
-      } else {
-        this.land();
-        this.handleCollision();
-        this.handleFinish();
-      }
-    }
-  }
-
-  setJump(spaces) {
-    if (!this.jumping) {
-      this.jumping = true;
-      if (spaces === 1) {
-        this.jumpHeight = this.baseY - 64;
-      } else if (spaces === 2){
-        this.jumpHeight = this.baseY - 96;
-      } else if (spaces === 3) {
-        this.jumpHeight = this.baseY - 120;
-      }
-    }
+  endInvincible() {
+    this.invincible = false;
   }
 
   startAI() {
-    this.interval = window.setInterval(this.calculateAndJump, 400);
+    let AIjumpInterval;
+    if (this.settings.yIncrement === 16) {
+      AIjumpInterval = 200;
+    } else if (this.settings.yIncrement === 24) {
+      AIjumpInterval = 350;
+    } else {
+      AIjumpInterval = 500;
+    }
+    this.interval = window.setInterval(this.calculateAndJump, AIjumpInterval);
   }
 
   stopAI() {
@@ -592,15 +582,7 @@ class Player {
 
 module.exports = Player;
 
-},{"./player_state.js":6}],6:[function(require,module,exports){
-class PlayerState {
-
-
-}
-
-module.exports = PlayerState;
-
-},{}],7:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 class Scoreboard {
   constructor(ctx, winner, finishTime, date) {
     this.ctx = ctx;
@@ -706,11 +688,14 @@ class Scoreboard {
 
 module.exports = Scoreboard;
 
-},{}],8:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
+const upperFirst = require('../node_modules/lodash/upperFirst.js');
+
 class SettingsForm {
 
   constructor() {
     this.settingsForm = $(document.getElementsByClassName("game-settings")[0]);
+    this.settings = {};
   }
 
   toggleForm() {
@@ -725,6 +710,7 @@ class SettingsForm {
     const speed = $("#speed-slider")[0].value;
     const computerLevel = $("#computer-level-slider")[0].value;
     const obstacleTypes = $("#obstacle-types-slider")[0].value;
+
     this.formData = {
       speed: parseInt(speed),
       computerLevel: parseInt(computerLevel),
@@ -741,35 +727,13 @@ class SettingsForm {
         this.formData[input.name] = parseInt(input.value);
       }
     });
-    this.settings = {};
     this.setSettings();
   }
 
   setSettings() {
-    Object.keys(this.formData).forEach((key) => {
-      let value = this.formData[key];
-      switch (key) {
-        case "items":
-        this.setItems(value);
-        break;
-        case "jumpDistances":
-        this.setJumpDistances(value);
-        break;
-        case "computerLevel":
-        this.setComputerLevel(value);
-        break;
-        case "speed":
-        this.setSlides(value);
-        this.setYIncrement(value);
-        break;
-        case "playerCount":
-        this.setPlayerCount(value);
-        break;
-        case "obstacleTypes":
-        this.setObstacleTypes(value);
-        break;
-        default:
-      }
+    Object.keys(this.formData).forEach((setting) => {
+      let selection = this.formData[setting];
+      this[`set${upperFirst(setting)}`](selection);
     });
   }
 
@@ -778,18 +742,7 @@ class SettingsForm {
   }
 
   setJumpDistances(distances) {
-    let tripleJumps;
-    switch (distances) {
-      case 1:
-      tripleJumps = false;
-      break;
-      case 2:
-      tripleJumps = true;
-      break;
-      default:
-      return;
-    }
-    this.settings.tripleJumps = tripleJumps;
+    this.settings.tripleJumps = distances === 1 ? false : true;
   }
 
   setYIncrement(speed) {
@@ -810,35 +763,20 @@ class SettingsForm {
     this.settings.yIncrement = yIncrement;
   }
 
+  setSpeed(speed) {
+    this.setYIncrement(speed);
+    this.setSlides(speed);
+  }
+
   setComputerLevel(level) {
-    let computerLevel;
-    switch (level) {
-      case 0:
-      computerLevel = 0.7;
-      break;
-      case 25:
-      computerLevel = 0.75;
-      break;
-      case 50:
-      computerLevel = 0.8;
-      break;
-      case 75:
-      computerLevel = 0.9;
-      break;
-      case 100:
-      computerLevel = 1.0;
-      break;
-      default:
-      return;
-    }
-    this.settings.computerLevel = computerLevel;
+    // 0.6 ~ 1.0
+    this.settings.computerLevel = 0.5 + ((level + 25)/250);
   }
 
   setSlides(speed) {
     let oneSlide;
     let twoSlides;
     let threeSlides;
-    let yIncrement;
     switch (speed) {
       case 0:
       oneSlide = 81/10;
@@ -868,27 +806,7 @@ class SettingsForm {
   }
 
   setObstacleTypes(types) {
-    let obstacleTypes;
-    switch (types) {
-      case 0:
-      obstacleTypes = 1;
-      break;
-      case 25:
-      obstacleTypes = 2;
-      break;
-      case 50:
-      obstacleTypes = 3;
-      break;
-      case 75:
-      obstacleTypes = 4;
-      break;
-      case 100:
-      obstacleTypes = 5;
-      break;
-      default:
-      return;
-    }
-    this.settings.obstacleTypes = obstacleTypes;
+    this.settings.obstacleTypes = (types + 25) / 25;
   }
 
 }
@@ -898,12 +816,12 @@ class SettingsForm {
 
 module.exports = SettingsForm;
 
-},{}],9:[function(require,module,exports){
+},{"../node_modules/lodash/upperFirst.js":31}],8:[function(require,module,exports){
 const _imageSrcs = { 0: ["./assets/ground.png"], 1: ["./assets/enemies.png"], 2: ["./assets/items.png"], 3: ["./assets/sign.png"], 4: ["./assets/peach.png"]};
 
 const obstacles = {
   0: {
-    name: "spiny",
+    typeName: "spiny",
     sh: 175,
     sw: 195,
     sy: 0,
@@ -914,7 +832,7 @@ const obstacles = {
     maxX: 1500,
   },
   1: {
-    name: "spiketop",
+    typeName: "spiketop",
     sh: 190,
     sw: 192,
     sy: 175,
@@ -926,7 +844,7 @@ const obstacles = {
 
   },
   2: {
-    name: "whacka",
+    typeName: "whacka",
     sh: 165,
     sw: 195,
     sy: 365,
@@ -938,7 +856,7 @@ const obstacles = {
 
   },
   3: {
-    name: "shuyguy",
+    typeName: "shuyguy",
     sh: 200,
     sw: 190,
     sy: 695,
@@ -950,7 +868,7 @@ const obstacles = {
 
   },
   4: {
-    name: "ice",
+    typeName: "ice",
     sh: 150,
     sw: 194,
     sy: 540,
@@ -965,7 +883,7 @@ const obstacles = {
 
 const items = {
   0: {
-    name: "star",
+    typeName: "star",
     sh: 50,
     sw: 50,
     sy: 245,
@@ -975,7 +893,7 @@ const items = {
     dy: 187,
   },
   1: {
-    name: "mushroom",
+    typeName: "mushroom",
     sh: 50,
     sw: 50,
     sy: 237,
@@ -988,7 +906,7 @@ const items = {
 
 const sign = {
   0: {
-    name: "sign",
+    typeName: "sign",
     sh: 30,
     sw: 20,
     sy: 0,
@@ -1001,7 +919,7 @@ const sign = {
 
 const princess = {
   0: {
-    name: "sign",
+    typeName: "sign",
     sh: 110,
     sw: 68,
     sy: 3,
@@ -1014,13 +932,14 @@ const princess = {
 };
 
 const objectParameters = [obstacles, items, sign, princess];
+const parametersToSet = ['typeName', 'sh', 'sw', 'sy', 'sx', 'dw', 'dh', 'dy', 'maxX'];
 
 class Space {
   constructor(type, spaceNum, items, obstacleTypes = 0, current = false, last = false) {
     this.type = type;
     this.spaceNum = spaceNum;
     this.tile = this.setTile();
-    this.object = this.setObject();
+    this.objectImage = this.setObjectImage();
     this.dx = spaceNum * 81;
     this.last = last;
     this.drawCount = 0;
@@ -1039,15 +958,11 @@ class Space {
     } else {
       typeNum = 0;
     }
-    this.typeName = objectParameters[this.type - 1][typeNum].name;
-    this.dy = objectParameters[this.type - 1][typeNum].dy;
-    this.sx = objectParameters[this.type - 1][typeNum].sx;
-    this.sy = objectParameters[this.type - 1][typeNum].sy;
-    this.sh = objectParameters[this.type - 1][typeNum].sh;
-    this.sw = objectParameters[this.type - 1][typeNum].sw;
-    this.dw = objectParameters[this.type - 1][typeNum].dw;
-    this.dh = objectParameters[this.type - 1][typeNum].dh;
-    this.maxX = objectParameters[this.type - 1][typeNum].maxX;
+
+    parametersToSet.forEach((parameter) => {
+      this[parameter] = objectParameters[this.type - 1][typeNum][parameter];
+    });
+
     this.originalSx = objectParameters[this.type - 1][typeNum].sx;
     this.moveDir = 1;
   }
@@ -1058,13 +973,12 @@ class Space {
     return image;
   }
 
-  setObject() {
+  setObjectImage() {
     if (this.type === 0) {return null;}
     const image = new Image();
     image.src = _imageSrcs[this.type][0];
     return image;
   }
-
 
   incrementSx() {
     this.drawCount++;
@@ -1082,7 +996,7 @@ class Space {
 
 module.exports = Space;
 
-},{}],10:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 class StartMenu {
   constructor(canvasEl) {
     this.ctx = canvasEl.getContext("2d");
@@ -1128,10 +1042,10 @@ class StartMenu {
 
 module.exports = StartMenu;
 
-},{}],11:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 !function(n,t){"object"==typeof exports&&"undefined"!=typeof module?module.exports=t():"function"==typeof define&&define.amd?define(t):n.Timer=t()}(this,function(){"use strict";function n(n,t,e){var o=void 0,i="";for(o=0;o<t;o+=1)i+=String(e);return(i+n).slice(-i.length)}function t(){this.secondTenths=0,this.seconds=0,this.minutes=0,this.hours=0,this.days=0,this.toString=function(t,e,o){t=t||["hours","minutes","seconds"],e=e||":",o=o||2;var i=[],r=void 0;for(r=0;r<t.length;r+=1)void 0!==this[t[r]]&&i.push(n(this[t[r]],o,"0"));return i.join(e)}}function e(){return"undefined"!=typeof document}function o(){return S}function i(n,t){return(n%t+t)%t}var r="undefined"!=typeof window?window.CustomEvent:void 0;"undefined"!=typeof window&&"function"!=typeof r&&((r=function(n,t){t=t||{bubbles:!1,cancelable:!1,detail:void 0};var e=document.createEvent("CustomEvent");return e.initCustomEvent(n,t.bubbles,t.cancelable,t.detail),e}).prototype=window.Event.prototype,window.CustomEvent=r);var s="function"==typeof Symbol&&"symbol"==typeof Symbol.iterator?function(n){return typeof n}:function(n){return n&&"function"==typeof Symbol&&n.constructor===Symbol&&n!==Symbol.prototype?"symbol":typeof n},u=10,d=60,c=60,f=24,a=0,v=1,h=2,l=3,p=4,m="secondTenths",y="seconds",b="minutes",w="hours",g="days",E={secondTenths:100,seconds:1e3,minutes:6e4,hours:36e5,days:864e5},T={secondTenths:u,seconds:d,minutes:c,hours:f},S="undefined"!=typeof module&&module.exports&&"function"==typeof require?require("events"):void 0;return function(){function n(n,t){var e=Math.floor(t);X[n]=e,W[n]=n!==g?i(e,T[n]):e}function r(n){return U(n,g)}function j(n){return U(n,w)}function C(n){return U(n,b)}function M(n){return U(n,y)}function L(n){return U(n,m)}function U(t,e){var o=X[e];return n(e,t/E[e]),X[e]!==o}function V(){A(),z()}function A(){clearInterval(Y),Y=void 0,$=!1,_=!1}function k(n){Q()?(cn=D(),sn=F(rn.target)):R(n),x()}function x(){var n=E[nn];O(q(Date.now()))||(Y=setInterval(P,n),$=!0,_=!1)}function D(){return q(Date.now())-X.secondTenths*E[m]*tn}function P(){var n=q(Date.now()),t=tn>0?n-cn:cn-n,e={};e[m]=L(t),e[y]=M(t),e[b]=C(t),e[w]=j(t),e[g]=r(t),I(e),en(an.detail.timer),O(n)&&(K("targetAchieved",an),J())}function q(n){return Math.floor(n/E[nn])*E[nn]}function I(n){n[m]&&K("secondTenthsUpdated",an),n[y]&&K("secondsUpdated",an),n[b]&&K("minutesUpdated",an),n[w]&&K("hoursUpdated",an),n[g]&&K("daysUpdated",an)}function O(n){return sn instanceof Array&&n>=fn}function z(){for(var n in W)W.hasOwnProperty(n)&&"number"==typeof W[n]&&(W[n]=0);for(var t in X)X.hasOwnProperty(t)&&"number"==typeof X[t]&&(X[t]=0)}function R(n){nn="string"==typeof(n=n||{}).precision?n.precision:y,en="function"==typeof n.callback?n.callback:function(){},dn=!0===n.countdown,tn=!0===dn?-1:1,"object"===s(n.startValues)&&G(n.startValues),cn=D(),"object"===s(n.target)?sn=F(n.target):dn&&(n.target={seconds:0},sn=F(n.target)),on={precision:nn,callback:en,countdown:"object"===(void 0===n?"undefined":s(n))&&!0===n.countdown,target:sn,startValues:un},rn=n}function B(n){var t=void 0,e=void 0,o=void 0,i=void 0,r=void 0,m=void 0;if("object"===(void 0===n?"undefined":s(n)))if(n instanceof Array){if(5!==n.length)throw new Error("Array size not valid");m=n}else m=[n.secondTenths||0,n.seconds||0,n.minutes||0,n.hours||0,n.days||0];for(var y=0;y<n.length;y+=1)n[y]<0&&(n[y]=0);return t=m[a],e=m[v]+Math.floor(t/u),o=m[h]+Math.floor(e/d),i=m[l]+Math.floor(o/c),r=m[p]+Math.floor(i/f),m[a]=t%u,m[v]=e%d,m[h]=o%c,m[l]=i%f,m[p]=r,m}function F(n){if(n){var t=H(sn=B(n));return fn=cn+t.secondTenths*E[m]*tn,sn}}function G(n){un=B(n),W.secondTenths=un[a],W.seconds=un[v],W.minutes=un[h],W.hours=un[l],W.days=un[p],X=H(un,X)}function H(n,t){var e=t||{};return e.days=n[p],e.hours=e.days*f+n[l],e.minutes=e.hours*c+n[h],e.seconds=e.minutes*d+n[v],e.secondTenths=e.seconds*u+n[[a]],e}function J(){V(),K("stopped",an)}function K(n,t){e()?Z.dispatchEvent(new CustomEvent(n,t)):o()&&Z.emit(n,t)}function N(){return $}function Q(){return _}var W=new t,X=new t,Y=void 0,Z=e()?document.createElement("span"):o()?new S.EventEmitter:void 0,$=!1,_=!1,nn=void 0,tn=void 0,en=void 0,on={},rn=void 0,sn=void 0,un=void 0,dn=void 0,cn=void 0,fn=void 0,an={detail:{timer:this}};void 0!==this&&(this.start=function(n){N()||(k(n),K("started",an))},this.pause=function(){A(),_=!0,K("paused",an)},this.stop=J,this.reset=function(){V(),k(rn),K("reset",an)},this.isRunning=N,this.isPaused=Q,this.getTimeValues=function(){return W},this.getTotalTimeValues=function(){return X},this.getConfig=function(){return on},this.addEventListener=function(n,t){e()?Z.addEventListener(n,t):o()&&Z.on(n,t)},this.removeEventListener=function(n,t){e()?Z.removeEventListener(n,t):o()&&Z.removeListener(n,t)})}});
 
-},{"events":12}],12:[function(require,module,exports){
+},{"events":11}],11:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -1435,4 +1349,531 @@ function isUndefined(arg) {
   return arg === void 0;
 }
 
-},{}]},{},[3]);
+},{}],12:[function(require,module,exports){
+var root = require('./_root');
+
+/** Built-in value references. */
+var Symbol = root.Symbol;
+
+module.exports = Symbol;
+
+},{"./_root":24}],13:[function(require,module,exports){
+/**
+ * A specialized version of `_.map` for arrays without support for iteratee
+ * shorthands.
+ *
+ * @private
+ * @param {Array} [array] The array to iterate over.
+ * @param {Function} iteratee The function invoked per iteration.
+ * @returns {Array} Returns the new mapped array.
+ */
+function arrayMap(array, iteratee) {
+  var index = -1,
+      length = array == null ? 0 : array.length,
+      result = Array(length);
+
+  while (++index < length) {
+    result[index] = iteratee(array[index], index, array);
+  }
+  return result;
+}
+
+module.exports = arrayMap;
+
+},{}],14:[function(require,module,exports){
+/**
+ * Converts an ASCII `string` to an array.
+ *
+ * @private
+ * @param {string} string The string to convert.
+ * @returns {Array} Returns the converted array.
+ */
+function asciiToArray(string) {
+  return string.split('');
+}
+
+module.exports = asciiToArray;
+
+},{}],15:[function(require,module,exports){
+var Symbol = require('./_Symbol'),
+    getRawTag = require('./_getRawTag'),
+    objectToString = require('./_objectToString');
+
+/** `Object#toString` result references. */
+var nullTag = '[object Null]',
+    undefinedTag = '[object Undefined]';
+
+/** Built-in value references. */
+var symToStringTag = Symbol ? Symbol.toStringTag : undefined;
+
+/**
+ * The base implementation of `getTag` without fallbacks for buggy environments.
+ *
+ * @private
+ * @param {*} value The value to query.
+ * @returns {string} Returns the `toStringTag`.
+ */
+function baseGetTag(value) {
+  if (value == null) {
+    return value === undefined ? undefinedTag : nullTag;
+  }
+  return (symToStringTag && symToStringTag in Object(value))
+    ? getRawTag(value)
+    : objectToString(value);
+}
+
+module.exports = baseGetTag;
+
+},{"./_Symbol":12,"./_getRawTag":21,"./_objectToString":23}],16:[function(require,module,exports){
+/**
+ * The base implementation of `_.slice` without an iteratee call guard.
+ *
+ * @private
+ * @param {Array} array The array to slice.
+ * @param {number} [start=0] The start position.
+ * @param {number} [end=array.length] The end position.
+ * @returns {Array} Returns the slice of `array`.
+ */
+function baseSlice(array, start, end) {
+  var index = -1,
+      length = array.length;
+
+  if (start < 0) {
+    start = -start > length ? 0 : (length + start);
+  }
+  end = end > length ? length : end;
+  if (end < 0) {
+    end += length;
+  }
+  length = start > end ? 0 : ((end - start) >>> 0);
+  start >>>= 0;
+
+  var result = Array(length);
+  while (++index < length) {
+    result[index] = array[index + start];
+  }
+  return result;
+}
+
+module.exports = baseSlice;
+
+},{}],17:[function(require,module,exports){
+var Symbol = require('./_Symbol'),
+    arrayMap = require('./_arrayMap'),
+    isArray = require('./isArray'),
+    isSymbol = require('./isSymbol');
+
+/** Used as references for various `Number` constants. */
+var INFINITY = 1 / 0;
+
+/** Used to convert symbols to primitives and strings. */
+var symbolProto = Symbol ? Symbol.prototype : undefined,
+    symbolToString = symbolProto ? symbolProto.toString : undefined;
+
+/**
+ * The base implementation of `_.toString` which doesn't convert nullish
+ * values to empty strings.
+ *
+ * @private
+ * @param {*} value The value to process.
+ * @returns {string} Returns the string.
+ */
+function baseToString(value) {
+  // Exit early for strings to avoid a performance hit in some environments.
+  if (typeof value == 'string') {
+    return value;
+  }
+  if (isArray(value)) {
+    // Recursively convert values (susceptible to call stack limits).
+    return arrayMap(value, baseToString) + '';
+  }
+  if (isSymbol(value)) {
+    return symbolToString ? symbolToString.call(value) : '';
+  }
+  var result = (value + '');
+  return (result == '0' && (1 / value) == -INFINITY) ? '-0' : result;
+}
+
+module.exports = baseToString;
+
+},{"./_Symbol":12,"./_arrayMap":13,"./isArray":27,"./isSymbol":29}],18:[function(require,module,exports){
+var baseSlice = require('./_baseSlice');
+
+/**
+ * Casts `array` to a slice if it's needed.
+ *
+ * @private
+ * @param {Array} array The array to inspect.
+ * @param {number} start The start position.
+ * @param {number} [end=array.length] The end position.
+ * @returns {Array} Returns the cast slice.
+ */
+function castSlice(array, start, end) {
+  var length = array.length;
+  end = end === undefined ? length : end;
+  return (!start && end >= length) ? array : baseSlice(array, start, end);
+}
+
+module.exports = castSlice;
+
+},{"./_baseSlice":16}],19:[function(require,module,exports){
+var castSlice = require('./_castSlice'),
+    hasUnicode = require('./_hasUnicode'),
+    stringToArray = require('./_stringToArray'),
+    toString = require('./toString');
+
+/**
+ * Creates a function like `_.lowerFirst`.
+ *
+ * @private
+ * @param {string} methodName The name of the `String` case method to use.
+ * @returns {Function} Returns the new case function.
+ */
+function createCaseFirst(methodName) {
+  return function(string) {
+    string = toString(string);
+
+    var strSymbols = hasUnicode(string)
+      ? stringToArray(string)
+      : undefined;
+
+    var chr = strSymbols
+      ? strSymbols[0]
+      : string.charAt(0);
+
+    var trailing = strSymbols
+      ? castSlice(strSymbols, 1).join('')
+      : string.slice(1);
+
+    return chr[methodName]() + trailing;
+  };
+}
+
+module.exports = createCaseFirst;
+
+},{"./_castSlice":18,"./_hasUnicode":22,"./_stringToArray":25,"./toString":30}],20:[function(require,module,exports){
+(function (global){
+/** Detect free variable `global` from Node.js. */
+var freeGlobal = typeof global == 'object' && global && global.Object === Object && global;
+
+module.exports = freeGlobal;
+
+}).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
+},{}],21:[function(require,module,exports){
+var Symbol = require('./_Symbol');
+
+/** Used for built-in method references. */
+var objectProto = Object.prototype;
+
+/** Used to check objects for own properties. */
+var hasOwnProperty = objectProto.hasOwnProperty;
+
+/**
+ * Used to resolve the
+ * [`toStringTag`](http://ecma-international.org/ecma-262/7.0/#sec-object.prototype.tostring)
+ * of values.
+ */
+var nativeObjectToString = objectProto.toString;
+
+/** Built-in value references. */
+var symToStringTag = Symbol ? Symbol.toStringTag : undefined;
+
+/**
+ * A specialized version of `baseGetTag` which ignores `Symbol.toStringTag` values.
+ *
+ * @private
+ * @param {*} value The value to query.
+ * @returns {string} Returns the raw `toStringTag`.
+ */
+function getRawTag(value) {
+  var isOwn = hasOwnProperty.call(value, symToStringTag),
+      tag = value[symToStringTag];
+
+  try {
+    value[symToStringTag] = undefined;
+    var unmasked = true;
+  } catch (e) {}
+
+  var result = nativeObjectToString.call(value);
+  if (unmasked) {
+    if (isOwn) {
+      value[symToStringTag] = tag;
+    } else {
+      delete value[symToStringTag];
+    }
+  }
+  return result;
+}
+
+module.exports = getRawTag;
+
+},{"./_Symbol":12}],22:[function(require,module,exports){
+/** Used to compose unicode character classes. */
+var rsAstralRange = '\\ud800-\\udfff',
+    rsComboMarksRange = '\\u0300-\\u036f',
+    reComboHalfMarksRange = '\\ufe20-\\ufe2f',
+    rsComboSymbolsRange = '\\u20d0-\\u20ff',
+    rsComboRange = rsComboMarksRange + reComboHalfMarksRange + rsComboSymbolsRange,
+    rsVarRange = '\\ufe0e\\ufe0f';
+
+/** Used to compose unicode capture groups. */
+var rsZWJ = '\\u200d';
+
+/** Used to detect strings with [zero-width joiners or code points from the astral planes](http://eev.ee/blog/2015/09/12/dark-corners-of-unicode/). */
+var reHasUnicode = RegExp('[' + rsZWJ + rsAstralRange  + rsComboRange + rsVarRange + ']');
+
+/**
+ * Checks if `string` contains Unicode symbols.
+ *
+ * @private
+ * @param {string} string The string to inspect.
+ * @returns {boolean} Returns `true` if a symbol is found, else `false`.
+ */
+function hasUnicode(string) {
+  return reHasUnicode.test(string);
+}
+
+module.exports = hasUnicode;
+
+},{}],23:[function(require,module,exports){
+/** Used for built-in method references. */
+var objectProto = Object.prototype;
+
+/**
+ * Used to resolve the
+ * [`toStringTag`](http://ecma-international.org/ecma-262/7.0/#sec-object.prototype.tostring)
+ * of values.
+ */
+var nativeObjectToString = objectProto.toString;
+
+/**
+ * Converts `value` to a string using `Object.prototype.toString`.
+ *
+ * @private
+ * @param {*} value The value to convert.
+ * @returns {string} Returns the converted string.
+ */
+function objectToString(value) {
+  return nativeObjectToString.call(value);
+}
+
+module.exports = objectToString;
+
+},{}],24:[function(require,module,exports){
+var freeGlobal = require('./_freeGlobal');
+
+/** Detect free variable `self`. */
+var freeSelf = typeof self == 'object' && self && self.Object === Object && self;
+
+/** Used as a reference to the global object. */
+var root = freeGlobal || freeSelf || Function('return this')();
+
+module.exports = root;
+
+},{"./_freeGlobal":20}],25:[function(require,module,exports){
+var asciiToArray = require('./_asciiToArray'),
+    hasUnicode = require('./_hasUnicode'),
+    unicodeToArray = require('./_unicodeToArray');
+
+/**
+ * Converts `string` to an array.
+ *
+ * @private
+ * @param {string} string The string to convert.
+ * @returns {Array} Returns the converted array.
+ */
+function stringToArray(string) {
+  return hasUnicode(string)
+    ? unicodeToArray(string)
+    : asciiToArray(string);
+}
+
+module.exports = stringToArray;
+
+},{"./_asciiToArray":14,"./_hasUnicode":22,"./_unicodeToArray":26}],26:[function(require,module,exports){
+/** Used to compose unicode character classes. */
+var rsAstralRange = '\\ud800-\\udfff',
+    rsComboMarksRange = '\\u0300-\\u036f',
+    reComboHalfMarksRange = '\\ufe20-\\ufe2f',
+    rsComboSymbolsRange = '\\u20d0-\\u20ff',
+    rsComboRange = rsComboMarksRange + reComboHalfMarksRange + rsComboSymbolsRange,
+    rsVarRange = '\\ufe0e\\ufe0f';
+
+/** Used to compose unicode capture groups. */
+var rsAstral = '[' + rsAstralRange + ']',
+    rsCombo = '[' + rsComboRange + ']',
+    rsFitz = '\\ud83c[\\udffb-\\udfff]',
+    rsModifier = '(?:' + rsCombo + '|' + rsFitz + ')',
+    rsNonAstral = '[^' + rsAstralRange + ']',
+    rsRegional = '(?:\\ud83c[\\udde6-\\uddff]){2}',
+    rsSurrPair = '[\\ud800-\\udbff][\\udc00-\\udfff]',
+    rsZWJ = '\\u200d';
+
+/** Used to compose unicode regexes. */
+var reOptMod = rsModifier + '?',
+    rsOptVar = '[' + rsVarRange + ']?',
+    rsOptJoin = '(?:' + rsZWJ + '(?:' + [rsNonAstral, rsRegional, rsSurrPair].join('|') + ')' + rsOptVar + reOptMod + ')*',
+    rsSeq = rsOptVar + reOptMod + rsOptJoin,
+    rsSymbol = '(?:' + [rsNonAstral + rsCombo + '?', rsCombo, rsRegional, rsSurrPair, rsAstral].join('|') + ')';
+
+/** Used to match [string symbols](https://mathiasbynens.be/notes/javascript-unicode). */
+var reUnicode = RegExp(rsFitz + '(?=' + rsFitz + ')|' + rsSymbol + rsSeq, 'g');
+
+/**
+ * Converts a Unicode `string` to an array.
+ *
+ * @private
+ * @param {string} string The string to convert.
+ * @returns {Array} Returns the converted array.
+ */
+function unicodeToArray(string) {
+  return string.match(reUnicode) || [];
+}
+
+module.exports = unicodeToArray;
+
+},{}],27:[function(require,module,exports){
+/**
+ * Checks if `value` is classified as an `Array` object.
+ *
+ * @static
+ * @memberOf _
+ * @since 0.1.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is an array, else `false`.
+ * @example
+ *
+ * _.isArray([1, 2, 3]);
+ * // => true
+ *
+ * _.isArray(document.body.children);
+ * // => false
+ *
+ * _.isArray('abc');
+ * // => false
+ *
+ * _.isArray(_.noop);
+ * // => false
+ */
+var isArray = Array.isArray;
+
+module.exports = isArray;
+
+},{}],28:[function(require,module,exports){
+/**
+ * Checks if `value` is object-like. A value is object-like if it's not `null`
+ * and has a `typeof` result of "object".
+ *
+ * @static
+ * @memberOf _
+ * @since 4.0.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is object-like, else `false`.
+ * @example
+ *
+ * _.isObjectLike({});
+ * // => true
+ *
+ * _.isObjectLike([1, 2, 3]);
+ * // => true
+ *
+ * _.isObjectLike(_.noop);
+ * // => false
+ *
+ * _.isObjectLike(null);
+ * // => false
+ */
+function isObjectLike(value) {
+  return value != null && typeof value == 'object';
+}
+
+module.exports = isObjectLike;
+
+},{}],29:[function(require,module,exports){
+var baseGetTag = require('./_baseGetTag'),
+    isObjectLike = require('./isObjectLike');
+
+/** `Object#toString` result references. */
+var symbolTag = '[object Symbol]';
+
+/**
+ * Checks if `value` is classified as a `Symbol` primitive or object.
+ *
+ * @static
+ * @memberOf _
+ * @since 4.0.0
+ * @category Lang
+ * @param {*} value The value to check.
+ * @returns {boolean} Returns `true` if `value` is a symbol, else `false`.
+ * @example
+ *
+ * _.isSymbol(Symbol.iterator);
+ * // => true
+ *
+ * _.isSymbol('abc');
+ * // => false
+ */
+function isSymbol(value) {
+  return typeof value == 'symbol' ||
+    (isObjectLike(value) && baseGetTag(value) == symbolTag);
+}
+
+module.exports = isSymbol;
+
+},{"./_baseGetTag":15,"./isObjectLike":28}],30:[function(require,module,exports){
+var baseToString = require('./_baseToString');
+
+/**
+ * Converts `value` to a string. An empty string is returned for `null`
+ * and `undefined` values. The sign of `-0` is preserved.
+ *
+ * @static
+ * @memberOf _
+ * @since 4.0.0
+ * @category Lang
+ * @param {*} value The value to convert.
+ * @returns {string} Returns the converted string.
+ * @example
+ *
+ * _.toString(null);
+ * // => ''
+ *
+ * _.toString(-0);
+ * // => '-0'
+ *
+ * _.toString([1, 2, 3]);
+ * // => '1,2,3'
+ */
+function toString(value) {
+  return value == null ? '' : baseToString(value);
+}
+
+module.exports = toString;
+
+},{"./_baseToString":17}],31:[function(require,module,exports){
+var createCaseFirst = require('./_createCaseFirst');
+
+/**
+ * Converts the first character of `string` to upper case.
+ *
+ * @static
+ * @memberOf _
+ * @since 4.0.0
+ * @category String
+ * @param {string} [string=''] The string to convert.
+ * @returns {string} Returns the converted string.
+ * @example
+ *
+ * _.upperFirst('fred');
+ * // => 'Fred'
+ *
+ * _.upperFirst('FRED');
+ * // => 'FRED'
+ */
+var upperFirst = createCaseFirst('toUpperCase');
+
+module.exports = upperFirst;
+
+},{"./_createCaseFirst":19}]},{},[3]);

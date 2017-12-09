@@ -27,6 +27,6 @@ Scores are saved globally to a Firebase database.
 - Stopwatch- time elapsed is rendered at the center of the game canvas
 
 ## Future Directions
-User authentication with Firebase
-Items that affect the opposing player
-Improved jump physics
+- User authentication with Firebase
+- Items that affect the opposing player
+- Improved jump physics

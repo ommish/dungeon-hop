@@ -15,6 +15,8 @@ class Game {
     this.handleKeyPress = this.handleKeyPress.bind(this);
     this.clearGameCanvas = this.clearGameCanvas.bind(this);
     this.reset = this.reset.bind(this);
+    this.startGame = this.startGame.bind(this);
+    this.startCountdown = this.startCountdown.bind(this);
 
     this.reset();
   }
@@ -26,20 +28,29 @@ class Game {
     this.paused = false;
     this.scoreboard = null;
     this.winner = null;
-    this.players = [];
     this.timer = new Timer();
   }
 
-  startGame() {
+  startCountdown() {
+    this.countdownSecs = 3;
+    window.setTimeout(this.startGame, 3000);
+    this.countdown = window.setInterval(() => {this.countdownSecs--;}, 1000);
     this.pathPattern = Path.generateRandomPath();
     this.createPlayers();
-
-    this.running = true;
     this.interval = window.setInterval(this.drawGame, 50);
+  }
+
+  startGame() {
+    window.clearInterval(this.countdown);
+    this.countdownSecs = null;
+    this.running = true;
+
     this.timer.start({precision: 'secondTenths'});
+    if (!this.playerTwo().human) {this.playerTwo().startAI();}
   }
 
   createPlayers() {
+    this.players = [];
     const itemIndex = Math.floor(Math.random() * 20) + 10;
     for (let i = 1; i < 3; i++) {
       this.players.push(
@@ -71,7 +82,7 @@ class Game {
 
     if (this.scoreboard) {this.scoreboard.drawScoreboard();}
 
-    if (this.running) {this.drawTimeAndRules();}
+    if (this.running || this.countdownSecs) {this.drawTimeAndRules();}
 
     if ((this.playerOne().finishTime || this.playerTwo().finishTime) && this.running) {
       this.stopGame();
@@ -82,10 +93,17 @@ class Game {
   }
 
   drawTimeAndRules() {
-    this.ctx.font = "40px Julius Sans One";
+
     this.ctx.fillStyle = "white";
     this.ctx.textAlign = "left";
-    this.ctx.fillText(this.timer.getTimeValues().toString(['minutes', 'seconds', 'secondTenths']), 250, 315);
+
+    if (this.countdownSecs) {
+      this.ctx.font = "80px Julius Sans One";
+      this.ctx.fillText(`${this.countdownSecs}`, 250, 315);
+    } else {
+      this.ctx.font = "40px Julius Sans One";
+      this.ctx.fillText(this.timer.getTimeValues().toString(['minutes', 'seconds', 'secondTenths']), 250, 315);
+    }
 
     this.ctx.font = "20px Julius Sans One";
     this.ctx.fillStyle = "white";
@@ -139,7 +157,7 @@ class Game {
 
   handleKeyPress(e) {
     // at start menu
-    if (!this.running && !this.winner) {
+    if (!this.running && !this.winner && !this.countdownSecs) {
       switch (e.keyCode) {
         // prevent caps lock
         case 20:
@@ -148,7 +166,7 @@ class Game {
         // space to start
         case 32:
         e.preventDefault();
-        this.startGame();
+        this.startCountdown();
         return;
         default:
         return;

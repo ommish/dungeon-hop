@@ -26,7 +26,6 @@ class Player {
     this.calculateAndJump = this.calculateAndJump.bind(this);
     this.endInvincible = this.endInvincible.bind(this);
 
-    if (!this.human) {this.startAI();}
   }
 
   setImage(src) {

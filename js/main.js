@@ -24,13 +24,13 @@ document.addEventListener("DOMContentLoaded", () => {
     settingsForm.handleSubmit();
     game.settings = settingsForm.settings;
     startMenu.settings = game.settings;
-    startMenu.drawStartMenu();
     game.addListeners();
+    startMenu.drawStartMenu();
   }
 
   function reset(e) {
     e.preventDefault();
-    if (e.keyCode === 92 && !settingsForm.isOpen()) {
+    if (e.keyCode === 92 && !settingsForm.isOpen() && !game.countdownSecs) {
       game.reset();
       settingsForm.toggleForm();
     }

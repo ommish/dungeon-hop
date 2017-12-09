@@ -84,16 +84,19 @@ ul {
 }
 
 .game-settings button {
-  border: 1px solid orange;
+  width: 160px;
+  height: 50px;
+  background: orange;
+  border: 1px solid #eb9f14;
   border-radius: 5px;
-  padding: 5px;
   margin-top: 10px;
   font-size: 30px;
+  color: white;
+  box-sizing: border-box;
 }
 
 .game-settings button:hover {
-  background: #FF8C00;
-  color: white;
+  background: #eb9f14;
   cursor: pointer;
 }
 

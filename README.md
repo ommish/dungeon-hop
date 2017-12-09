@@ -9,7 +9,7 @@ Using a simple form, users can customize several different aspects of the game:
 - max jump length
 - AI intelligence
 - number of obstacle types
-- item
+- items
 
 ## Collision Detection
 Each player holds a reference to their course, which keeps track of what space is currently beneath the player.

@@ -9,7 +9,7 @@ Using a simple form, users can customize several different aspects of the game:
 - max jump length
 - AI intelligence
 - number of obstacle types
-- item
+- items
 
 ## Collision Detection
 Each player holds a reference to their course, which keeps track of what space is currently beneath the player.
@@ -27,6 +27,6 @@ Scores are saved globally to a Firebase database.
 - Stopwatch- time elapsed is rendered at the center of the game canvas
 
 ## Future Directions
-User authentication with Firebase
-Items that affect the opposing player
-Improved jump physics
+- User authentication with Firebase
+- Items that affect the opposing player
+- Improved jump physics

@@ -22,7 +22,6 @@ const obstacles = {
     dh: 42,
     dy: 185,
     maxX: 1500,
-
   },
   2: {
     typeName: "whacka",
@@ -34,7 +33,6 @@ const obstacles = {
     dh: 42,
     dy: 185,
     maxX: 1500,
-
   },
   3: {
     typeName: "shuyguy",
@@ -46,7 +44,6 @@ const obstacles = {
     dh: 50,
     dy: 180,
     maxX: 1500,
-
   },
   4: {
     typeName: "ice",
@@ -58,7 +55,6 @@ const obstacles = {
     dh: 42,
     dy: 200,
     maxX: 1500,
-
   },
 };
 

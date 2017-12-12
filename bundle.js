@@ -420,7 +420,7 @@ class Player {
     this.sx = 1500;
     this.sy = (i - 1) * 330;
     this.dx = 205;
-    this.baseY = this.playerNumber === 1 ? 160 : 460;
+    this.baseY = this.playerNumber === 1 ? 163 : 463;
     this.dy = this.baseY;
     this.jumpHeight = 0;
 
@@ -877,7 +877,6 @@ const obstacles = {
     dh: 42,
     dy: 185,
     maxX: 1500,
-
   },
   2: {
     typeName: "whacka",
@@ -889,7 +888,6 @@ const obstacles = {
     dh: 42,
     dy: 185,
     maxX: 1500,
-
   },
   3: {
     typeName: "shuyguy",
@@ -901,7 +899,6 @@ const obstacles = {
     dh: 50,
     dy: 180,
     maxX: 1500,
-
   },
   4: {
     typeName: "ice",
@@ -913,7 +910,6 @@ const obstacles = {
     dh: 42,
     dy: 200,
     maxX: 1500,
-
   },
 };
 

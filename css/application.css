@@ -1,12 +1,11 @@
 body {
-  background: grey;
+  background: black;
 }
 
 main {
   display: flex;
   flex-direction: row;
-  padding: 50px 100px;
-  background: black;
+  padding: 50px 15%;
   color: orange;
   font-family: 'Julius Sans One', sans-serif;
   justify-content: space-between;
@@ -15,7 +14,7 @@ main {
 header {
   display: flex;
   flex-direction: column;
-  margin-right: 100px;
+  margin-right: 75px;
 }
 
 ul {
@@ -48,9 +47,13 @@ ul {
 
 .canvas-container {
   position: relative;
+  height: 600px;
+  width: 500px;
+  margin-left: 75px;
 }
 
 .game-settings {
+  width: 100%;
   background: white;
   box-sizing: border-box;
   padding: 20px 20px;
@@ -63,10 +66,6 @@ ul {
   position: absolute;
   top: 0;
   left: 0;
-  height: 600px;
-  width: 500px;
-  margin-left: 100px;
-
 }
 
 .game-settings.hidden {
@@ -131,13 +130,17 @@ section > * {
 
 canvas {
   background: white;
-  margin-left: 100px;
 }
 
 footer {
+  position: fixed;
+  bottom: 0;
   display: flex;
   padding: 25px;
+  width: 100%;
+  min-height: 80px;
   color: black;
+  background: grey;
   justify-content: center;
   align-items: center;
   font-family: 'Spectral SC', serif;

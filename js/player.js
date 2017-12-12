@@ -9,7 +9,7 @@ class Player {
     this.sx = 1500;
     this.sy = (i - 1) * 330;
     this.dx = 205;
-    this.baseY = this.playerNumber === 1 ? 160 : 460;
+    this.baseY = this.playerNumber === 1 ? 163 : 463;
     this.dy = this.baseY;
     this.jumpHeight = 0;
 

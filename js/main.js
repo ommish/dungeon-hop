@@ -4,7 +4,10 @@ const StartMenu = require('./start_menu.js');
 
 document.addEventListener("DOMContentLoaded", () => {
 
+  const provider = new firebase.auth.GoogleAuthProvider();
+
   firebase.auth().onAuthStateChanged(function(user) {
+    debugger
     if (user) {
       // User is signed in.
       const displayName = user.displayName;
@@ -19,16 +22,17 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  const provider = new firebase.auth.GoogleAuthProvider();
 
 
   firebase.auth().signInWithPopup(provider).then(function(result) {
+    debugger
     // This gives you a Google Access Token. You can use it to access the Google API.
     const token = result.credential.accessToken;
     // The signed-in user info.
     const user = result.user;
     // ...
   }).catch(function(error) {
+    debugger
     // Handle Errors here.
     const errorCode = error.code;
     const errorMessage = error.message;

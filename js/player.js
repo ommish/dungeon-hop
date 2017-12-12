@@ -8,7 +8,7 @@ class Player {
 
     this.sx = 1500;
     this.sy = (i - 1) * 330;
-    this.dx = 182.25;
+    this.dx = 205;
     this.baseY = this.playerNumber === 1 ? 160 : 460;
     this.dy = this.baseY;
     this.jumpHeight = 0;
@@ -39,7 +39,7 @@ class Player {
       this.ctx.drawImage(this.sparkle, 300 * Math.floor(Math.random() * 4), 0, 300, 340, this.dx - 15, this.dy, 80, 80);
     }
     // context.drawImage(img,          sx,      sy,       sw,  sh,  dx,    dy,      dw, dh)
-    this.ctx.drawImage(this.character, this.sx, this.sy, 250, 330, this.dx, this.dy, 40.5, 66);
+    this.ctx.drawImage(this.character, this.sx, this.sy, 250, 330, this.dx, this.dy, 40, 66);
     this.setSx();
     if (this.crashing) {
       this.slideGround(1);
@@ -57,11 +57,11 @@ class Player {
     if (!this.jumping) {
       this.jumping = true;
       if (spaces === 1) {
-        this.jumpHeight = this.baseY - 64;
+        this.jumpHeight = this.baseY - this.settings.jumpHeights.one;
       } else if (spaces === 2) {
-        this.jumpHeight = this.baseY - 96;
+        this.jumpHeight = this.baseY - this.settings.jumpHeights.two;
       } else if (spaces === 3) {
-        this.jumpHeight = this.baseY - 120;
+        this.jumpHeight = this.baseY - this.settings.jumpHeights.three;
       }
     }
   }
@@ -70,16 +70,18 @@ class Player {
     if (!this.falling) {
       if (this.dy > this.jumpHeight) {
         this.incrementY(-1);
-      } else {
-        this.falling = true;
+        if (this.dy <= this.jumpHeight) {
+          this.falling = true;
+        }
       }
     } else {
       if (this.dy < this.baseY) {
         this.incrementY(1);
-      } else {
-        this.land();
-        this.handleCollision();
-        this.handleFinish();
+        if (this.dy >= this.baseY) {
+          this.land();
+          this.handleCollision();
+          this.handleFinish();
+        }
       }
     }
   }
@@ -102,9 +104,9 @@ class Player {
 
   slideGround(direction) {
     let delta;
-    if (this.jumpHeight === this.baseY - 64) {
+    if (this.jumpHeight === this.baseY - this.settings.jumpHeights.one) {
       delta = this.settings.oneSlide;
-    } else if (this.jumpHeight === this.baseY - 96) {
+    } else if (this.jumpHeight === this.baseY - this.settings.jumpHeights.two) {
       delta = this.settings.twoSlides;
     } else {
       delta = this.settings.threeSlides;
@@ -119,10 +121,10 @@ class Player {
   }
 
   handleCollision() {
-    if (this.ground.current.dx > 160 && this.ground.current.dx < 164 && this.ground.current.type === 1 && !this.invincible) {
+    if (this.ground.current.dx === 180 && this.ground.current.type === 1 && !this.invincible) {
       this.crashing = true;
       this.jumping = true;
-    } else if (this.ground.current.dx > 160 && this.ground.current.dx < 164 && this.ground.current.type === 2) {
+    } else if (this.ground.current.dx === 180 && this.ground.current.type === 2) {
       if (this.ground.current.typeName === "star") {
         this.startInvincible();
       } else {
@@ -132,14 +134,15 @@ class Player {
   }
 
   handleFinish() {
-    if ((this.ground.current.dx > 160 && this.ground.current.dx < 164) && (this.ground.current.spaceNum >= 103) && (!this.finishTime)) {
+    if ((this.ground.current.dx === 180) && (this.ground.current.spaceNum >= 103) && (!this.finishTime)) {
       this.finishTime = new Date();
     }
   }
 
   startInvincible() {
+    window.clearTimeout(this.invincibleTimeout);
     this.invincible = true;
-    window.setTimeout(this.endInvincible, 8000);
+    this.invincibleTimeout = window.setTimeout(this.endInvincible, 8000);
   }
   endInvincible() {
     this.invincible = false;

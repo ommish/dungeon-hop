@@ -24,7 +24,7 @@ class Game {
 
   reset() {
     this.removeListeners();
-    window.clearInterval(this.interval);
+    window.cancelAnimationFrame(this.interval);
     this.running = false;
     this.paused = false;
     this.scoreboard = null;
@@ -38,7 +38,7 @@ class Game {
     this.countdown = window.setInterval(() => {this.countdownSecs--;}, 1000);
     this.pathPattern = Path.generateRandomPath();
     this.createPlayers();
-    this.interval = window.setInterval(this.drawGame, 50);
+    this.interval = window.requestAnimationFrame(this.drawGame);
   }
 
   startGame() {
@@ -91,6 +91,7 @@ class Game {
       this.removeListeners();
       this.setScoreboard();
     }
+    this.interval = window.requestAnimationFrame(this.drawGame);
   }
 
   drawTimeAndRules() {
@@ -140,10 +141,10 @@ class Game {
 
   togglePause() {
     if (!this.paused) {
-      window.clearInterval(this.interval);
+      window.cancelAnimationFrame(this.interval);
       this.timer.pause();
     } else {
-      this.interval = window.setInterval(this.drawGame, 50);
+      this.interval = window.requestAnimationFrame(this.drawGame);
       this.timer.start();
     }
     this.paused = !this.paused;
@@ -267,13 +268,13 @@ class Ground {
   drawGround() {
     this.drawBackground();
     this.path.spaces.forEach((space) => {
-      if (space.dx >= -81 && space.dx <= 500) {
+      if (space.dx >= -90 && space.dx <= 500) {
         if (!space.tile) {
           space.setObjectImage();
           space.setTile();
         }
-        this.ctx.drawImage(space.tile, 0, 0, 100, 100, space.dx, this.playerNumber === 1 ? 219 : 519, 81, 81);
-        if (space.dx >= 141.75 && space.dx < 222.75) {
+        this.ctx.drawImage(space.tile, 0, 0, 100, 100, space.dx, this.playerNumber === 1 ? 219 : 519, 90, 90);
+        if (space.dx >= 180 && space.dx < 270) {
           this.current = space;
         }
         if (space.type > 0) {
@@ -418,7 +419,7 @@ class Player {
 
     this.sx = 1500;
     this.sy = (i - 1) * 330;
-    this.dx = 182.25;
+    this.dx = 205;
     this.baseY = this.playerNumber === 1 ? 160 : 460;
     this.dy = this.baseY;
     this.jumpHeight = 0;
@@ -449,7 +450,7 @@ class Player {
       this.ctx.drawImage(this.sparkle, 300 * Math.floor(Math.random() * 4), 0, 300, 340, this.dx - 15, this.dy, 80, 80);
     }
     // context.drawImage(img,          sx,      sy,       sw,  sh,  dx,    dy,      dw, dh)
-    this.ctx.drawImage(this.character, this.sx, this.sy, 250, 330, this.dx, this.dy, 40.5, 66);
+    this.ctx.drawImage(this.character, this.sx, this.sy, 250, 330, this.dx, this.dy, 40, 66);
     this.setSx();
     if (this.crashing) {
       this.slideGround(1);
@@ -467,11 +468,11 @@ class Player {
     if (!this.jumping) {
       this.jumping = true;
       if (spaces === 1) {
-        this.jumpHeight = this.baseY - 64;
+        this.jumpHeight = this.baseY - this.settings.jumpHeights.one;
       } else if (spaces === 2) {
-        this.jumpHeight = this.baseY - 96;
+        this.jumpHeight = this.baseY - this.settings.jumpHeights.two;
       } else if (spaces === 3) {
-        this.jumpHeight = this.baseY - 120;
+        this.jumpHeight = this.baseY - this.settings.jumpHeights.three;
       }
     }
   }
@@ -480,16 +481,18 @@ class Player {
     if (!this.falling) {
       if (this.dy > this.jumpHeight) {
         this.incrementY(-1);
-      } else {
-        this.falling = true;
+        if (this.dy <= this.jumpHeight) {
+          this.falling = true;
+        }
       }
     } else {
       if (this.dy < this.baseY) {
         this.incrementY(1);
-      } else {
-        this.land();
-        this.handleCollision();
-        this.handleFinish();
+        if (this.dy >= this.baseY) {
+          this.land();
+          this.handleCollision();
+          this.handleFinish();
+        }
       }
     }
   }
@@ -512,9 +515,9 @@ class Player {
 
   slideGround(direction) {
     let delta;
-    if (this.jumpHeight === this.baseY - 64) {
+    if (this.jumpHeight === this.baseY - this.settings.jumpHeights.one) {
       delta = this.settings.oneSlide;
-    } else if (this.jumpHeight === this.baseY - 96) {
+    } else if (this.jumpHeight === this.baseY - this.settings.jumpHeights.two) {
       delta = this.settings.twoSlides;
     } else {
       delta = this.settings.threeSlides;
@@ -529,10 +532,10 @@ class Player {
   }
 
   handleCollision() {
-    if (this.ground.current.dx > 160 && this.ground.current.dx < 164 && this.ground.current.type === 1 && !this.invincible) {
+    if (this.ground.current.dx === 180 && this.ground.current.type === 1 && !this.invincible) {
       this.crashing = true;
       this.jumping = true;
-    } else if (this.ground.current.dx > 160 && this.ground.current.dx < 164 && this.ground.current.type === 2) {
+    } else if (this.ground.current.dx === 180 && this.ground.current.type === 2) {
       if (this.ground.current.typeName === "star") {
         this.startInvincible();
       } else {
@@ -542,14 +545,15 @@ class Player {
   }
 
   handleFinish() {
-    if ((this.ground.current.dx > 160 && this.ground.current.dx < 164) && (this.ground.current.spaceNum >= 103) && (!this.finishTime)) {
+    if ((this.ground.current.dx === 180) && (this.ground.current.spaceNum >= 103) && (!this.finishTime)) {
       this.finishTime = new Date();
     }
   }
 
   startInvincible() {
+    window.clearTimeout(this.invincibleTimeout);
     this.invincible = true;
-    window.setTimeout(this.endInvincible, 8000);
+    this.invincibleTimeout = window.setTimeout(this.endInvincible, 8000);
   }
   endInvincible() {
     this.invincible = false;
@@ -740,6 +744,7 @@ class SettingsForm {
       items: [],
       playerCount: null,
       jumpDistances: null,
+      jumpHeights: null,
     };
     const formData = this.settingsForm.serializeArray();
     formData.forEach((input) => {
@@ -751,6 +756,7 @@ class SettingsForm {
     });
     this.setSettings();
   }
+
 
   setSettings() {
     Object.keys(this.formData).forEach((setting) => {
@@ -766,23 +772,31 @@ class SettingsForm {
   setJumpDistances(distances) {
     this.settings.tripleJumps = distances === 1 ? false : true;
   }
-
+// draw every 60 frames, move 81 slides in that amount of time
   setYIncrement(speed) {
     let yIncrement;
     switch (speed) {
       case 0:
-      yIncrement = 16;
+      yIncrement = 4;
       break;
       case 50:
-      yIncrement = 24;
+      yIncrement = 6;
       break;
       case 100:
-      yIncrement = 40;
+      yIncrement = 8;
       break;
       default:
       return;
     }
     this.settings.yIncrement = yIncrement;
+  }
+
+  setJumpHeights() {
+    this.settings.jumpHeights = {
+      one: 72,
+      two: 96,
+      three: 120,
+    }
   }
 
   setSpeed(speed) {
@@ -791,7 +805,7 @@ class SettingsForm {
   }
 
   setComputerLevel(level) {
-    // 0.6 ~ 1.0
+    // lands in range of 0.6 ~ 1.0
     this.settings.computerLevel = 0.5 + ((level + 25)/250);
   }
 
@@ -801,19 +815,19 @@ class SettingsForm {
     let threeSlides;
     switch (speed) {
       case 0:
-      oneSlide = 81/10;
-      twoSlides = 162/14;
-      threeSlides = 243/18;
+      oneSlide = 90/36;
+      twoSlides = 180/48;
+      threeSlides = 270/60;
       break;
       case 50:
-      oneSlide = 81/8;
-      twoSlides = 162/10;
-      threeSlides = 243/12;
+      oneSlide = 90/24;
+      twoSlides = 180/32
+      threeSlides = 270/40;
       break;
       case 100:
-      oneSlide = 81/6;
-      twoSlides = 162/8;
-      threeSlides = 243/8;
+      oneSlide = 90/18;
+      twoSlides = 180/24;
+      threeSlides = 270/30;
       break;
       default:
       return;
@@ -960,7 +974,7 @@ class Space {
   constructor(type, spaceNum, items, obstacleTypes = 0, current = false, last = false) {
     this.type = type;
     this.spaceNum = spaceNum;
-    this.dx = spaceNum * 81;
+    this.dx = spaceNum * 90;
     this.last = last;
     this.drawCount = 0;
     if (this.type > 0) {
@@ -1002,7 +1016,7 @@ class Space {
 
   incrementSx() {
     this.drawCount++;
-    if (this.drawCount === 3) {
+    if (this.drawCount === 6) {
       if (this.type === 1 ||  this.type === 4) {
         this.drawCount = 0;
         this.sx += this.sw * this.moveDir;

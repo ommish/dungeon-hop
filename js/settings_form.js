@@ -27,6 +27,7 @@ class SettingsForm {
       items: [],
       playerCount: null,
       jumpDistances: null,
+      jumpHeights: null,
     };
     const formData = this.settingsForm.serializeArray();
     formData.forEach((input) => {
@@ -38,6 +39,7 @@ class SettingsForm {
     });
     this.setSettings();
   }
+
 
   setSettings() {
     Object.keys(this.formData).forEach((setting) => {
@@ -53,23 +55,31 @@ class SettingsForm {
   setJumpDistances(distances) {
     this.settings.tripleJumps = distances === 1 ? false : true;
   }
-
+// draw every 60 frames, move 81 slides in that amount of time
   setYIncrement(speed) {
     let yIncrement;
     switch (speed) {
       case 0:
-      yIncrement = 16;
+      yIncrement = 4;
       break;
       case 50:
-      yIncrement = 24;
+      yIncrement = 6;
       break;
       case 100:
-      yIncrement = 40;
+      yIncrement = 8;
       break;
       default:
       return;
     }
     this.settings.yIncrement = yIncrement;
+  }
+
+  setJumpHeights() {
+    this.settings.jumpHeights = {
+      one: 72,
+      two: 96,
+      three: 120,
+    }
   }
 
   setSpeed(speed) {
@@ -78,7 +88,7 @@ class SettingsForm {
   }
 
   setComputerLevel(level) {
-    // 0.6 ~ 1.0
+    // lands in range of 0.6 ~ 1.0
     this.settings.computerLevel = 0.5 + ((level + 25)/250);
   }
 
@@ -88,19 +98,19 @@ class SettingsForm {
     let threeSlides;
     switch (speed) {
       case 0:
-      oneSlide = 81/10;
-      twoSlides = 162/14;
-      threeSlides = 243/18;
+      oneSlide = 90/36;
+      twoSlides = 180/48;
+      threeSlides = 270/60;
       break;
       case 50:
-      oneSlide = 81/8;
-      twoSlides = 162/10;
-      threeSlides = 243/12;
+      oneSlide = 90/24;
+      twoSlides = 180/32
+      threeSlides = 270/40;
       break;
       case 100:
-      oneSlide = 81/6;
-      twoSlides = 162/8;
-      threeSlides = 243/8;
+      oneSlide = 90/18;
+      twoSlides = 180/24;
+      threeSlides = 270/30;
       break;
       default:
       return;

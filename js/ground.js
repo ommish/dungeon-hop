@@ -24,13 +24,13 @@ class Ground {
   drawGround() {
     this.drawBackground();
     this.path.spaces.forEach((space) => {
-      if (space.dx >= -81 && space.dx <= 500) {
+      if (space.dx >= -90 && space.dx <= 500) {
         if (!space.tile) {
           space.setObjectImage();
           space.setTile();
         }
-        this.ctx.drawImage(space.tile, 0, 0, 100, 100, space.dx, this.playerNumber === 1 ? 219 : 519, 81, 81);
-        if (space.dx >= 141.75 && space.dx < 222.75) {
+        this.ctx.drawImage(space.tile, 0, 0, 100, 100, space.dx, this.playerNumber === 1 ? 219 : 519, 90, 90);
+        if (space.dx >= 180 && space.dx < 270) {
           this.current = space;
         }
         if (space.type > 0) {

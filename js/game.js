@@ -23,7 +23,7 @@ class Game {
 
   reset() {
     this.removeListeners();
-    window.clearInterval(this.interval);
+    window.cancelAnimationFrame(this.interval);
     this.running = false;
     this.paused = false;
     this.scoreboard = null;
@@ -37,7 +37,7 @@ class Game {
     this.countdown = window.setInterval(() => {this.countdownSecs--;}, 1000);
     this.pathPattern = Path.generateRandomPath();
     this.createPlayers();
-    this.interval = window.setInterval(this.drawGame, 50);
+    this.interval = window.requestAnimationFrame(this.drawGame);
   }
 
   startGame() {
@@ -90,6 +90,7 @@ class Game {
       this.removeListeners();
       this.setScoreboard();
     }
+    this.interval = window.requestAnimationFrame(this.drawGame);
   }
 
   drawTimeAndRules() {
@@ -139,10 +140,10 @@ class Game {
 
   togglePause() {
     if (!this.paused) {
-      window.clearInterval(this.interval);
+      window.cancelAnimationFrame(this.interval);
       this.timer.pause();
     } else {
-      this.interval = window.setInterval(this.drawGame, 50);
+      this.interval = window.requestAnimationFrame(this.drawGame);
       this.timer.start();
     }
     this.paused = !this.paused;

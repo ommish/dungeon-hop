@@ -119,7 +119,7 @@ class Space {
   constructor(type, spaceNum, items, obstacleTypes = 0, current = false, last = false) {
     this.type = type;
     this.spaceNum = spaceNum;
-    this.dx = spaceNum * 81;
+    this.dx = spaceNum * 90;
     this.last = last;
     this.drawCount = 0;
     if (this.type > 0) {
@@ -161,7 +161,7 @@ class Space {
 
   incrementSx() {
     this.drawCount++;
-    if (this.drawCount === 3) {
+    if (this.drawCount === 6) {
       if (this.type === 1 ||  this.type === 4) {
         this.drawCount = 0;
         this.sx += this.sw * this.moveDir;

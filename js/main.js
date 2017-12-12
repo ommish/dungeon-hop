@@ -1,6 +1,7 @@
 const Game = require('./game.js');
 const SettingsForm = require('./settings_form.js');
 const StartMenu = require('./start_menu.js');
+const Auth = require('./auth.js');
 
 document.addEventListener("DOMContentLoaded", () => {
   const canvasEl = document.getElementsByTagName('canvas')[0];

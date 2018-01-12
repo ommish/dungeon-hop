@@ -63,7 +63,7 @@ class Player {
         case 3:
         return 1;
         case 2:
-        return 3;
+        return 1;
         case 1:
         return 2;
       }
@@ -173,15 +173,19 @@ class Player {
     this.confusionTimeout = window.setTimeout(() => {this.confused = false;}, 8000);
   }
 
+// y increments of 4, 6, 8
+// computerlevels of .6, .7, .8, .9, 1.0
+
   startAI() {
     let AIjumpInterval;
-    if (this.settings.yIncrement === 16) {
-      AIjumpInterval = 200;
-    } else if (this.settings.yIncrement === 24) {
-      AIjumpInterval = 350;
+    if (this.settings.yIncrement === 8 ) {
+      AIjumpInterval = 700;
+    } else if (this.settings.yIncrement === 6) {
+      AIjumpInterval = 800;
     } else {
-      AIjumpInterval = 500;
+      AIjumpInterval = 900;
     }
+
     this.interval = window.setInterval(this.calculateAndJump, AIjumpInterval);
   }
 

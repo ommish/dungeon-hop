@@ -462,6 +462,7 @@ class Player {
     this.character = this.setImage("./assets/marios.png");
     this.bang = this.setImage("./assets/bang.png");
     this.sparkle = this.setImage("./assets/sparkles.png");
+    this.questionMarks = this.setImage("./assets/question_marks.png");
 
     this.jumping = false;
     this.falling = false;
@@ -483,6 +484,9 @@ class Player {
   drawPlayer() {
     if (this.invincible) {
       this.ctx.drawImage(this.sparkle, 300 * Math.floor(Math.random() * 4), 0, 300, 340, this.dx - 15, this.dy, 80, 80);
+    }
+    if (this.confused) {
+      this.ctx.drawImage(this.questionMarks, 0, 0, 500, 500, this.dx + 15, this.dy - 20, 25, 25);
     }
     // context.drawImage(img,          sx,      sy,       sw,  sh,  dx,    dy,      dw, dh)
     this.ctx.drawImage(this.character, this.sx, this.sy, 250, 330, this.dx, this.dy, 40, 66);

@@ -22,9 +22,9 @@ class Player {
     this.crashing = false;
     this.invincible = false;
     this.finishTime = null;
+    this.confused = false;
 
     this.calculateAndJump = this.calculateAndJump.bind(this);
-    this.endInvincible = this.endInvincible.bind(this);
 
   }
 
@@ -53,7 +53,25 @@ class Player {
     }
   }
 
+  scrambleSpaces(spaces) {
+    if (this.confused) {
+      switch (spaces) {
+        case 3:
+        return 1;
+        case 2:
+        return 3;
+        case 1:
+        return 2;
+      }
+    } else {
+      return spaces;
+    }
+  }
+
   setJump(spaces) {
+
+    spaces = this.scrambleSpaces(spaces);
+
     if (!this.jumping) {
       this.jumping = true;
       if (spaces === 1) {
@@ -127,8 +145,8 @@ class Player {
     } else if (this.ground.current.dx === 180 && this.ground.current.type === 2) {
       if (this.ground.current.typeName === "star") {
         this.startInvincible();
-      } else {
-        // some other bonus for other item
+      } else if (this.ground.current.typeName === "mushroom"){
+        this.startConfusion();
       }
     }
   }
@@ -142,10 +160,13 @@ class Player {
   startInvincible() {
     window.clearTimeout(this.invincibleTimeout);
     this.invincible = true;
-    this.invincibleTimeout = window.setTimeout(this.endInvincible, 8000);
+    this.invincibleTimeout = window.setTimeout(() => {this.invincible = false;}, 8000);
   }
-  endInvincible() {
-    this.invincible = false;
+
+  startConfusion() {
+    window.clearTimeout(this.confusionTimeout);
+    this.confused = true;
+    this.confusionTimeout = window.setTimeout(() => {this.confused = false;}, 8000);
   }
 
   startAI() {

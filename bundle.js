@@ -304,40 +304,39 @@ const StartMenu = require('./start_menu.js');
 
 document.addEventListener("DOMContentLoaded", () => {
 
-  firebase.auth().onAuthStateChanged(function(user) {
-    if (user) {
-      // User is signed in.
-      const displayName = user.displayName;
-      const email = user.email;
-      const emailVerified = user.emailVerified;
-      const uid = user.uid;
-      const providerData = user.providerData;
-      // ...
-    } else {
-      // User is signed out.
-      // ...
-    }
-  });
-
-  const provider = new firebase.auth.GoogleAuthProvider();
-
-
-  firebase.auth().signInWithPopup(provider).then(function(result) {
-    // This gives you a Google Access Token. You can use it to access the Google API.
-    const token = result.credential.accessToken;
-    // The signed-in user info.
-    const user = result.user;
-    // ...
-  }).catch(function(error) {
-    // Handle Errors here.
-    const errorCode = error.code;
-    const errorMessage = error.message;
-    // The email of the user's account used.
-    const email = error.email;
-    // The firebase.auth.AuthCredential type that was used.
-    const credential = error.credential;
-    // ...
-  });
+  // const provider = new firebase.auth.GoogleAuthProvider();
+  //
+  // firebase.auth().onAuthStateChanged(function(user) {
+  //   if (user) {
+  //     // User is signed in.
+  //     const displayName = user.displayName;
+  //     const email = user.email;
+  //     const emailVerified = user.emailVerified;
+  //     const uid = user.uid;
+  //     const providerData = user.providerData;
+  //     // ...
+  //   } else {
+  //     // User is signed out.
+  //     // ...
+  //   }
+  // });
+  //
+  // firebase.auth().signInWithPopup(provider).then(function(result) {
+  //   // This gives you a Google Access Token. You can use it to access the Google API.
+  //   const token = result.credential.accessToken;
+  //   // The signed-in user info.
+  //   const user = result.user;
+  //   // ...
+  // }).catch(function(error) {
+  //   // Handle Errors here.
+  //   const errorCode = error.code;
+  //   const errorMessage = error.message;
+  //   // The email of the user's account used.
+  //   const email = error.email;
+  //   // The firebase.auth.AuthCredential type that was used.
+  //   const credential = error.credential;
+  //   // ...
+  // });
 
   const canvasEl = document.getElementsByTagName('canvas')[0];
   const musicButton = $(".music-button");
@@ -469,9 +468,9 @@ class Player {
     this.crashing = false;
     this.invincible = false;
     this.finishTime = null;
+    this.confused = false;
 
     this.calculateAndJump = this.calculateAndJump.bind(this);
-    this.endInvincible = this.endInvincible.bind(this);
 
   }
 
@@ -500,7 +499,25 @@ class Player {
     }
   }
 
+  scrambleSpaces(spaces) {
+    if (this.confused) {
+      switch (spaces) {
+        case 3:
+        return 1;
+        case 2:
+        return 3;
+        case 1:
+        return 2;
+      }
+    } else {
+      return spaces;
+    }
+  }
+
   setJump(spaces) {
+
+    spaces = this.scrambleSpaces(spaces);
+
     if (!this.jumping) {
       this.jumping = true;
       if (spaces === 1) {
@@ -574,8 +591,8 @@ class Player {
     } else if (this.ground.current.dx === 180 && this.ground.current.type === 2) {
       if (this.ground.current.typeName === "star") {
         this.startInvincible();
-      } else {
-        // some other bonus for other item
+      } else if (this.ground.current.typeName === "mushroom"){
+        this.startConfusion();
       }
     }
   }
@@ -589,10 +606,13 @@ class Player {
   startInvincible() {
     window.clearTimeout(this.invincibleTimeout);
     this.invincible = true;
-    this.invincibleTimeout = window.setTimeout(this.endInvincible, 8000);
+    this.invincibleTimeout = window.setTimeout(() => {this.invincible = false;}, 8000);
   }
-  endInvincible() {
-    this.invincible = false;
+
+  startConfusion() {
+    window.clearTimeout(this.confusionTimeout);
+    this.confused = true;
+    this.confusionTimeout = window.setTimeout(() => {this.confused = false;}, 8000);
   }
 
   startAI() {

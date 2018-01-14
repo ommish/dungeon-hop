@@ -42,7 +42,6 @@ class Player {
     if (this.confused) {
       this.ctx.drawImage(this.questionMarks, 0, 0, 500, 500, this.dx + 15, this.dy - 20, 25, 25);
     }
-    // context.drawImage(img,          sx,      sy,       sw,  sh,  dx,    dy,      dw, dh)
     this.ctx.drawImage(this.character, this.sx, this.sy, 250, 330, this.dx, this.dy, 40, 66);
     this.setSx();
     if (this.crashing) {
@@ -58,23 +57,22 @@ class Player {
   }
 
   scrambleSpaces(spaces) {
-    if (this.confused) {
-      switch (spaces) {
-        case 3:
-        return 1;
-        case 2:
-        return 1;
-        case 1:
-        return 2;
-      }
-    } else {
+    if (!this.human && this.settings.computerLevel >= 0.9 && Math.random() >= 0.5) {
       return spaces;
+    }
+    switch (spaces) {
+      case 3:
+      return 1;
+      case 2:
+      return 1;
+      case 1:
+      return 2;
     }
   }
 
   setJump(spaces) {
 
-    spaces = this.scrambleSpaces(spaces);
+    if (this.confused) spaces = this.scrambleSpaces(spaces);
 
     if (!this.jumping) {
       this.jumping = true;
@@ -173,19 +171,16 @@ class Player {
     this.confusionTimeout = window.setTimeout(() => {this.confused = false;}, 8000);
   }
 
-// y increments of 4, 6, 8
-// computerlevels of .6, .7, .8, .9, 1.0
-
   startAI() {
     let AIjumpInterval;
     if (this.settings.yIncrement === 8 ) {
-      AIjumpInterval = 700;
-    } else if (this.settings.yIncrement === 6) {
       AIjumpInterval = 800;
+    } else if (this.settings.yIncrement === 6) {
+      AIjumpInterval = 1000;
     } else {
-      AIjumpInterval = 900;
+      AIjumpInterval = 1200;
     }
-
+    AIjumpInterval -= (this.settings.computerLevel ** 2) * 400;
     this.interval = window.setInterval(this.calculateAndJump, AIjumpInterval);
   }
 

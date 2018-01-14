@@ -17,6 +17,7 @@ class Game {
     this.reset = this.reset.bind(this);
     this.startGame = this.startGame.bind(this);
     this.startCountdown = this.startCountdown.bind(this);
+    this.backgrounds = this.setBackgrounds();
 
     this.reset();
   }
@@ -74,6 +75,7 @@ class Game {
 
   drawGame() {
     this.clearGameCanvas();
+    this.drawBackgrounds();
 
     this.players.forEach((player) => {
       player.ground.drawGround();
@@ -111,6 +113,24 @@ class Game {
     this.ctx.textAlign = "left";
     this.ctx.fillText('\\ to restart', 10, 210);
     this.ctx.fillText('space to pause', 10, 320);
+  }
+
+  setBackgrounds() {
+    const bgImages = [];
+    for (let i = 0; i < 2; i++) {
+      const bgImage = new Image();
+      bgImage.src = i === 0 ? "./assets/castle.png" : "./assets/hotel.png";
+      bgImages.push(bgImage);
+    }
+    return bgImages;
+  }
+
+  drawBackgrounds() {
+    this.backgrounds.forEach((bg, i) => {
+      this.ctx.fillStyle = "black";
+      this.ctx.fillRect(0, i * 300, 500, 300);
+      this.ctx.drawImage(bg, 0, 0, 352, 203, 100, i === 0 ? 70 : 375, 275, 150);
+    });
   }
 
   clearGameCanvas() {

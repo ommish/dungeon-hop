@@ -18,6 +18,7 @@ class Game {
     this.reset = this.reset.bind(this);
     this.startGame = this.startGame.bind(this);
     this.startCountdown = this.startCountdown.bind(this);
+    this.backgrounds = this.setBackgrounds();
 
     this.reset();
   }
@@ -75,6 +76,7 @@ class Game {
 
   drawGame() {
     this.clearGameCanvas();
+    this.drawBackgrounds();
 
     this.players.forEach((player) => {
       player.ground.drawGround();
@@ -112,6 +114,24 @@ class Game {
     this.ctx.textAlign = "left";
     this.ctx.fillText('\\ to restart', 10, 210);
     this.ctx.fillText('space to pause', 10, 320);
+  }
+
+  setBackgrounds() {
+    const bgImages = [];
+    for (let i = 0; i < 2; i++) {
+      const bgImage = new Image();
+      bgImage.src = i === 0 ? "./assets/castle.png" : "./assets/hotel.png";
+      bgImages.push(bgImage);
+    }
+    return bgImages;
+  }
+
+  drawBackgrounds() {
+    this.backgrounds.forEach((bg, i) => {
+      this.ctx.fillStyle = "black";
+      this.ctx.fillRect(0, i * 300, 500, 300);
+      this.ctx.drawImage(bg, 0, 0, 352, 203, 100, i === 0 ? 70 : 375, 275, 150);
+    });
   }
 
   clearGameCanvas() {
@@ -249,24 +269,9 @@ class Ground {
     this.playerNumber = i;
     this.ctx = ctx;
     this.path = path;
-    this.background = this.setBackground();
-  }
-
-  setBackground() {
-    const image = new Image();
-    image.src = this.playerNumber === 1 ? "./assets/castle.png" : "./assets/hotel.png";
-    return image;
-  }
-
-  drawBackground() {
-    // context.drawImage(img,           sx,sy, sw, sh, dx,                             dy,      dw, dh)
-    this.ctx.fillStyle = "black";
-    this.ctx.fillRect(0, this.playerNumber === 1 ? 0 : 300, 500, 300);
-    this.ctx.drawImage(this.background, 0, 0, 352, 203, 100, this.playerNumber === 1 ? 70 : 375, 275, 150);
   }
 
   drawGround() {
-    this.drawBackground();
     this.path.spaces.forEach((space) => {
       if (space.dx >= -90 && space.dx <= 500) {
         if (!space.tile) {
@@ -274,7 +279,7 @@ class Ground {
           space.setTile();
         }
         this.ctx.drawImage(space.tile, 0, 0, 100, 100, space.dx, this.playerNumber === 1 ? 219 : 519, 90, 90);
-        if (space.dx >= 180 && space.dx < 270) {
+        if (space.dx >= 170 && space.dx < 190) {
           this.current = space;
         }
         if (space.type > 0) {
@@ -488,7 +493,6 @@ class Player {
     if (this.confused) {
       this.ctx.drawImage(this.questionMarks, 0, 0, 500, 500, this.dx + 15, this.dy - 20, 25, 25);
     }
-    // context.drawImage(img,          sx,      sy,       sw,  sh,  dx,    dy,      dw, dh)
     this.ctx.drawImage(this.character, this.sx, this.sy, 250, 330, this.dx, this.dy, 40, 66);
     this.setSx();
     if (this.crashing) {
@@ -504,23 +508,22 @@ class Player {
   }
 
   scrambleSpaces(spaces) {
-    if (this.confused) {
-      switch (spaces) {
-        case 3:
-        return 1;
-        case 2:
-        return 1;
-        case 1:
-        return 2;
-      }
-    } else {
+    if (!this.human && this.settings.computerLevel >= 0.9 && Math.random() >= 0.5) {
       return spaces;
+    }
+    switch (spaces) {
+      case 3:
+      return 1;
+      case 2:
+      return 1;
+      case 1:
+      return 2;
     }
   }
 
   setJump(spaces) {
 
-    spaces = this.scrambleSpaces(spaces);
+    if (this.confused) spaces = this.scrambleSpaces(spaces);
 
     if (!this.jumping) {
       this.jumping = true;
@@ -619,19 +622,16 @@ class Player {
     this.confusionTimeout = window.setTimeout(() => {this.confused = false;}, 8000);
   }
 
-// y increments of 4, 6, 8
-// computerlevels of .6, .7, .8, .9, 1.0
-
   startAI() {
     let AIjumpInterval;
     if (this.settings.yIncrement === 8 ) {
-      AIjumpInterval = 700;
-    } else if (this.settings.yIncrement === 6) {
       AIjumpInterval = 800;
+    } else if (this.settings.yIncrement === 6) {
+      AIjumpInterval = 1000;
     } else {
-      AIjumpInterval = 900;
+      AIjumpInterval = 1200;
     }
-
+    AIjumpInterval -= (this.settings.computerLevel ** 2) * 400;
     this.interval = window.setInterval(this.calculateAndJump, AIjumpInterval);
   }
 

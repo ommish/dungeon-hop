@@ -61,7 +61,7 @@ class Scoreboard {
   getScoreboard() {
     firebase.database().ref('/scores/').once('value').then((snapshot) => {
       this.winners = this.topScores(Object.values(snapshot.val())).slice(0, 5);
-      this.isNewWinner = this.winners.some((winner) => {
+      this.isNewWinner = this.winners.length < 5 || this.winners.some((winner) => {
         return winner.time > this.finishTime.toString(['minutes', 'seconds', 'secondTenths']);
       });
       if (this.isNewWinner && !this.winnerRecorded && this.winner.human) {

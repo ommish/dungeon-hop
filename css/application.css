@@ -82,6 +82,10 @@ ul {
   cursor: pointer;
 }
 
+input[type=range]:disabled::-webkit-slider-runnable-track {
+  opacity: 0.3;
+}
+
 .game-settings button {
   width: 160px;
   height: 50px;

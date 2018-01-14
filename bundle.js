@@ -736,7 +736,7 @@ class Scoreboard {
   getScoreboard() {
     firebase.database().ref('/scores/').once('value').then((snapshot) => {
       this.winners = this.topScores(Object.values(snapshot.val())).slice(0, 5);
-      this.isNewWinner = this.winners.some((winner) => {
+      this.isNewWinner = this.winners.length < 5 || this.winners.some((winner) => {
         return winner.time > this.finishTime.toString(['minutes', 'seconds', 'secondTenths']);
       });
       if (this.isNewWinner && !this.winnerRecorded && this.winner.human) {
@@ -786,6 +786,10 @@ class SettingsForm {
   constructor() {
     this.settingsForm = $(document.getElementsByClassName("game-settings")[0]);
     this.settings = {};
+
+    $("[name='playerCount']").change((e) => {
+      $("#computer-level-slider").attr("disabled", $("#2-player").prop("checked"))
+    })
   }
 
   toggleForm() {
@@ -836,7 +840,7 @@ class SettingsForm {
   setJumpDistances(distances) {
     this.settings.tripleJumps = distances === 1 ? false : true;
   }
-// draw every 60 frames, move 81 slides in that amount of time
+
   setYIncrement(speed) {
     let yIncrement;
     switch (speed) {

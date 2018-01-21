@@ -180,10 +180,6 @@ class Game {
     // at start menu
     if (!this.running && !this.winner && !this.countdownSecs) {
       switch (e.keyCode) {
-        // prevent caps lock
-        case 20:
-        e.preventDefault();
-        return;
         // space to start
         case 32:
         e.preventDefault();
@@ -204,18 +200,21 @@ class Game {
         this.togglePause();
         return;
         // a for P1to jump 1
+        case 65:
         case 97:
         if (!this.playerOne().finished) {
           this.playerOne().setJump(1);
         }
         return;
         // s for P1 to jump 2
+        case 83:
         case 115:
         if (!this.playerOne().finished) {
           this.playerOne().setJump(2);
         }
         return;
         // s for P1 to jump 3
+        case 68:
         case 100:
         if (!this.playerOne().finished) {
           if (this.settings.tripleJumps) {
@@ -224,18 +223,21 @@ class Game {
         }
         return;
         // i for P2 to jump 1
+        case 73:
         case 105:
         if (this.playerTwo().human && !this.playerTwo().finished) {
           this.playerTwo().setJump(1);
         }
         return;
         // o for P2 to jump 2
+        case 79:
         case 111:
         if (this.playerTwo().human && !this.playerTwo().finished) {
           this.playerTwo().setJump(2);
         }
         return;
         // p for P2 to jump 3
+        case 80:
         case 112:
         if (this.playerTwo().human && !this.playerTwo().finished) {
           if (this.settings.tripleJumps) {

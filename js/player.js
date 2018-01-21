@@ -174,11 +174,11 @@ class Player {
   startAI() {
     let AIjumpInterval;
     if (this.settings.yIncrement === 8 ) {
-      AIjumpInterval = 800;
-    } else if (this.settings.yIncrement === 6) {
       AIjumpInterval = 1000;
-    } else {
+    } else if (this.settings.yIncrement === 6) {
       AIjumpInterval = 1200;
+    } else {
+      AIjumpInterval = 1400;
     }
     AIjumpInterval -= (this.settings.computerLevel ** 2) * 400;
     this.interval = window.setInterval(this.calculateAndJump, AIjumpInterval);

@@ -181,10 +181,6 @@ class Game {
     // at start menu
     if (!this.running && !this.winner && !this.countdownSecs) {
       switch (e.keyCode) {
-        // prevent caps lock
-        case 20:
-        e.preventDefault();
-        return;
         // space to start
         case 32:
         e.preventDefault();
@@ -205,18 +201,21 @@ class Game {
         this.togglePause();
         return;
         // a for P1to jump 1
+        case 65:
         case 97:
         if (!this.playerOne().finished) {
           this.playerOne().setJump(1);
         }
         return;
         // s for P1 to jump 2
+        case 83:
         case 115:
         if (!this.playerOne().finished) {
           this.playerOne().setJump(2);
         }
         return;
         // s for P1 to jump 3
+        case 68:
         case 100:
         if (!this.playerOne().finished) {
           if (this.settings.tripleJumps) {
@@ -225,18 +224,21 @@ class Game {
         }
         return;
         // i for P2 to jump 1
+        case 73:
         case 105:
         if (this.playerTwo().human && !this.playerTwo().finished) {
           this.playerTwo().setJump(1);
         }
         return;
         // o for P2 to jump 2
+        case 79:
         case 111:
         if (this.playerTwo().human && !this.playerTwo().finished) {
           this.playerTwo().setJump(2);
         }
         return;
         // p for P2 to jump 3
+        case 80:
         case 112:
         if (this.playerTwo().human && !this.playerTwo().finished) {
           if (this.settings.tripleJumps) {
@@ -309,40 +311,6 @@ const StartMenu = require('./start_menu.js');
 
 document.addEventListener("DOMContentLoaded", () => {
 
-  // const provider = new firebase.auth.GoogleAuthProvider();
-  //
-  // firebase.auth().onAuthStateChanged(function(user) {
-  //   if (user) {
-  //     // User is signed in.
-  //     const displayName = user.displayName;
-  //     const email = user.email;
-  //     const emailVerified = user.emailVerified;
-  //     const uid = user.uid;
-  //     const providerData = user.providerData;
-  //     // ...
-  //   } else {
-  //     // User is signed out.
-  //     // ...
-  //   }
-  // });
-  //
-  // firebase.auth().signInWithPopup(provider).then(function(result) {
-  //   // This gives you a Google Access Token. You can use it to access the Google API.
-  //   const token = result.credential.accessToken;
-  //   // The signed-in user info.
-  //   const user = result.user;
-  //   // ...
-  // }).catch(function(error) {
-  //   // Handle Errors here.
-  //   const errorCode = error.code;
-  //   const errorMessage = error.message;
-  //   // The email of the user's account used.
-  //   const email = error.email;
-  //   // The firebase.auth.AuthCredential type that was used.
-  //   const credential = error.credential;
-  //   // ...
-  // });
-
   const canvasEl = document.getElementsByTagName('canvas')[0];
   const musicButton = $(".music-button");
   const settingsSubmitButton = document.getElementById("submit-settings");
@@ -356,6 +324,7 @@ document.addEventListener("DOMContentLoaded", () => {
   toggleMusic();
 
   settingsSubmitButton.addEventListener("click", startGameWithSettings);
+  document.addEventListener("keypress", (e) => {if (e.key === "Enter" || e.code === "Space" && settingsForm.isOpen()) {startGameWithSettings(e)}});
   document.addEventListener("keypress", reset);
 
   function startGameWithSettings(e) {
@@ -625,11 +594,11 @@ class Player {
   startAI() {
     let AIjumpInterval;
     if (this.settings.yIncrement === 8 ) {
-      AIjumpInterval = 800;
-    } else if (this.settings.yIncrement === 6) {
       AIjumpInterval = 1000;
-    } else {
+    } else if (this.settings.yIncrement === 6) {
       AIjumpInterval = 1200;
+    } else {
+      AIjumpInterval = 1400;
     }
     AIjumpInterval -= (this.settings.computerLevel ** 2) * 400;
     this.interval = window.setInterval(this.calculateAndJump, AIjumpInterval);
@@ -702,10 +671,10 @@ class Scoreboard {
       this.winnerName = this.winnerName.slice(0, -1);
     }
     // enter to save
-    else if (e.keyCode === 13) {
+    else if (e.keyCode === 13 && this.winnerName) {
       this.saveScore();
     }
-    else if ([16, 20, 9, 27, 17, 18, 57, 38, 39, 40, 38].includes(e.keyCode)) {
+    else if ([13, 16, 20, 9, 27, 17, 18, 57, 38, 39, 40, 38].includes(e.keyCode)) {
       return;
     }
     // type in name

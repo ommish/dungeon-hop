@@ -27,10 +27,10 @@ class Scoreboard {
       this.winnerName = this.winnerName.slice(0, -1);
     }
     // enter to save
-    else if (e.keyCode === 13) {
+    else if (e.keyCode === 13 && this.winnerName) {
       this.saveScore();
     }
-    else if ([16, 20, 9, 27, 17, 18, 57, 38, 39, 40, 38].includes(e.keyCode)) {
+    else if ([13, 16, 20, 9, 27, 17, 18, 57, 38, 39, 40, 38].includes(e.keyCode)) {
       return;
     }
     // type in name

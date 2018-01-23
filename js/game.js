@@ -24,6 +24,7 @@ class Game {
 
   reset() {
     this.removeListeners();
+    if (this.scoreboard) this.scoreboard.removeListeners();
     window.cancelAnimationFrame(this.interval);
     this.running = false;
     this.paused = false;

@@ -17,7 +17,8 @@ document.addEventListener("DOMContentLoaded", () => {
   toggleMusic();
 
   settingsSubmitButton.addEventListener("click", startGameWithSettings);
-  document.addEventListener("keypress", (e) => {if (e.key === "Enter" || e.code === "Space" && settingsForm.isOpen()) {startGameWithSettings(e)}});
+  document.addEventListener("keypress", (e) => {if ((e.key === "Enter" || e.code === "Space") && settingsForm.isOpen()) {
+    startGameWithSettings(e)}});
   document.addEventListener("keypress", reset);
 
   function startGameWithSettings(e) {

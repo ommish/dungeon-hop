@@ -18,7 +18,11 @@ class Scoreboard {
   }
 
   addListeners() {
-    this.keydownListener = document.addEventListener("keydown", this.handleKeydown);
+    document.addEventListener("keydown", this.handleKeydown);
+  }
+
+  removeListeners() {
+    document.removeEventListener("keypress", this.handleKeydown);
   }
 
   handleKeydown(e) {

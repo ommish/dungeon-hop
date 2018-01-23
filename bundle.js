@@ -25,6 +25,7 @@ class Game {
 
   reset() {
     this.removeListeners();
+    if (this.scoreboard) this.scoreboard.removeListeners();
     window.cancelAnimationFrame(this.interval);
     this.running = false;
     this.paused = false;
@@ -324,7 +325,8 @@ document.addEventListener("DOMContentLoaded", () => {
   toggleMusic();
 
   settingsSubmitButton.addEventListener("click", startGameWithSettings);
-  document.addEventListener("keypress", (e) => {if (e.key === "Enter" || e.code === "Space" && settingsForm.isOpen()) {startGameWithSettings(e)}});
+  document.addEventListener("keypress", (e) => {if ((e.key === "Enter" || e.code === "Space") && settingsForm.isOpen()) {
+    startGameWithSettings(e)}});
   document.addEventListener("keypress", reset);
 
   function startGameWithSettings(e) {
@@ -662,7 +664,11 @@ class Scoreboard {
   }
 
   addListeners() {
-    this.keydownListener = document.addEventListener("keydown", this.handleKeydown);
+    document.addEventListener("keydown", this.handleKeydown);
+  }
+
+  removeListeners() {
+    document.removeEventListener("keypress", this.handleKeydown);
   }
 
   handleKeydown(e) {

@@ -1,158 +1,159 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <meta charset="utf-8">
-  
-  <!-- Global site tag (gtag.js) - Google Analytics -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-111094027-1"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
+  <head>
+    <meta charset="utf-8">
 
-    gtag('config', 'UA-111094027-1');
-  </script>
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-111094027-1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'UA-111094027-1');
+    </script>
 
 
-  <link href="https://fonts.googleapis.com/css?family=Julius+Sans+One" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css?family=Spectral+SC" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Julius+Sans+One" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css?family=Spectral+SC" rel="stylesheet">
 
-  <link rel="stylesheet" href="./css/reset.css">
-  <link rel="stylesheet" href="./css/application.css">
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/4.6.2/firebase.js"></script>
+    <link rel="stylesheet" href="./css/reset.css">
+    <link rel="stylesheet" href="./css/application.css">
 
-  <script>
-  var config = {
-    apiKey: "AIzaSyDai1Dz2ZqCGR6XjvZQiEDNg_g---CgodM",
-    authDomain: "dungeon-hop.firebaseapp.com",
-    databaseURL: "https://dungeon-hop.firebaseio.com",
-    projectId: "dungeon-hop",
-    storageBucket: "",
-    messagingSenderId: "45799513741"
-  };
-  firebase.initializeApp(config);
-  </script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/4.6.2/firebase.js"></script>
 
-  <audio id="bg-music" loop>
-    <source src="./assets/bgmusic.mp3" type="audio/ogg">
+    <script>
+      var config = {
+        apiKey: "AIzaSyDai1Dz2ZqCGR6XjvZQiEDNg_g---CgodM",
+        authDomain: "dungeon-hop.firebaseapp.com",
+        databaseURL: "https://dungeon-hop.firebaseio.com",
+        projectId: "dungeon-hop",
+        storageBucket: "",
+        messagingSenderId: "45799513741"
+      };
+      firebase.initializeApp(config);
+    </script>
+
+    <audio id="bg-music" loop>
+      <source src="./assets/bgmusic.mp3" type="audio/ogg">
     </audio>
 
-    <script type="text/javascript" src="bundle.js"></script>
-    <title>Dungeon Hop</title>
+      <script type="text/javascript" src="bundle.js"></script>
+      <title>Dungeon Hop</title>
 
-  </head>
+    </head>
 
-  <body>
-    <main>
-      <header>
-        <div class="title">
-          <h1>Dungeon Hop</h1>
-          <div class="music-button">♬ <p>on/off</p></div>
-        </div>
-        <h3>&nbsp;by Ommi Shimizu</h5>
+    <body>
+      <main>
+        <header>
+          <div class="title">
+            <h1>Dungeon Hop</h1>
+            <div class="music-button">♬ <p>on/off</p></div>
+          </div>
+          <h3>&nbsp;by Ommi Shimizu</h5>
           <section class="rules">
             <br></br>
             <h3 class="explanation">Race your way through the dungeon to save the Princess!</h4>
-              <br></br>
-              <h3>Avoid these obstacles:</h3>
-              <div class="obstacles">
-                <img src="./assets/spiny.png" alt="spiny">
-                <img src="./assets/spiketop.png" alt="spiketop">
-                <img src="./assets/whacka.png" alt="whacka">
-                <img src="./assets/shuyguy.png" alt="shuyguy">
-                <img src="./assets/ice.png" alt="ice">
-              </div>
-              <ul>
-                <li><h5>Jumping on an enemy will set you back.</h5></li>
-              </ul>
-              <br></br>
-              <h3>Items:</h3>
-              <div class="items">
-                <img src="./assets/star.png" alt="star">
-                <img src="./assets/mushroom.png" alt="mushroom">
-              </div>
-              <ul>
-                <li><h5>Stars will make you temporarily invincible.</h5></li>
-                <li><h5>Poison mushrooms will temporarily scramble your keys.</h5></li>
-              </ul>
-            </section>
-          </header>
+            <br></br>
+            <h3>Avoid these obstacles:</h3>
+            <div class="obstacles">
+              <img src="./assets/spiny.png" alt="spiny">
+              <img src="./assets/spiketop.png" alt="spiketop">
+              <img src="./assets/whacka.png" alt="whacka">
+              <img src="./assets/shuyguy.png" alt="shuyguy">
+              <img src="./assets/ice.png" alt="ice">
+            </div>
+            <ul>
+              <li><h5>Jumping on an enemy will set you back.</h5></li>
+            </ul>
+            <br></br>
+            <h3>Items:</h3>
+            <div class="items">
+              <img src="./assets/star.png" alt="star">
+              <img src="./assets/mushroom.png" alt="mushroom">
+            </div>
+            <ul>
+              <li><h5>Stars will make you temporarily invincible.</h5></li>
+              <li><h5>Poison mushrooms will temporarily scramble your keys.</h5></li>
+            </ul>
+          </section>
+        </header>
 
-          <div class="canvas-container">
-            <canvas id="canvas" width="500" height="600"></canvas>
-            <form class="game-settings">
-              <h2>Game Settings</h2>
+        <div class="canvas-container">
+          <canvas id="canvas" width="500" height="600"></canvas>
+          <form class="game-settings">
+            <h2>Game Settings</h2>
 
-              <h3>Number of Players</h3>
-              <div class="">
+            <h3>Number of Players</h3>
+            <div>
+              <input checked type="radio" id="1-player"
+              name="playerCount" value="1">
+              <label for="1-player">1</label>
+              <input type="radio" id="2-player"
+              name="playerCount" value="2">
+              <label for="2-player">2</label>
+            </div>
 
-                <input checked type="radio" id="1-player"
-                name="playerCount" value="1">
-                <label for="1-player">1</label>
-                <input type="radio" id="2-player"
-                name="playerCount" value="2">
-                <label for="2-player">2</label>
-              </div>
+            <h3>Speed</h3>
+            <input id="speed-slider" type="range" list="speed" step="50">
+            <datalist id="speed">
+            <option value="0">
+            <option value="50">
+            <option value="100">
+            </datalist>
 
-              <h3>Speed</h3>
-              <input id="speed-slider" type="range" list="speed" step="50">
-              <datalist id="speed">
-                <option value="0">
-                  <option value="50">
-                    <option value="100">
-                    </datalist>
+            <h3>Jump Distances</h3>
+            <label>
+              <input checked type="radio" id="1-2-jumps"
+              name="jumpDistances" value="1">
+              Single, Double
+            </label>
+            <label>
+              <input type="radio" id="2player"
+              name="jumpDistances" value="2">
+              Single, Double, Triple
+            </label>
 
-                    <h3>Jump Distances</h3>
+            <h3>Computer Level</h3>
+            <input id="computer-level-slider" type="range" list="computer-level" step="25">
+            <datalist id="computer-level">
+            <option value="0">
+            <option value="25">
+            <option value="50">
+            <option value="75">
+            <option value="100">
+            </datalist>
 
-                    <label>
-                      <input checked type="radio" id="1-2-jumps"
-                      name="jumpDistances" value="1">
-                      Single, Double
-                    </label>
-                    <label>
-                      <input type="radio" id="2player"
-                      name="jumpDistances" value="2">
-                      Single, Double, Triple
-                    </label>
+            <h3>Obstacle Types</h3>
+            <input id="obstacle-types-slider" type="range" list="obstacle-types" step="25">
+            <datalist id="obstacle-types">
+              <option value="0">
+              <option value="25">
+              <option value="50">
+              <option value="75">
+              <option value="100">
+            </datalist>
 
-                    <h3>Computer Level</h3>
-                    <input id="computer-level-slider" type="range" list="computer-level" step="25">
-                    <datalist id="computer-level">
-                      <option value="0">
-                        <option value="25">
-                          <option value="50">
-                            <option value="75">
-                              <option value="100">
-                              </datalist>
+            <h3>Items</h3>
+            <label>
+              <input checked type="checkbox" name="items" value="0">
+              Star
+            </label>
+            <label>
+              <input checked type="checkbox" name="items" value="1">
+              Poison Mushroom
+            </label>
 
-                              <h3>Obstacle Types</h3>
-                              <input id="obstacle-types-slider" type="range" list="obstacle-types" step="25">
-                              <datalist id="obstacle-types">
-                                <option value="0">
-                                  <option value="25">
-                                    <option value="50">
-                                      <option value="75">
-                                        <option value="100">
-                                        </datalist>
-                                        <h3>Items</h3>
-                                        <label>
-                                          <input checked type="checkbox" name="items" value="0">
-                                          Star
-                                        </label>
-                                        <label>
-                                          <input checked type="checkbox" name="items" value="1">
-                                          Poison Mushroom
-                                        </label>
-                                        <button id="submit-settings">All Set!</button>
-                                      </form>
-                                    </div>
-                                  </main>
+            <button id="submit-settings">Space to Continue</button>
+          </form>
+        </div>
+      </main>
 
-                                  <footer>
-                                    <a href="https://www.linkedin.com/in/ommish" target="_blank">LinkedIn</a>
-                                    <a href="https://www.github.com/ommish" target="_blank">Github</a>
-                                    <a href="http://www.ommish.com" target="_blank">Portfolio</a>
-                                  </footer>
-                                </body>
-                                </html>
+    <footer>
+      <a href="https://www.linkedin.com/in/ommish" target="_blank">LinkedIn</a>
+      <a href="https://www.github.com/ommish" target="_blank">Github</a>
+      <a href="http://www.ommish.com" target="_blank">Portfolio</a>
+    </footer>
+  </body>
+</html>

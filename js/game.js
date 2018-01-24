@@ -103,17 +103,17 @@ class Game {
 
     if (this.countdownSecs) {
       this.ctx.font = "80px Julius Sans One";
-      this.ctx.fillText(`${this.countdownSecs}`, 250, 315);
+      this.ctx.fillText(`${this.countdownSecs}`, 250, 340);
     } else {
       this.ctx.font = "40px Julius Sans One";
-      this.ctx.fillText(this.timer.getTimeValues().toString(['minutes', 'seconds', 'secondTenths']), 250, 315);
+      this.ctx.fillText(this.timer.getTimeValues().toString(['minutes', 'seconds', 'secondTenths']), 250, 325);
     }
 
     this.ctx.font = "20px Julius Sans One";
     this.ctx.fillStyle = "white";
     this.ctx.textAlign = "left";
     this.ctx.fillText('\\ to restart', 10, 210);
-    this.ctx.fillText('space to pause', 10, 320);
+    this.ctx.fillText('space to pause', 10, 330);
   }
 
   setBackgrounds() {

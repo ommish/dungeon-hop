@@ -59,7 +59,7 @@ class Scoreboard {
       this.ctx.fillText(`ENTER YOUR NAME:`, this.width / 2, 430);
       this.ctx.fillText(`${this.winnerName}`, this.width / 2, 460);
     }
-    this.ctx.fillText("Hit \\ to restart", this.width / 2, 520);
+    this.ctx.fillText("Hit \\ to restart", this.width / 2, 575);
   }
 
   getScoreboard() {

@@ -104,17 +104,17 @@ class Game {
 
     if (this.countdownSecs) {
       this.ctx.font = "80px Julius Sans One";
-      this.ctx.fillText(`${this.countdownSecs}`, 250, 315);
+      this.ctx.fillText(`${this.countdownSecs}`, 250, 340);
     } else {
       this.ctx.font = "40px Julius Sans One";
-      this.ctx.fillText(this.timer.getTimeValues().toString(['minutes', 'seconds', 'secondTenths']), 250, 315);
+      this.ctx.fillText(this.timer.getTimeValues().toString(['minutes', 'seconds', 'secondTenths']), 250, 325);
     }
 
     this.ctx.font = "20px Julius Sans One";
     this.ctx.fillStyle = "white";
     this.ctx.textAlign = "left";
     this.ctx.fillText('\\ to restart', 10, 210);
-    this.ctx.fillText('space to pause', 10, 320);
+    this.ctx.fillText('space to pause', 10, 330);
   }
 
   setBackgrounds() {
@@ -705,7 +705,7 @@ class Scoreboard {
       this.ctx.fillText(`ENTER YOUR NAME:`, this.width / 2, 430);
       this.ctx.fillText(`${this.winnerName}`, this.width / 2, 460);
     }
-    this.ctx.fillText("Hit \\ to restart", this.width / 2, 520);
+    this.ctx.fillText("Hit \\ to restart", this.width / 2, 575);
   }
 
   getScoreboard() {

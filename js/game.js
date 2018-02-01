@@ -112,8 +112,10 @@ class Game {
     this.ctx.font = "20px Julius Sans One";
     this.ctx.fillStyle = "white";
     this.ctx.textAlign = "left";
-    this.ctx.fillText('\\ to restart', 10, 210);
-    this.ctx.fillText('space to pause', 10, 330);
+    this.ctx.fillText('Player One', 10, 20);
+    this.ctx.fillText('\\ to restart', 320, 20);
+    this.ctx.fillText('space to pause', 320, 50);
+    this.ctx.fillText('Player Two', 10, 330);
   }
 
   setBackgrounds() {
